@@ -6,3 +6,8 @@ backend/core/.env
 __pycache__/
 *.py[cod]
 *$py.class
+
+**/migrations/*
+!**/migrations/__init__.py
+
+backend/db.sqlite3
