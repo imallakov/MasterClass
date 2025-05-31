@@ -1,0 +1,55 @@
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy  # This ensures db health check passes
+    environment:
+      - POSTGRES_DB=campme
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - mynetwork
+
+  react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3500:3000"
+    networks:
+      - mynetwork
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: campme
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s  # Reduced from 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s  # Added start period
+
+volumes:
+  postgres_data:
+
+networks:
+  mynetwork:
