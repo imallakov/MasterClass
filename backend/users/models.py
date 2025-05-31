@@ -37,8 +37,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
 
-    favorite_camps = models.ManyToManyField('camps.Camp', related_name='favorites', blank=True)
-
     is_active = models.BooleanField(default=True)
 
     objects = CustomUserManager()  # Assigning custom manager

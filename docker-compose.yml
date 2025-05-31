@@ -6,7 +6,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - "8001:8000"
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy  # This ensures db health check passes
@@ -14,35 +14,37 @@ services:
       - POSTGRES_DB=campme
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     networks:
       - mynetwork
 
-  react:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3500:3000"
-    networks:
-      - mynetwork
+  #  react:
+  #    build:
+  #      context: ./frontend
+  #      dockerfile: Dockerfile
+  #    volumes:
+  #      - ./frontend:/app
+  #    ports:
+  #      - "3500:3000"
+  #    networks:
+  #      - mynetwork
 
   db:
-    image: postgres:13
+    image: postgres:14
     restart: always
     environment:
       POSTGRES_DB: campme
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mynetwork
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s  # Reduced from 10s
       timeout: 5s
       retries: 5

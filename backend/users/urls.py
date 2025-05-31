@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from backend.users.views import CustomTokenObtainPairView, CustomTokenRefreshView, RegisterView
+from .views import CustomTokenObtainPairView, CustomTokenRefreshView, RegisterView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
