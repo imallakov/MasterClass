@@ -2,3 +2,7 @@ backend/core/.env
 .venv
 .idea
 *.iml
+
+__pycache__/
+*.py[cod]
+*$py.class
