@@ -1,0 +1,4 @@
+backend/core/.env
+.venv
+.idea
+*.iml
