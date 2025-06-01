@@ -16,6 +16,8 @@ secure_cookie = settings.DEBUG is False
 
 
 class RegisterView(APIView):
+    serializer_class = UserRegistrationSerializer
+
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():

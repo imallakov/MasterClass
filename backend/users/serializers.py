@@ -37,7 +37,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
-            full_name=validated_data.get['full_name'],
+            full_name=validated_data['full_name'],
             phone_number=validated_data['phone_number'],
         )
         return user

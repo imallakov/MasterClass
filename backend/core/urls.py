@@ -18,8 +18,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import (
+    SpectacularAPIView,  # OpenAPI schema (JSON)
+    SpectacularSwaggerView,  # Swagger UI
+    SpectacularRedocView,  # ReDoc
+)
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('api/users/', include(('users.urls', 'users'), namespace='users')),
+                  # OpenAPI Schema
+                  path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+                  # Swagger UI (Interactive Docs)
+                  path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+                  # ReDoc (Alternative Docs)
+                  path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
