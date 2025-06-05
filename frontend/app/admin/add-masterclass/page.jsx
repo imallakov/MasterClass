@@ -1,14 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import {
-  ChevronDown,
-  Plus,
-  Move,
-  Minus,
-  Trash2,
-  User,
-  LogOut,
-} from "lucide-react";
+import { Plus, Move, Trash2, LogOut } from "lucide-react";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
