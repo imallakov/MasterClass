@@ -5,7 +5,8 @@ from .models import MasterClass, MasterClassSlot
 class MasterClassSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = MasterClassSlot
-        fields = ['id', 'start', 'end']
+        fields = ['id', 'masterclass', 'start', 'end']
+
 
 
 class MasterClassSerializer(serializers.ModelSerializer):
