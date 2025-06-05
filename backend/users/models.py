@@ -30,7 +30,7 @@ class User(AbstractUser):
     username = None
     full_name = models.TextField(blank=True, null=True)
     email = models.EmailField('email address', unique=True, blank=False, null=False)
-    phone_number = models.CharField(max_length=11, unique=True, blank=True, null=True)
+    phone_number = models.CharField(max_length=11, unique=True, blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     phone_number_verified = models.BooleanField(default=False)
 
