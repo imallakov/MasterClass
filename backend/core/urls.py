@@ -24,8 +24,11 @@ from drf_spectacular.views import (
     SpectacularRedocView,  # ReDoc
 )
 
+from .views import csrf
+
 urlpatterns = [
                   path('admin/', admin.site.urls),
+                  path("api/csrf/", csrf, name="csrf"),
                   path('api/users/', include(('users.urls', 'users'), namespace='users')),
                   # OpenAPI Schema
                   path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
