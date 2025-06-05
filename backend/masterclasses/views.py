@@ -1,8 +1,9 @@
 from rest_framework import generics, permissions, serializers
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import MasterClass, MasterClassSlot, MasterClassEnrollment
-from .serializers import MasterClassSerializer, MasterClassSlotSerializer, MasterClassEnrollmentSerializer
+from .models import MasterClass, MasterClassSlot, MasterClassEnrollment, GalleryImage
+from .serializers import MasterClassSerializer, MasterClassSlotSerializer, MasterClassEnrollmentSerializer, \
+    GalleryImageSerializer
 
 
 class MasterClassListCreateView(generics.ListCreateAPIView):
@@ -40,3 +41,21 @@ class MasterClassEnrollmentCreateView(generics.CreateAPIView):
         if current_enrollments >= participant_limit:
             raise serializers.ValidationError('Нет свободных мест на этом слоте!')
         serializer.save(user=self.request.user)
+
+
+class GalleryImageListView(generics.ListAPIView):
+    queryset = GalleryImage.objects.all().order_by('-uploaded_at')
+    serializer_class = GalleryImageSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class GalleryImageUploadView(generics.CreateAPIView):
+    queryset = GalleryImage.objects.all()
+    serializer_class = GalleryImageSerializer
+    permission_classes = [permissions.IsAdminUser]  # только админ может загружать
+
+
+class GalleryImageDeleteView(generics.DestroyAPIView):
+    queryset = GalleryImage.objects.all()
+    serializer_class = GalleryImageSerializer
+    permission_classes = [permissions.IsAdminUser]  # Только админ может удалять

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MasterClass, MasterClassSlot, MasterClassEnrollment
+from .models import MasterClass, MasterClassSlot, MasterClassEnrollment, GalleryImage
 
 
 class MasterClassSlotSerializer(serializers.ModelSerializer):
@@ -31,3 +31,9 @@ class MasterClassEnrollmentSerializer(serializers.ModelSerializer):
         model = MasterClassEnrollment
         fields = ['id', 'user', 'slot', 'status', 'created_at']
         read_only_fields = ['user', 'status', 'created_at']
+
+
+class GalleryImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GalleryImage
+        fields = ['id', 'image', 'uploaded_at']
