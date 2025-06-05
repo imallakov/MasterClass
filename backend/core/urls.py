@@ -30,6 +30,8 @@ urlpatterns = [
                   path('admin/', admin.site.urls),
                   path("api/csrf/", csrf, name="csrf"),
                   path('api/users/', include(('users.urls', 'users'), namespace='users')),
+                  path('api/masterclasses/',
+                       include(('masterclasses.urls', 'masterclasses'), namespace='masterclasses')),
                   # OpenAPI Schema
                   path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
                   # Swagger UI (Interactive Docs)

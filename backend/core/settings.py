@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_spectacular',
     'corsheaders',
+    'masterclasses',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
