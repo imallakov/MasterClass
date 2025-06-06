@@ -17,10 +17,15 @@ class MasterClassListCreateView(generics.ListCreateAPIView):
         return [permissions.AllowAny()]
 
 
-class MasterClassDetailView(generics.RetrieveAPIView):
+class MasterClassDetailUpdateView(generics.RetrieveUpdateAPIView):
     queryset = MasterClass.objects.all()
     serializer_class = MasterClassSerializer
-    permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
 
 
 class MasterClassSlotCreateView(generics.CreateAPIView):
