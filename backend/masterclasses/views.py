@@ -34,6 +34,12 @@ class MasterClassSlotCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 
+class MasterClassSlotDeleteView(generics.DestroyAPIView):
+    queryset = MasterClassSlot.objects.all()
+    serializer_class = MasterClassSlotSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
 class MasterClassEnrollmentCreateView(generics.CreateAPIView):
     queryset = MasterClassEnrollment.objects.all()
     serializer_class = MasterClassEnrollmentSerializer
