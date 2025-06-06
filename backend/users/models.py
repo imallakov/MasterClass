@@ -28,9 +28,30 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
+    MONTH_CHOICES = [
+        ('January', 'Январь'),
+        ('February', 'Февраль'),
+        ('March', 'Март'),
+        ('April', 'Апрель'),
+        ('May', 'Май'),
+        ('June', 'Июнь'),
+        ('July', 'Июль'),
+        ('August', 'Август'),
+        ('September', 'Сентябрь'),
+        ('October', 'Октябрь'),
+        ('November', 'Ноябрь'),
+        ('December', 'Декабрь'),
+    ]
+    GENDER_CHOICES = [
+        ('male', 'мужчина'),
+        ('female', 'женщина'),
+    ]
     full_name = models.TextField(blank=True, null=True)
     email = models.EmailField('email address', unique=True, blank=False, null=False)
     phone_number = models.CharField(max_length=11, unique=True, blank=False, null=False)
+    birth_month = models.CharField(max_length=11, choices=MONTH_CHOICES, blank=True, null=True)
+    birth_year = models.IntegerField(blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     phone_number_verified = models.BooleanField(default=False)
 
