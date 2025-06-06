@@ -17,13 +17,13 @@ class MasterClassListCreateView(generics.ListCreateAPIView):
         return [permissions.AllowAny()]
 
 
-class MasterClassDetailUpdateView(generics.RetrieveUpdateAPIView):
+class MasterClassDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MasterClass.objects.all()
     serializer_class = MasterClassSerializer
     parser_classes = [MultiPartParser, FormParser]
 
     def get_permissions(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
 
