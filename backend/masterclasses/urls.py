@@ -7,7 +7,7 @@ urlpatterns = [
     path('slots/', views.MasterClassSlotCreateView.as_view(), name='slot-create'),
     path('slots/<int:pk>/', views.MasterClassSlotDeleteView.as_view(), name='slot-delete'),
     path('enroll/', views.MasterClassEnrollmentCreateView.as_view(), name='masterclass-enroll'),
-    path('gallery/', views.GalleryImageListView.as_view(), name='gallery-list'),
-    path('gallery/', views.GalleryImageUploadView.as_view(), name='gallery-upload'),
+    path('enrollments/', views.UserEnrollmentsListView.as_view(), name='user-enrollments'),
+    path('gallery/', views.GalleryImageListCreateView.as_view(), name='gallery-list'),
     path('gallery/<int:pk>/', views.GalleryImageDeleteView.as_view(), name='gallery-delete'),
 ]

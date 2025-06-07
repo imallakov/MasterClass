@@ -36,6 +36,18 @@ class MasterClassEnrollmentSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'status', 'created_at']
 
 
+class UserEnrollmentSerializer(serializers.ModelSerializer):
+    slot = MasterClassSlotSerializer(read_only=True)
+    masterclass = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MasterClassEnrollment
+        fields = ['id', 'slot', 'masterclass', 'quantity', 'status', 'created_at']
+
+    def get_masterclass(self, obj):
+        return MasterClassSerializer(obj.slot.masterclass).data
+
+
 class GalleryImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = GalleryImage
