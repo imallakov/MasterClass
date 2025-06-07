@@ -1,6 +1,6 @@
 from django.db.models import Sum
 from rest_framework import serializers
-from .models import MasterClass, MasterClassSlot, MasterClassEnrollment, GalleryImage
+from .models import MasterClass, MasterClassSlot, MasterClassEnrollment
 
 
 class MasterClassSlotSerializer(serializers.ModelSerializer):
@@ -58,9 +58,3 @@ class UserEnrollmentSerializer(serializers.ModelSerializer):
 
     def get_masterclass(self, obj):
         return MasterClassSerializer(obj.slot.masterclass).data
-
-
-class GalleryImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GalleryImage
-        fields = ['id', 'image', 'uploaded_at']

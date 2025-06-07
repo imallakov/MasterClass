@@ -43,11 +43,3 @@ class MasterClassEnrollment(models.Model):
 
     def __str__(self):
         return f"{self.user} на {self.slot} ({self.get_status_display()})"
-
-
-class GalleryImage(models.Model):
-    image = models.ImageField(upload_to='gallery/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.image.name

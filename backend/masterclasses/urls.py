@@ -8,6 +8,4 @@ urlpatterns = [
     path('slots/<int:pk>/', views.MasterClassSlotDeleteView.as_view(), name='slot-delete'),
     path('enroll/', views.MasterClassEnrollmentCreateView.as_view(), name='masterclass-enroll'),
     path('enrollments/', views.UserEnrollmentsListView.as_view(), name='user-enrollments'),
-    path('gallery/', views.GalleryImageListCreateView.as_view(), name='gallery-list'),
-    path('gallery/<int:pk>/', views.GalleryImageDeleteView.as_view(), name='gallery-delete'),
 ]
