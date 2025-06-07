@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import generics, permissions, serializers
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -47,9 +48,12 @@ class MasterClassEnrollmentCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         slot = serializer.validated_data['slot']
+        quantity = serializer.validated_data['quantity']
         participant_limit = slot.masterclass.participant_limit
-        current_enrollments = slot.enrollments.filter(status__in=['pending', 'paid']).count()
-        if current_enrollments >= participant_limit:
+        current_enrollments = slot.enrollments.filter(status__in=['pending', 'paid']).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
+        if current_enrollments + quantity > participant_limit:
             raise serializers.ValidationError('Нет свободных мест на этом слоте!')
         serializer.save(user=self.request.user)
 
