@@ -10,7 +10,7 @@ class MasterClassSlotSerializer(serializers.ModelSerializer):
         model = MasterClassSlot
         fields = ['id', 'masterclass', 'start', 'end', 'free_places']
 
-    def get_free_places(self, obj):
+    def get_free_places(self, obj) -> int:
         limit = obj.masterclass.participant_limit
         # Sum up all quantities, not just count records
         enrolled = obj.enrollments.filter(status__in=['pending', 'paid']).aggregate(
@@ -41,6 +41,14 @@ class MasterClassSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class MasterClassMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MasterClass
+        fields = [
+            'id', 'title', 'description', 'price', 'image', 'participant_limit'
+        ]
+
+
 class MasterClassEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = MasterClassEnrollment
@@ -56,5 +64,5 @@ class UserEnrollmentSerializer(serializers.ModelSerializer):
         model = MasterClassEnrollment
         fields = ['id', 'slot', 'masterclass', 'quantity', 'status', 'created_at']
 
-    def get_masterclass(self, obj):
-        return MasterClassSerializer(obj.slot.masterclass).data
+    def get_masterclass(self, obj) -> MasterClassMiniSerializer:
+        return MasterClassMiniSerializer(obj.slot.masterclass).data
