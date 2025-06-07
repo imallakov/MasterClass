@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'masterclasses',
     'configs',
+    'gallery',
+    'stickers',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
