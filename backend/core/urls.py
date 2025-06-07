@@ -24,12 +24,12 @@ from drf_spectacular.views import (
     SpectacularRedocView,  # ReDoc
 )
 
-from .views import csrf, AboutUsRetrieveUpdateView
+from .views import csrf
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path("api/csrf/", csrf, name="csrf"),
-                  path('api/about/', AboutUsRetrieveUpdateView.as_view(), name='about-us'),
+                  path('api/configs/', include(('configs.urls', 'configs'), namespace='configs')),
                   path('api/users/', include(('users.urls', 'users'), namespace='users')),
                   path('api/masterclasses/',
                        include(('masterclasses.urls', 'masterclasses'), namespace='masterclasses')),

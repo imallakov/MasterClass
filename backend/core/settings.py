@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',
     'masterclasses',
+    'configs',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
