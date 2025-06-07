@@ -54,6 +54,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     phone_number_verified = models.BooleanField(default=False)
+    photo = models.ImageField(upload_to='profile_photos/')
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []

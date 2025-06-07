@@ -8,5 +8,10 @@ class IsOwnerAdmin(permissions.BasePermission):
             # Allow owners, admins to edit user
             if obj == request.user:
                 return True
-            return request.user.is_staff is True
+            return request.user.is_staff
         return False
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_staff

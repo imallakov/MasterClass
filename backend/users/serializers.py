@@ -46,7 +46,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'phone_number_verified', 'full_name', 'phone_number', 'is_active', 'is_staff']
+        fields = ['id', 'email', 'phone_number_verified', 'full_name', 'phone_number', 'is_active', 'is_staff', 'photo']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -56,5 +56,5 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'full_name', 'phone_number', 'is_active', 'phone_number_verified', 'is_staff']
+        fields = ['id', 'email', 'full_name', 'phone_number', 'is_active', 'phone_number_verified', 'is_staff', 'photo']
         read_only_fields = ['id', 'is_active', 'is_staff']

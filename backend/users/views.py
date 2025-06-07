@@ -7,14 +7,14 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .permissions import IsOwnerAdmin
+from .permissions import IsOwnerAdmin, IsAdmin
 from .serializers import UserRegistrationSerializer, UserSerializer, UserDetailSerializer
 
 secure_cookie = settings.DEBUG is False
@@ -172,9 +172,14 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
         user = self.request.user
         if user.is_authenticated:
             # Allow admins users to access any user
-            if user.is_staff is True and 'pk' in self.kwargs:
+            if user.is_staff and 'pk' in self.kwargs:
                 return get_user_model().objects.get(pk=self.kwargs['pk'])
             # Otherwise, return only the authenticated user's object
             return get_user_model().objects.get(pk=user.id)
         else:
             raise NotAuthenticated("User is not authenticated.")
+
+
+class UserListView(ListAPIView):
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAdmin]
