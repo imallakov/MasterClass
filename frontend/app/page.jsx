@@ -1,3 +1,4 @@
+// app/page.jsx
 import Homepage from "./pages/Homepage";
 import Homepage2 from "./pages/Homepage2";
 

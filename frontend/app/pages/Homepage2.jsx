@@ -9,64 +9,64 @@ import Reviews from "../components/Reviews";
 import Footer from "../components/Footer";
 
 // Navbar Component
-const Navbar = () => {
-  return (
-    <nav className="bg-white shadow-sm px-4 py-3">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center">
-          <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
-            <div className="w-8 h-8 bg-pink-200 rounded"></div>
-          </div>
-        </div>
+// const Navbar = () => {
+//   return (
+//     <nav className="bg-white shadow-sm px-4 py-3">
+//       <div className="max-w-7xl mx-auto flex items-center justify-between">
+//         {/* Logo */}
+//         <div className="flex items-center">
+//           <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
+//             <div className="w-8 h-8 bg-pink-200 rounded"></div>
+//           </div>
+//         </div>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            Главная
-          </a>
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            Мастер - классы
-          </a>
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            О Нас
-          </a>
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            Расписание
-          </a>
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            Контакты
-          </a>
-          <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-            Наклейки
-          </a>
-        </div>
+//         {/* Navigation Links */}
+//         <div className="hidden md:flex items-center space-x-8">
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             Главная
+//           </a>
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             Мастер - классы
+//           </a>
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             О Нас
+//           </a>
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             Расписание
+//           </a>
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             Контакты
+//           </a>
+//           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
+//             Наклейки
+//           </a>
+//         </div>
 
-        {/* CTA Button */}
-        <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full font-medium transition-colors">
-          Получить консультацию
-        </button>
+//         {/* CTA Button */}
+//         <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full font-medium transition-colors">
+//           Получить консультацию
+//         </button>
 
-        {/* Mobile menu button */}
-        <button className="md:hidden">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
-    </nav>
-  );
-};
+//         {/* Mobile menu button */}
+//         <button className="md:hidden">
+//           <svg
+//             className="w-6 h-6"
+//             fill="none"
+//             stroke="currentColor"
+//             viewBox="0 0 24 24"
+//           >
+//             <path
+//               strokeLinecap="round"
+//               strokeLinejoin="round"
+//               strokeWidth={2}
+//               d="M4 6h16M4 12h16M4 18h16"
+//             />
+//           </svg>
+//         </button>
+//       </div>
+//     </nav>
+//   );
+// };
 
 // Product Card Component
 const ProductCard = ({ title, price }) => {
@@ -301,7 +301,7 @@ const Homepage2 = () => {
   return (
     <div className="min-h-screen">
       <div className="hidden md:block">
-        <Navbar />
+        {/* <Navbar /> */}
         {/* Hero Section */}
         <section
           className="relative bg-pink-200 py-16 px-4 overflow-hidden h-screen inset-0 bg-cover bg-center bg-no-repeat"
@@ -309,12 +309,44 @@ const Homepage2 = () => {
             backgroundImage: `url('/images/hero2.png')`,
           }}
         >
-          <div className="max-w-7xl mx-auto relative z-4">
-            <div className="text-left mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <div className="max-w-7xl mx-auto flex justify-between flex-col h-full relative z-4">
+            <div className="text-left py-2 px-6 bg-black/50 rounded-2xl max-w-[570px]">
+              <h1 className="text-2xl md:text-3xl font-medium text-white">
                 Брендовые стикеры{" "}
                 <span className="text-green-600">уже доступны</span>
               </h1>
+            </div>
+
+            <div className="flex justify-between items-center w-full">
+              <div className="flex justify-center items-center gap-4">
+                <img
+                  className="w-24 h-24"
+                  src="/images/wildberries.png"
+                  alt="wildberries"
+                />
+                <img
+                  className="w-24 h-24 rounded-full object-cover"
+                  src="/images/ozon.png"
+                  alt="ozon"
+                />
+                <img
+                  className="w-24 h-24 rounded-full object-cover"
+                  src="/images/yandexmarket.png"
+                  alt="yandexmarket"
+                />
+              </div>
+              <div className="flex justify-center items-center gap-4">
+                <img
+                  className="`w-24 h-24 rounded-full object-cover"
+                  src="/images/telegram.png"
+                  alt="telegram"
+                />
+                <img
+                  className="w-28 h-28 rounded-full object-cover"
+                  src="/images/whatsapp.png"
+                  alt="whatsapp"
+                />
+              </div>
             </div>
           </div>
         </section>

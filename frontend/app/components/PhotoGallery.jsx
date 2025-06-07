@@ -125,17 +125,211 @@
 //   );
 // }
 
+// better one (in desktop view)
+// import Image from "next/image";
+
+// export default function PhotoGallery() {
+//   return (
+//     <div className="min-h-screen bg-white">
+//       <div className="container mx-auto py-12">
+//         {/* Title */}
+//         <h1 className="text-5xl font-bold text-slate-600">Наша фотогалерея</h1>
+//       </div>
+//       {/* Gallery Grid */}
+//       <div className="grid grid-cols-12 gap-6 overflow-x-scroll">
+//         {/* Top Row */}
+//         {/* Left small image */}
+//         <div className="col-span-2 row-span-2 flex items-center">
+//           <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
+//             <Image
+//               src="/images/gallery4.jpg"
+//               alt="Workshop scene"
+//               fill
+//               className="object-cover"
+//               priority
+//             />
+//           </div>
+//         </div>
+
+//         {/* Center large image */}
+//         <div className="col-span-4">
+//           <div className="w-full aspect-[2/1] relative rounded-xl overflow-hidden">
+//             <Image
+//               src="/images/gallery1.jpg"
+//               alt="Main sewing workshop"
+//               fill
+//               className="object-cover"
+//               priority
+//             />
+//           </div>
+//         </div>
+
+//         {/* <div className="col-span-2"></div> */}
+
+//         {/* Right image */}
+//         <div className="col-span-2 row-span-2 flex items-center">
+//           <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
+//             <Image
+//               src="/images/gallery3.jpg"
+//               alt="Craft activity"
+//               fill
+//               className="object-cover"
+//             />
+//           </div>
+//         </div>
+
+//         {/* <div className="col-span-2"></div>
+//         <div className="col-span-2"></div> */}
+
+//         {/* Bottom Row */}
+//         {/* Skip first 2 columns (left image continues) */}
+//         {/* <div className="col-span-4"></div> */}
+//         <div className="col-span-4 row-span-4 grid grid-cols-4">
+//           <div className="col-span-2 flex items-center gap-6">
+//             <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
+//               <Image
+//                 src="/images/gallery5.jpg"
+//                 alt="Craft activity"
+//                 fill
+//                 className="object-cover"
+//               />
+//             </div>
+//           </div>
+//           <div className="col-span-4 flex items-center">
+//             <div className="w-full aspect-[2/1] relative rounded-xl overflow-hidden">
+//               <Image
+//                 src="/images/gallery2.jpg"
+//                 alt="Knitting lesson"
+//                 fill
+//                 className="object-cover"
+//               />
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Bottom left image */}
+//         <div className="col-span-2">
+//           <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
+//             <Image
+//               src="/images/gallery6.jpg"
+//               alt="Learning together"
+//               fill
+//               className="object-cover"
+//             />
+//           </div>
+//         </div>
+
+//         {/* Logo section */}
+//         <div className="col-span-2">
+//           <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
+//             <Image
+//               src="/images/logo.png"
+//               alt="Learning together"
+//               fill
+//               className="object-cover"
+//             />
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Progress indicator - exact match */}
+//       <div className="flex justify-center mt-20">
+//         <div className="flex items-center space-x-2">
+//           <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
+//           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+//           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+//           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 import Image from "next/image";
 
 export default function PhotoGallery() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto py-12">
+      <div className="container mx-auto py-8 md:py-12 px-4 md:px-0">
         {/* Title */}
-        <h1 className="text-5xl font-bold text-slate-600">Наша фотогалерея</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-600">
+          Наша фотогалерея
+        </h1>
       </div>
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-12 gap-6 overflow-x-scroll">
+
+      {/* Mobile Gallery */}
+      <div className="block md:hidden px-4">
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Row 1 */}
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery1.jpg"
+              alt="Main sewing workshop"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery4.jpg"
+              alt="Workshop scene"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          {/* Row 2 */}
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery3.jpg"
+              alt="Craft activity"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery5.jpg"
+              alt="Craft activity"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {/* Row 3 */}
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery2.jpg"
+              alt="Knitting lesson"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="aspect-[3/4] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/logo.png"
+              alt="Learning together"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {/* Logo - full width */}
+          <div className="col-span-2 aspect-[2/1] relative rounded-xl overflow-hidden">
+            <Image
+              src="/images/gallery6.jpg"
+              alt="Learning together"
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Gallery Grid */}
+      <div className="hidden md:grid grid-cols-12 gap-6 overflow-x-scroll">
         {/* Top Row */}
         {/* Left small image */}
         <div className="col-span-2 row-span-2 flex items-center">
@@ -163,8 +357,6 @@ export default function PhotoGallery() {
           </div>
         </div>
 
-        {/* <div className="col-span-2"></div> */}
-
         {/* Right image */}
         <div className="col-span-2 row-span-2 flex items-center">
           <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
@@ -177,12 +369,7 @@ export default function PhotoGallery() {
           </div>
         </div>
 
-        {/* <div className="col-span-2"></div>
-        <div className="col-span-2"></div> */}
-
         {/* Bottom Row */}
-        {/* Skip first 2 columns (left image continues) */}
-        {/* <div className="col-span-4"></div> */}
         <div className="col-span-4 row-span-4 grid grid-cols-4">
           <div className="col-span-2 flex items-center gap-6">
             <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
@@ -229,36 +416,12 @@ export default function PhotoGallery() {
             />
           </div>
         </div>
-
-        {/* Bottom right image */}
-        {/* <div className="col-span-4 row-span-2">
-          <div className="col-span-2 flex items-center">
-            <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden">
-              <Image
-                src="/images/gallery3.jpg"
-                alt="Craft activity"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
-          <div className="col-span-4 flex items-end">
-            <div className="w-full aspect-[5/3] relative rounded-xl overflow-hidden">
-              <Image
-                src="/images/gallery2.jpg"
-                alt="Knitting lesson"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {/* Progress indicator - exact match */}
-      <div className="flex justify-center mt-20">
+      <div className="flex justify-center mt-12 md:mt-20">
         <div className="flex items-center space-x-2">
-          <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
+          <div className="w-8 md:w-12 h-1 bg-orange-500 rounded-full"></div>
           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
           <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
