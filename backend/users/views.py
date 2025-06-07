@@ -1,18 +1,21 @@
 from datetime import datetime, timezone
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import UserRegistrationSerializer, UserSerializer
+from .permissions import IsOwnerAdmin
+from .serializers import UserRegistrationSerializer, UserSerializer, UserDetailSerializer
 
 secure_cookie = settings.DEBUG is False
 
@@ -156,3 +159,22 @@ class LogoutView(APIView):
 
         except Exception as e:
             return Response({'message': 'Invalid refresh token.'}, status=401)
+
+
+class UserDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    Handles retrieving, updating, and deleting user details.
+    """
+    permission_classes = [IsOwnerAdmin]
+    serializer_class = UserDetailSerializer
+
+    def get_object(self):
+        user = self.request.user
+        if user.is_authenticated:
+            # Allow admins users to access any user
+            if user.is_staff is True and 'pk' in self.kwargs:
+                return get_user_model().objects.get(pk=self.kwargs['pk'])
+            # Otherwise, return only the authenticated user's object
+            return get_user_model().objects.get(pk=user.id)
+        else:
+            raise NotAuthenticated("User is not authenticated.")
