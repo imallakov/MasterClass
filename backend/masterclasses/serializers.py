@@ -28,6 +28,18 @@ class MasterClassSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'price', 'image', 'participant_limit', 'slots', 'created_at', 'updated_at'
         ]
 
+    def update(self, instance, validated_data):
+        if 'photo' in validated_data:
+            old_image = instance.image
+            if old_image:
+                try:
+                    old_image.delete(save=False)
+                except Exception:
+                    # Log the error or handle it as needed
+                    pass  # Continue with the update even if deletion fails
+
+        return super().update(instance, validated_data)
+
 
 class MasterClassEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:

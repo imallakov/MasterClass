@@ -58,3 +58,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'email', 'full_name', 'phone_number', 'is_active', 'phone_number_verified', 'is_staff', 'photo']
         read_only_fields = ['id', 'is_active', 'is_staff']
+
+    def update(self, instance, validated_data):
+        if 'photo' in validated_data:
+            old_photo = instance.photo
+            if old_photo:
+                try:
+                    old_photo.delete(save=False)
+                except Exception:
+                    # Log the error or handle it as needed
+                    pass  # Continue with the update even if deletion fails
+
+        return super().update(instance, validated_data)
