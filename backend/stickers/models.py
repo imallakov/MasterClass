@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from image_optimizer.fields import OptimizedImageField
 
 User = get_user_model()
 
@@ -15,7 +16,12 @@ class StickerCategories(models.Model):
 class Sticker(models.Model):
     title = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.ImageField(upload_to='stickers/')
+    image = OptimizedImageField(
+        upload_to='stickers/',
+        optimized_image_output_size=(0, 0),  # No resizing
+        optimized_image_resize_method='thumbnail',  # Doesn't matter since no resizing
+        optimized_image_quality=85  # Quality setting
+    )
     category = models.ForeignKey(StickerCategories, on_delete=models.CASCADE, null=True, related_name='stickers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -4,6 +4,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.timezone import now
+from image_optimizer.fields import OptimizedImageField
 
 
 class CustomUserManager(BaseUserManager):
@@ -54,7 +55,12 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     phone_number_verified = models.BooleanField(default=False)
-    photo = models.ImageField(upload_to='profile_photos/')
+    photo = OptimizedImageField(
+        upload_to='profile_photos/',
+        optimized_image_output_size=(0, 0),  # No resizing
+        optimized_image_resize_method='thumbnail',  # Doesn't matter since no resizing
+        optimized_image_quality=85  # Quality setting
+    )
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
