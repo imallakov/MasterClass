@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy  # This ensures db health check passes
+        condition: service_healthy # This ensures db health check passes
     environment:
       - POSTGRES_DB=campme
       - POSTGRES_USER=postgres
@@ -44,11 +44,11 @@ services:
     networks:
       - mynetwork
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s  # Reduced from 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s # Reduced from 10s
       timeout: 5s
       retries: 5
-      start_period: 10s  # Added start period
+      start_period: 10s # Added start period
 
 volumes:
   postgres_data:
