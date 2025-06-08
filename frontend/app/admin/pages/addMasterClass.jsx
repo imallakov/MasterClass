@@ -1353,12 +1353,12 @@ const AddMasterClassPage = () => {
           </div>
 
           {/* Debug info - remove in production */}
-          {process.env.NODE_ENV === "development" && (
+          {/* {process.env.NODE_ENV === "development" && (
             <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
               <p>Token: {accessToken ? "Available" : "Not available"}</p>
               <p>CSRF: {csrfToken ? "Available" : "Not available"}</p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

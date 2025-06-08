@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Wrench,
@@ -9,6 +9,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import UserRoute from "../components/UserRoute";
+import BookingPage from "../pages/bookingPage";
+import { useNavigation } from "../context/NavigationContext";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
@@ -20,7 +22,6 @@ const ContentContainer = ({ children }) => {
 };
 
 const PersonalCabinet = () => {
-  const [currentPage, setCurrentPage] = useState("profile");
   const [contactDataExpanded, setContactDataExpanded] = useState(true);
   const [personalDataExpanded, setPersonalDataExpanded] = useState(true);
   const [firstName, setFirstName] = useState("");
@@ -32,6 +33,13 @@ const PersonalCabinet = () => {
   const [selectedMonth, setSelectedMonth] = useState("Апрель 2025");
   const [selectedTime, setSelectedTime] = useState("9:30");
   const [participants, setParticipants] = useState(22);
+  const {
+    currentPage,
+    selectedMasterclassId,
+    navigateToProfile,
+    navigateToBooking,
+    navigateToMyClasses,
+  } = useNavigation();
 
   return (
     <UserRoute>
@@ -69,7 +77,7 @@ const PersonalCabinet = () => {
                 <div className="p-6">
                   <div className="space-y-4">
                     <button
-                      onClick={() => setCurrentPage("profile")}
+                      onClick={navigateToProfile}
                       className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
                         currentPage === "profile" ? "bg-gray-50" : ""
                       }`}
@@ -86,13 +94,26 @@ const PersonalCabinet = () => {
                       </span>
                     </button>
 
-                    <button className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left">
+                    <button
+                      onClick={navigateToMyClasses}
+                      className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
+                        currentPage === "myClasses" ? "bg-gray-50" : ""
+                      }`}
+                    >
                       <Wrench className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700">Мои мастер - классы</span>
+                      <span
+                        className={`${
+                          currentPage === "myClasses"
+                            ? "font-medium text-gray-900"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        Мои мастер - классы
+                      </span>
                     </button>
 
                     <button
-                      onClick={() => setCurrentPage("booking")}
+                      onClick={() => navigateToBooking(null)}
                       className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
                         currentPage === "booking" ? "bg-gray-50" : ""
                       }`}
@@ -138,18 +159,16 @@ const PersonalCabinet = () => {
                     birthYear={birthYear}
                     setBirthYear={setBirthYear}
                   />
-                ) : (
-                  <BookingPage
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    selectedMonth={selectedMonth}
-                    setSelectedMonth={setSelectedMonth}
-                    selectedTime={selectedTime}
-                    setSelectedTime={setSelectedTime}
-                    participants={participants}
-                    setParticipants={setParticipants}
-                  />
-                )}
+                ) : currentPage === "booking" ? (
+                  <BookingPage masterclassId={selectedMasterclassId || 2} />
+                ) : currentPage === "myClasses" ? (
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-8">
+                      Мои мастер-классы
+                    </h1>
+                    {/* Add your MyClasses component content here */}
+                  </div>
+                ) : null}
               </div>
             </div>
           </ContentContainer>
@@ -300,205 +319,6 @@ const ProfilePage = ({
       <div className="flex justify-center">
         <button className="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-medium text-lg shadow-lg transition-colors">
           Сохранить
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const BookingPage = ({
-  selectedDate,
-  setSelectedDate,
-  selectedMonth,
-  setSelectedMonth,
-  selectedTime,
-  setSelectedTime,
-  participants,
-  setParticipants,
-}) => {
-  const timeSlots = ["9:30", "10:20", "12:10", "14:30", "19:30"];
-
-  const calendar = [
-    [null, null, null, null, null, null, 1],
-    [2, 3, 4, 5, 6, 7, 8],
-    [9, 10, 11, 12, 13, 14, 15],
-    [16, 17, 18, 19, 20, 21, 22],
-    [23, 24, 25, 26, 27, 28, 29],
-    [30, 31, 1, 2, 3, 4, 5],
-  ];
-
-  const getDateStatus = (date) => {
-    if (!date || date > 31) return "";
-    if ([8, 14, 15, 20, 21, 22, 23, 26, 28, 29].includes(date))
-      return "available";
-    if ([9, 17].includes(date)) return "highlighted";
-    return "unavailable";
-  };
-
-  const getDateClass = (date, status) => {
-    if (!date || date > 31) return "text-gray-300";
-    if (date === selectedDate)
-      return "bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center";
-    if (status === "available")
-      return "text-green-500 hover:bg-green-50 cursor-pointer rounded-full w-8 h-8 flex items-center justify-center";
-    if (status === "highlighted")
-      return "text-green-400 hover:bg-green-50 cursor-pointer rounded-full w-8 h-8 flex items-center justify-center";
-    return "text-gray-400 cursor-not-allowed";
-  };
-
-  return (
-    <div className="flex gap-8">
-      {/* Left Side - Calendar and Time */}
-      <div className="flex-1">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Выбрать дату</h1>
-
-        {/* Calendar */}
-        <div className="mb-8">
-          <div className="border-2 border-blue-300 rounded-2xl p-6 bg-white">
-            {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-6">
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Апрель 2025
-              </h2>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2 text-center">
-              {calendar.map((week, weekIndex) =>
-                week.map((date, dayIndex) => {
-                  const status = getDateStatus(date);
-                  return (
-                    <div
-                      key={`${weekIndex}-${dayIndex}`}
-                      className={`p-2 text-sm font-medium ${getDateClass(
-                        date,
-                        status
-                      )}`}
-                      onClick={() =>
-                        date &&
-                        date <= 31 &&
-                        status !== "unavailable" &&
-                        setSelectedDate(date)
-                      }
-                    >
-                      {date}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Available Time Slots */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Доступное время:
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {timeSlots.map((time) => (
-              <button
-                key={time}
-                onClick={() => setSelectedTime(time)}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  selectedTime === time
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-600 text-white hover:bg-gray-700"
-                }`}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Side - Additional Info */}
-      <div className="w-80">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Дополнительные данные
-        </h2>
-
-        {/* Participants Counter */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-gray-900">
-              Количество участников
-            </span>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setParticipants(Math.max(1, participants - 1))}
-                className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400"
-              >
-                -
-              </button>
-              <span className="text-xl font-bold text-orange-500">
-                {participants}/24
-              </span>
-              <button
-                onClick={() => setParticipants(Math.min(24, participants + 1))}
-                className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600"
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Master Class Description */}
-        <div className="mb-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Что будет на МК</h3>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            Куклы макраме - интересный вариант домашнего декора и настоящий
-            простор для фантазии рукодельниц. Каждый участник сам выберет какого
-            цвета будет платье, волосы, сделает своей кукле прическу или
-            заплетет косу, сплетет венок.
-          </p>
-        </div>
-
-        {/* Privacy Notice */}
-        <div className="mb-6">
-          <p className="text-xs text-gray-600 mb-2">
-            Нажимая кнопку "Записаться", вы автоматически соглашаетесь с{" "}
-            <a href="#" className="text-blue-500 underline">
-              обработкой ваших персональных данных
-            </a>
-          </p>
-        </div>
-
-        {/* Register Button */}
-        <button className="w-full bg-blue-400 hover:bg-blue-500 text-white py-3 rounded-full font-medium text-lg shadow-lg transition-colors">
-          Записаться
         </button>
       </div>
     </div>
