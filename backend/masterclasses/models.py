@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from image_optimizer.fields import OptimizedImageField
+
+# from image_optimizer.fields import OptimizedImageField
 
 User = get_user_model()
 
@@ -9,11 +10,11 @@ class MasterClass(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = OptimizedImageField(
+    image = models.ImageField(
         upload_to='masterclass_images/',
-        optimized_image_output_size=(0, 0),  # No resizing
-        optimized_image_resize_method='thumbnail',  # Doesn't matter since no resizing
-        optimized_image_quality=85  # Quality setting
+        # optimized_image_output_size=(0, 0),  # No resizing
+        # optimized_image_resize_method='thumbnail',  # Doesn't matter since no resizing
+        # optimized_image_quality=85  # Quality setting
     )
     participant_limit = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)

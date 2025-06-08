@@ -56,7 +56,10 @@ INSTALLED_APPS = [
     'gallery',
     'stickers',
     'reviews',
+    'image_optimizer',
 ]
+
+OPTIMIZED_IMAGE_METHOD = 'pillow'
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
