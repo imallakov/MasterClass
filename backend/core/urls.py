@@ -35,6 +35,7 @@ urlpatterns = [
                        include(('masterclasses.urls', 'masterclasses'), namespace='masterclasses')),
                   path('api/gallery/', include(('gallery.urls', 'gallery'), namespace='gallery')),
                   path('api/stickers/', include(('stickers.urls', 'stickers'), namespace='stickers')),
+                  path('api/reviews/', include(('reviews.urls', 'reviews'), namespace='reviews')),
                   # OpenAPI Schema
                   path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
                   # Swagger UI (Interactive Docs)

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'configs',
     'gallery',
     'stickers',
+    'reviews',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
