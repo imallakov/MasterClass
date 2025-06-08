@@ -1,5 +1,6 @@
 // "use client";
-// import React, { useState } from "react";
+// import React, { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
 // import PhotoGallery from "../components/PhotoGallery";
 // import Image from "next/image";
 // import MasterClasses from "../components/MasterClasses";
@@ -8,89 +9,29 @@
 // import Reviews from "../components/Reviews";
 // import Footer from "../components/Footer";
 
-// // Navbar Component
-// // const Navbar = () => {
-// //   return (
-// //     <nav className="bg-white shadow-sm px-4 py-3">
-// //       <div className="max-w-7xl mx-auto flex items-center justify-between">
-// //         {/* Logo */}
-// //         <div className="flex items-center">
-// //           <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
-// //             <div className="w-8 h-8 bg-pink-200 rounded"></div>
-// //           </div>
-// //         </div>
-
-// //         {/* Navigation Links */}
-// //         <div className="hidden md:flex items-center space-x-8">
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             Главная
-// //           </a>
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             Мастер - классы
-// //           </a>
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             О Нас
-// //           </a>
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             Расписание
-// //           </a>
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             Контакты
-// //           </a>
-// //           <a href="#" className="text-gray-600 hover:text-gray-900 font-medium">
-// //             Наклейки
-// //           </a>
-// //         </div>
-
-// //         {/* CTA Button */}
-// //         <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full font-medium transition-colors">
-// //           Получить консультацию
-// //         </button>
-
-// //         {/* Mobile menu button */}
-// //         <button className="md:hidden">
-// //           <svg
-// //             className="w-6 h-6"
-// //             fill="none"
-// //             stroke="currentColor"
-// //             viewBox="0 0 24 24"
-// //           >
-// //             <path
-// //               strokeLinecap="round"
-// //               strokeLinejoin="round"
-// //               strokeWidth={2}
-// //               d="M4 6h16M4 12h16M4 18h16"
-// //             />
-// //           </svg>
-// //         </button>
-// //       </div>
-// //     </nav>
-// //   );
-// // };
-
 // // Product Card Component
-// const ProductCard = ({ title, price }) => {
+// const ProductCard = ({ title, price, image }) => {
 //   return (
 //     <div className="bg-white rounded-lg border-2 border-solid border-[#3A6281] overflow-hidden max-w-80">
 //       <div className="h-80 flex items-center justify-center relative">
 //         <div className="w-full h-full flex items-center justify-center">
 //           <div className="w-full h-full aspect-[3/4] bg-white rounded-lg flex items-center justify-center">
-//             {/* <div className="w-full aspect-[3/4] relative rounded-xl overflow-hidden"> */}
-//             <Image
-//               src="/images/gallery4.jpg"
-//               alt="Workshop scene"
+//             <img
+//               src={image || "/images/gallery4.jpg"}
+//               alt={title}
 //               fill
 //               className="object-cover p-4"
 //               priority
 //             />
-//             {/* </div> */}
 //           </div>
 //         </div>
 //       </div>
 //       <div className="p-4">
 //         <h3 className=" text-[#000000] mb-3 text-lg">{title}</h3>
 //         <div className="flex items-center justify-between">
-//           <span className="text-2xl font-semibold text-[#000000]">{price}</span>
+//           <span className="text-2xl font-semibold text-[#000000]">
+//             {price} ₽
+//           </span>
 //         </div>
 //         <button className="w-full bg-[#61BF7D] hover:bg-[#49905e] text-white text-xl py-2 px-4 rounded-2xl font-medium mt-6 transition-colors">
 //           Заказать
@@ -101,7 +42,7 @@
 // };
 
 // // Category Section Component
-// const CategorySection = ({ category, items }) => {
+// const CategorySection = ({ category, items, description }) => {
 //   return (
 //     <div className="mb-12">
 //       <div className="mb-12">
@@ -110,13 +51,18 @@
 //           Твоя идея - наша реализация!
 //         </p>
 //         <p className="text-lg font-bold text-slate-600">
-//           Создай уникальные наклейки по собственному дизайну. Воплотим любую
-//           задумку!
+//           {description ||
+//             "Создай уникальные наклейки по собственному дизайну. Воплотим любую задумку!"}
 //         </p>
 //       </div>
 //       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 //         {items.map((item, index) => (
-//           <ProductCard key={index} title={item.title} price={item.price} />
+//           <ProductCard
+//             key={item.id || index}
+//             title={item.title}
+//             price={item.price}
+//             image={item.image}
+//           />
 //         ))}
 //       </div>
 //     </div>
@@ -125,10 +71,19 @@
 
 // // Main Component
 // const Homepage2 = () => {
+//   const router = useRouter();
 //   const [showAll, setShowAll] = useState(false);
 
-//   // JSON data
-//   const stickersData = {
+//   // API State management
+//   const [stickers, setStickers] = useState([]);
+//   const [categories, setCategories] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [accessToken, setAccessToken] = useState(null);
+//   const [csrfToken, setCsrfToken] = useState("");
+
+//   // Fallback static data (your original data)
+//   const fallbackStickersData = {
 //     stickers: [
 //       {
 //         category: "Мотивационные",
@@ -136,11 +91,11 @@
 //         title2:
 //           "Мотивационные наклейки – заряд энергии и позитива для твоего пространства.",
 //         items: [
-//           { title: "Чтобы дойти до цели...", price: "334 ₽" },
-//           { title: "У тебя всё получится", price: "334 ₽" },
+//           { title: "Чтобы дойти до цели...", price: "334" },
+//           { title: "У тебя всё получится", price: "334" },
 //           {
 //             title: "Ты молодец! Даже если никто тебе этого не сказал",
-//             price: "334 ₽",
+//             price: "334",
 //           },
 //         ],
 //       },
@@ -150,9 +105,9 @@
 //         title2:
 //           "Наклейки-аффирмации - мощный инструмент для подсознания и достижения целей..",
 //         items: [
-//           { title: "В гармонии с собой и с миром", price: "334 ₽" },
-//           { title: "Свети", price: "334 ₽" },
-//           { title: "Я люблю себя", price: "334 ₽" },
+//           { title: "В гармонии с собой и с миром", price: "334" },
+//           { title: "Свети", price: "334" },
+//           { title: "Я люблю себя", price: "334" },
 //         ],
 //       },
 //       {
@@ -161,147 +116,154 @@
 //         title2:
 //           "Поздравительные наклейки для украшения подарков, открыток и всего, что дарит радость.",
 //         items: [
-//           { title: "Любимой маме и дорогой бабушке!", price: "334 ₽" },
-//           { title: "С Юбилеем", price: "334 ₽" },
-//           { title: "Чудесного Нового Года, любимая!", price: "334 ₽" },
+//           { title: "Любимой маме и дорогой бабушке!", price: "334" },
+//           { title: "С Юбилеем", price: "334" },
+//           { title: "Чудесного Нового Года, любимая!", price: "334" },
 //         ],
 //       },
-//       {
-//         category: "Именные",
-//         title1: "Персонализируй все!",
-//         title2:
-//           "Именные наклейки – отличный способ пометить вещи, подарки или создать уникальный стиль",
-//         items: [
-//           { title: "Настя", price: "334 ₽" },
-//           { title: "Крещение Максима", price: "334 ₽" },
-//           { title: "Полине 1 годик", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "На выписку",
-//         title1: "Самый трогательный момент!",
-//         title2:
-//           "Наклейки на выписку из роддома – украсьте машину, дом и создайте праздничное настроение.",
-//         items: [
-//           { title: "Добро пожаловать домой, Ляля!", price: "334 ₽" },
-//           { title: "Добро пожаловать домой", price: "334 ₽" },
-//           { title: "Welcome Baby", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "На выпускной",
-//         title1: "Праздник, который запомнится!",
-//         title2:
-//           "Наклейки на выпускной – для украшения зала, подарков и памятных сувениров",
-//         items: [
-//           { title: "Последний звонок!", price: "334 ₽" },
-//           { title: "Выпуск 2025", price: "334 ₽" },
-//           { title: "До свидания, детский сад!", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Для витрин",
-//         title1: "Привлекай внимание к своему бизнесу!",
-//         title2:
-//           "Наклейки для витрин – яркая реклама, акции и информация для ваших клиентов",
-//         items: [
-//           { title: "Аптека", price: "334 ₽" },
-//           { title: "Фрукты овощи", price: "334 ₽" },
-//           { title: "Канцтовары", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Режим работы",
-//         title1: "Четко и понятно!",
-//         title2:
-//           "Наклейки с режимом работы – информативность и профессионализм для вашего бизнеса",
-//         items: [
-//           { title: "Автозапчасти: 10.00 - 19.00", price: "334 ₽" },
-//           { title: "Цветы: 8.00 - 00.00", price: "334 ₽" },
-//           {
-//             title: "Семейная пекарня: Пн-Сб 9-21, Вс - выходной",
-//             price: "334 ₽",
-//           },
-//         ],
-//       },
-//       {
-//         category: "Метрики",
-//         title1: "Самые важные цифры!",
-//         title2:
-//           "Наклейки с метриками новорожденного – уникальный декор детской и памятный подарок",
-//         items: [
-//           { title: "Альбина 14.01.2023 3280г 51см 00:52", price: "334 ₽" },
-//           { title: "Иконки роста, даты, вес и т.д.", price: "334 ₽" },
-//           { title: "Ульяна 01.07.2023 2250г 45см 12:38", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Заплатки для натяжного потолка",
-//         title1: "Спаси свой потолок!",
-//         title2:
-//           "Эстетичные заплатки для натяжного потолка – быстрое и надежное решение проблемы.",
-//         items: [
-//           { title: "Цветы и облака", price: "334 ₽" },
-//           { title: "Фигурные заплатки", price: "334 ₽" },
-//           { title: "Разнообразные формы", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Индивидуальные наклейки на заказ",
-//         title1: "Твоя идея - наша реализация!",
-//         title2:
-//           "Создай уникальные наклейки по собственному дизайну. Воплотим любую задумку!",
-//         items: [
-//           { title: "Иван & Анастасия 26.04.2025", price: "334 ₽" },
-//           { title: "Комната Варюши", price: "334 ₽" },
-//           { title: "Эсуман маленькая принцесса", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Термотрансферные наклейки",
-//         title1: "Перенеси изображение на ткань за секунды!",
-//         title2:
-//           "Термотрансферные наклейки - простой способ кастомизировать одежду и аксессуары.",
-//         items: [
-//           { title: "Barbie", price: "334 ₽" },
-//           { title: "Олень и лес", price: "334 ₽" },
-//           { title: "Фламинго и солнце", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Термотрансферные наклейки на заказ",
-//         title1: "Твой уникальный стиль!",
-//         title2:
-//           "Создай свои термотрансферные наклейки по индивидуальному дизайну.",
-//         items: [
-//           { title: "Номер 39", price: "334 ₽" },
-//           { title: "Комната Варюши", price: "334 ₽" },
-//           { title: "Эсуман маленькая принцесса", price: "334 ₽" },
-//         ],
-//       },
-//       {
-//         category: "Для автомобилей",
-//         title1: "Подчеркни свой стиль!",
-//         title2:
-//           "Наклейки на авто – виниловый тюнинг, реклама и самовыражение на дороге.",
-//         items: [
-//           { title: "Banditka", price: "334 ₽" },
-//           { title: "BORZ", price: "334 ₽" },
-//           { title: "Sunshine", price: "334 ₽" },
-//         ],
-//       },
+//       // ... rest of your fallback data
 //     ],
 //   };
 
-//   // Get categories to display
-//   const categoriesToShow = showAll
-//     ? stickersData.stickers
-//     : stickersData.stickers.slice(0, 2);
+//   // Helper function to get CSRF token from cookie
+//   const getCsrfTokenFromCookie = () => {
+//     if (typeof document === "undefined") return null;
+//     const cookies = document.cookie.split(";");
+//     for (let cookie of cookies) {
+//       const [name, value] = cookie.trim().split("=");
+//       if (name === "csrftoken") {
+//         return value;
+//       }
+//     }
+//     return null;
+//   };
+
+//   // Check authentication on component mount
+//   useEffect(() => {
+//     if (typeof window === "undefined") return;
+
+//     const token = localStorage.getItem("access_token");
+//     if (token) {
+//       setAccessToken(token);
+//       // Get CSRF token
+//       const csrf = getCsrfTokenFromCookie();
+//       setCsrfToken(csrf || "");
+//     } else {
+//       // No token, use fallback data
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   // Fetch data when token is available
+//   useEffect(() => {
+//     if (accessToken) {
+//       fetchData();
+//     }
+//   }, [accessToken]);
+
+//   // Authenticated request helper
+//   const makeAuthenticatedRequest = async (url, options = {}) => {
+//     const headers = {
+//       Accept: "application/json",
+//       "Content-Type": "application/json",
+//       ...options.headers,
+//     };
+
+//     // Add authentication token
+//     if (accessToken) {
+//       headers["Authorization"] = `Bearer ${accessToken}`;
+//     }
+
+//     // Add CSRF token if available
+//     if (csrfToken) {
+//       headers["X-CSRFTOKEN"] = csrfToken;
+//     }
+
+//     const response = await fetch(url, {
+//       ...options,
+//       headers,
+//       credentials: "include",
+//     });
+
+//     // Handle token expiration
+//     if (response.status === 401) {
+//       if (typeof window !== "undefined") {
+//         localStorage.removeItem("access_token");
+//         localStorage.removeItem("refresh_token");
+//       }
+//       throw new Error("Unauthorized");
+//     }
+
+//     return response;
+//   };
+
+//   // Fetch both stickers and categories
+//   const fetchData = async () => {
+//     try {
+//       setLoading(true);
+//       setError(null);
+
+//       // Fetch both stickers and categories in parallel
+//       const [stickersResponse, categoriesResponse] = await Promise.all([
+//         makeAuthenticatedRequest("http://localhost:8000/api/stickers/"),
+//         makeAuthenticatedRequest(
+//           "http://localhost:8000/api/stickers/categories/"
+//         ),
+//       ]);
+
+//       if (stickersResponse.ok && categoriesResponse.ok) {
+//         const stickersData = await stickersResponse.json();
+//         const categoriesData = await categoriesResponse.json();
+
+//         setStickers(stickersData);
+//         setCategories(categoriesData);
+//       } else {
+//         throw new Error("Failed to fetch data");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//       setError(error.message);
+//       // On error, we'll use fallback data
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Group stickers by category
+//   const groupStickersByCategory = () => {
+//     if (!stickers.length || !categories.length) {
+//       return fallbackStickersData.stickers;
+//     }
+
+//     const grouped = categories
+//       .map((category) => {
+//         const categoryStickers = stickers.filter(
+//           (sticker) => sticker.category === category.id
+//         );
+//         return {
+//           category: category.title,
+//           description: category.description,
+//           items: categoryStickers.map((sticker) => ({
+//             id: sticker.id,
+//             title: sticker.title,
+//             price: sticker.price,
+//             image: sticker.image,
+//           })),
+//         };
+//       })
+//       .filter((group) => group.items.length > 0);
+
+//     return grouped.length > 0 ? grouped : fallbackStickersData.stickers;
+//   };
+
+//   const categoriesToShow = (() => {
+//     const allCategories = groupStickersByCategory();
+//     return showAll ? allCategories : allCategories.slice(0, 2);
+//   })();
 
 //   return (
 //     <div className="min-h-screen">
 //       <div className="hidden md:block">
-//         {/* <Navbar /> */}
 //         {/* Hero Section */}
 //         <section
 //           className="relative bg-pink-200 py-16 px-4 overflow-hidden h-screen inset-0 bg-cover bg-center bg-no-repeat"
@@ -354,24 +316,45 @@
 //         {/* Products Section */}
 //         <section className="py-16 px-4">
 //           <div className="max-w-7xl mx-auto">
+//             {/* Loading State */}
+//             {loading && (
+//               <div className="text-center py-12">
+//                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
+//                 <p className="text-slate-600">Загрузка каталога...</p>
+//               </div>
+//             )}
+
 //             {/* Categories */}
-//             {categoriesToShow.map((categoryData, index) => (
-//               <CategorySection
-//                 key={index}
-//                 category={categoryData.category}
-//                 items={categoryData.items}
-//               />
-//             ))}
+//             {!loading &&
+//               categoriesToShow.map((categoryData, index) => (
+//                 <CategorySection
+//                   key={categoryData.category || index}
+//                   category={categoryData.category}
+//                   items={categoryData.items}
+//                   description={categoryData.description}
+//                 />
+//               ))}
 
 //             {/* Show More/Less Button */}
-//             <div className="text-center mt-12">
-//               <button
-//                 onClick={() => setShowAll(!showAll)}
-//                 className="bg-transparent text-[#4E4E4E] border-1 border-black px-10 py-3 rounded-2xl font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
-//               >
-//                 {showAll ? "Скрыть" : "Показать ещё"}
-//               </button>
-//             </div>
+//             {!loading && (
+//               <div className="text-center mt-12">
+//                 <button
+//                   onClick={() => setShowAll(!showAll)}
+//                   className="bg-transparent text-[#4E4E4E] border-1 border-black px-10 py-3 rounded-2xl font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
+//                 >
+//                   {showAll ? "Скрыть" : "Показать ещё"}
+//                 </button>
+//               </div>
+//             )}
+
+//             {/* Error State (subtle, doesn't break the flow) */}
+//             {error && !loading && (
+//               <div className="text-center py-4">
+//                 <p className="text-slate-500 text-sm">
+//                   Показаны локальные данные
+//                 </p>
+//               </div>
+//             )}
 //           </div>
 //         </section>
 //       </div>
@@ -388,7 +371,7 @@
 // export default Homepage2;
 
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import PhotoGallery from "../components/PhotoGallery";
 import Image from "next/image";
@@ -397,6 +380,7 @@ import AboutUs from "../components/AboutUs";
 import WhyUs from "../components/WhyUs";
 import Reviews from "../components/Reviews";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 
 // Product Card Component
 const ProductCard = ({ title, price, image }) => {
@@ -463,6 +447,28 @@ const Homepage2 = () => {
   const router = useRouter();
   const [showAll, setShowAll] = useState(false);
 
+  // Create refs for each section
+  const homeRef = useRef(null);
+  const masterClassesRef = useRef(null);
+  const catalogRef = useRef(null);
+  const aboutUsRef = useRef(null);
+  const scheduleRef = useRef(null);
+  const contactsRef = useRef(null);
+  const stickersRef = useRef(null);
+  const whyUsRef = useRef(null);
+  const reviewsRef = useRef(null);
+  const photoGalleryRef = useRef(null);
+
+  // Navigation function with smooth scrolling
+  const scrollToSection = (ref) => {
+    if (ref && ref.current) {
+      ref.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   // API State management
   const [stickers, setStickers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -470,49 +476,6 @@ const Homepage2 = () => {
   const [error, setError] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
-
-  // Fallback static data (your original data)
-  const fallbackStickersData = {
-    stickers: [
-      {
-        category: "Мотивационные",
-        title1: "Вдохновляйся каждый день!",
-        title2:
-          "Мотивационные наклейки – заряд энергии и позитива для твоего пространства.",
-        items: [
-          { title: "Чтобы дойти до цели...", price: "334" },
-          { title: "У тебя всё получится", price: "334" },
-          {
-            title: "Ты молодец! Даже если никто тебе этого не сказал",
-            price: "334",
-          },
-        ],
-      },
-      {
-        category: "Аффирмации",
-        title1: "Измени свою жизнь с помощью слов!",
-        title2:
-          "Наклейки-аффирмации - мощный инструмент для подсознания и достижения целей..",
-        items: [
-          { title: "В гармонии с собой и с миром", price: "334" },
-          { title: "Свети", price: "334" },
-          { title: "Я люблю себя", price: "334" },
-        ],
-      },
-      {
-        category: "Поздравительные",
-        title1: "Сделай праздник ярче!",
-        title2:
-          "Поздравительные наклейки для украшения подарков, открыток и всего, что дарит радость.",
-        items: [
-          { title: "Любимой маме и дорогой бабушке!", price: "334" },
-          { title: "С Юбилеем", price: "334" },
-          { title: "Чудесного Нового Года, любимая!", price: "334" },
-        ],
-      },
-      // ... rest of your fallback data
-    ],
-  };
 
   // Helper function to get CSRF token from cookie
   const getCsrfTokenFromCookie = () => {
@@ -537,30 +500,22 @@ const Homepage2 = () => {
       // Get CSRF token
       const csrf = getCsrfTokenFromCookie();
       setCsrfToken(csrf || "");
-    } else {
-      // No token, use fallback data
-      setLoading(false);
     }
+    // Always try to fetch data, whether authenticated or not
+    fetchData(token);
   }, []);
 
-  // Fetch data when token is available
-  useEffect(() => {
-    if (accessToken) {
-      fetchData();
-    }
-  }, [accessToken]);
-
   // Authenticated request helper
-  const makeAuthenticatedRequest = async (url, options = {}) => {
+  const makeAuthenticatedRequest = async (url, token = null, options = {}) => {
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
       ...options.headers,
     };
 
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    // Add authentication token if available
+    if (token || accessToken) {
+      headers["Authorization"] = `Bearer ${token || accessToken}`;
     }
 
     // Add CSRF token if available
@@ -580,39 +535,42 @@ const Homepage2 = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
       }
-      throw new Error("Unauthorized");
+      throw new Error("Unauthorized - please login");
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     return response;
   };
 
   // Fetch both stickers and categories
-  const fetchData = async () => {
+  const fetchData = async (token = null) => {
     try {
       setLoading(true);
       setError(null);
 
       // Fetch both stickers and categories in parallel
       const [stickersResponse, categoriesResponse] = await Promise.all([
-        makeAuthenticatedRequest("http://localhost:8000/api/stickers/"),
         makeAuthenticatedRequest(
-          "http://localhost:8000/api/stickers/categories/"
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/`,
+          token
+        ),
+        makeAuthenticatedRequest(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`,
+          token
         ),
       ]);
 
-      if (stickersResponse.ok && categoriesResponse.ok) {
-        const stickersData = await stickersResponse.json();
-        const categoriesData = await categoriesResponse.json();
+      const stickersData = await stickersResponse.json();
+      const categoriesData = await categoriesResponse.json();
 
-        setStickers(stickersData);
-        setCategories(categoriesData);
-      } else {
-        throw new Error("Failed to fetch data");
-      }
+      setStickers(stickersData);
+      setCategories(categoriesData);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError(error.message);
-      // On error, we'll use fallback data
     } finally {
       setLoading(false);
     }
@@ -621,7 +579,7 @@ const Homepage2 = () => {
   // Group stickers by category
   const groupStickersByCategory = () => {
     if (!stickers.length || !categories.length) {
-      return fallbackStickersData.stickers;
+      return [];
     }
 
     const grouped = categories
@@ -642,7 +600,7 @@ const Homepage2 = () => {
       })
       .filter((group) => group.items.length > 0);
 
-    return grouped.length > 0 ? grouped : fallbackStickersData.stickers;
+    return grouped;
   };
 
   const categoriesToShow = (() => {
@@ -650,11 +608,32 @@ const Homepage2 = () => {
     return showAll ? allCategories : allCategories.slice(0, 2);
   })();
 
+  // Pass navigation function to navbar
+  const navigationProps = {
+    scrollToSection,
+    refs: {
+      home: homeRef,
+      masterClasses: masterClassesRef,
+      catalog: catalogRef,
+      aboutUs: aboutUsRef,
+      schedule: scheduleRef,
+      contacts: contactsRef,
+      stickers: stickersRef,
+      whyUs: whyUsRef,
+      reviews: reviewsRef,
+      photoGallery: photoGalleryRef,
+    },
+  };
+
   return (
     <div className="min-h-screen">
+      {/* Add Navbar with navigation props */}
+      <Navbar scrollToSection={scrollToSection} refs={navigationProps.refs} />
+
       <div className="hidden md:block">
         {/* Hero Section */}
         <section
+          ref={homeRef}
           className="relative bg-pink-200 py-16 px-4 overflow-hidden h-screen inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('/images/hero2.png')`,
@@ -703,7 +682,7 @@ const Homepage2 = () => {
         </section>
 
         {/* Products Section */}
-        <section className="py-16 px-4">
+        <section ref={catalogRef} className="py-16 px-4">
           <div className="max-w-7xl mx-auto">
             {/* Loading State */}
             {loading && (
@@ -713,8 +692,28 @@ const Homepage2 = () => {
               </div>
             )}
 
+            {/* Error State */}
+            {error && !loading && (
+              <div className="text-center py-12">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                  <h3 className="text-red-800 font-semibold mb-2">
+                    Ошибка загрузки данных
+                  </h3>
+                  <p className="text-red-600 text-sm mb-4">{error}</p>
+                  <button
+                    onClick={() => fetchData()}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Попробовать снова
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Categories */}
             {!loading &&
+              !error &&
+              categoriesToShow.length > 0 &&
               categoriesToShow.map((categoryData, index) => (
                 <CategorySection
                   key={categoryData.category || index}
@@ -724,35 +723,62 @@ const Homepage2 = () => {
                 />
               ))}
 
-            {/* Show More/Less Button */}
-            {!loading && (
-              <div className="text-center mt-12">
-                <button
-                  onClick={() => setShowAll(!showAll)}
-                  className="bg-transparent text-[#4E4E4E] border-1 border-black px-10 py-3 rounded-2xl font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
-                >
-                  {showAll ? "Скрыть" : "Показать ещё"}
-                </button>
+            {/* No Data State */}
+            {!loading && !error && categoriesToShow.length === 0 && (
+              <div className="text-center py-12">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-w-md mx-auto">
+                  <h3 className="text-gray-800 font-semibold mb-2">
+                    Каталог пуст
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    На данный момент нет доступных стикеров для отображения.
+                  </p>
+                </div>
               </div>
             )}
 
-            {/* Error State (subtle, doesn't break the flow) */}
-            {error && !loading && (
-              <div className="text-center py-4">
-                <p className="text-slate-500 text-sm">
-                  Показаны локальные данные
-                </p>
-              </div>
-            )}
+            {/* Show More/Less Button */}
+            {!loading &&
+              !error &&
+              categoriesToShow.length > 0 &&
+              groupStickersByCategory().length > 2 && (
+                <div className="text-center mt-12">
+                  <button
+                    onClick={() => setShowAll(!showAll)}
+                    className="bg-transparent text-[#4E4E4E] border-1 border-black px-10 py-3 rounded-2xl font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    {showAll ? "Скрыть" : "Показать ещё"}
+                  </button>
+                </div>
+              )}
           </div>
         </section>
       </div>
-      <MasterClasses />
-      <AboutUs />
-      <WhyUs />
-      <Reviews />
-      <PhotoGallery />
-      <Footer />
+
+      {/* Add refs to each component section */}
+      <div ref={masterClassesRef}>
+        <MasterClasses />
+      </div>
+
+      <div ref={aboutUsRef}>
+        <AboutUs />
+      </div>
+
+      <div ref={whyUsRef}>
+        <WhyUs />
+      </div>
+
+      <div ref={reviewsRef}>
+        <Reviews />
+      </div>
+
+      <div ref={photoGalleryRef}>
+        <PhotoGallery />
+      </div>
+
+      <div ref={contactsRef}>
+        <Footer />
+      </div>
     </div>
   );
 };

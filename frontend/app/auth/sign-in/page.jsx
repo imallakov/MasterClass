@@ -573,7 +573,7 @@ export default function SignInPage() {
           } else {
             router.push("/user-account");
           }
-        }, 1000);
+        }, 2000);
       } else {
         const errorData = await response.json();
         console.error("Login failed:", errorData);

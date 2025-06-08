@@ -44,7 +44,7 @@ const Homepage = () => {
                 <button className="bg-white rounded-full w-32 h-32 flex items-center justify-center group hover:scale-105 transition-all duration-300 shadow-xl">
                   <div className="text-center">
                     <span className="text-[#3A6281] font-bold text-lg block mb-1">
-                      Каталог
+                      <a href="/catalogpage">Каталог</a>
                     </span>
                     <svg
                       className="w-14 h-14 text-[#E7717D] mx-auto transform group-hover:translate-x-1 transition-transform rotate-25"

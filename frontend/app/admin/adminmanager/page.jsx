@@ -550,6 +550,7 @@ import DeleteStickerPage from "../pages/deleteSticker";
 import AddStickerCategory from "../pages/addStickerCategory";
 import EditStickerCategory from "../pages/editStickerCategory";
 import DeleteStickerCategory from "../pages/deleteStickerCategory";
+import { useRouter } from "next/navigation";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
@@ -566,6 +567,13 @@ const Sidebar = ({ currentPage, onPageChange }) => {
   const [isStickersExpanded, setIsStickersExpanded] = useState(true);
   const [isStickersCategoryExpanded, setIsStickersCategoryExpanded] =
     useState(true);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    router.push("/auth/sign-in");
+  };
 
   return (
     <div className="w-80 bg-white h-full flex flex-col border-r border-gray-100">
@@ -804,10 +812,12 @@ const Sidebar = ({ currentPage, onPageChange }) => {
           </button>
         </div>
       </div>
-
       {/* Logout */}
       <div className="p-4 border-t border-gray-100">
-        <button className="flex items-center space-x-3 p-3 text-gray-600 hover:bg-gray-50 rounded-lg w-full text-left transition-colors duration-200">
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-3 p-3 text-gray-600 hover:bg-gray-50 rounded-lg w-full text-left transition-colors duration-200"
+        >
           <span>
             <LogOut className="w-4 h-4 text-gray-600" />
           </span>
