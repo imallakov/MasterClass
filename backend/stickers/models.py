@@ -22,3 +22,11 @@ class Sticker(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class StickerOrder(models.Model):
+    sticker = models.ForeignKey(Sticker, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField()
+    phone_number = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)

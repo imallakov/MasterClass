@@ -1,6 +1,6 @@
-from rest_framework import generics, permissions
-from .models import StickerCategories, Sticker
-from .serializers import StickerCategoriesSerializer, StickerSerializer
+from rest_framework import generics, permissions, viewsets
+from .models import StickerCategories, Sticker, StickerOrder
+from .serializers import StickerCategoriesSerializer, StickerSerializer, StickerOrderSerializer
 
 
 class StickerCategoriesListCreateView(generics.ListCreateAPIView):
@@ -35,5 +35,15 @@ class StickerDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
+
+
+class StickerOrderView(generics.ListCreateAPIView):
+    queryset = StickerOrder.objects.all()
+    serializer_class = StickerOrderSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]

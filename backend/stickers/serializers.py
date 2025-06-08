@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import StickerCategories, Sticker
+from .models import StickerCategories, Sticker, StickerOrder
 
 
 class StickerCategoriesSerializer(serializers.ModelSerializer):
@@ -19,3 +19,10 @@ class StickerSerializer(serializers.ModelSerializer):
         if 'image' in validated_data and instance.image:
             instance.image.delete(save=False)
         return super().update(instance, validated_data)
+
+
+class StickerOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StickerOrder
+        fields = ['id', 'sticker', 'full_name', 'quantity', 'phone_number', 'created_at']
+        read_only_fields = ['created_at']
