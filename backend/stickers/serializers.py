@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import StickerCategories, Sticker, StickerOrder
 
@@ -26,3 +27,13 @@ class StickerOrderSerializer(serializers.ModelSerializer):
         model = StickerOrder
         fields = ['id', 'sticker', 'full_name', 'quantity', 'phone_number', 'created_at']
         read_only_fields = ['created_at']
+
+
+class GroupedStickerOrderSerializer(serializers.Serializer):
+    sticker = StickerSerializer()
+    orders = serializers.SerializerMethodField()
+
+    @extend_schema_field(StickerOrderSerializer(many=True))
+    def get_orders(self, obj):
+        orders = obj.orders.all().order_by('-created_at')
+        return StickerOrderSerializer(orders, many=True).data
