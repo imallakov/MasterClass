@@ -402,7 +402,9 @@ const MasterClasses = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:8000/api/masterclasses/");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -439,7 +441,7 @@ const MasterClasses = () => {
       setModalError(null);
 
       const response = await fetch(
-        `http://localhost:8000/api/masterclasses/${id}/`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${id}/`
       );
 
       if (!response.ok) {

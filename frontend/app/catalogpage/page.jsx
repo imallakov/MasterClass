@@ -117,9 +117,9 @@
 // };
 
 // export default CatalogPage;
-
+"use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import StickerCard from "../components/StickerCard";
 
 const CatalogPage = () => {
@@ -209,9 +209,11 @@ const CatalogPage = () => {
 
       // Fetch both stickers and categories in parallel
       const [stickersResponse, categoriesResponse] = await Promise.all([
-        makeAuthenticatedRequest("http://localhost:8000/api/stickers/"),
         makeAuthenticatedRequest(
-          "http://localhost:8000/api/stickers/categories/"
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/`
+        ),
+        makeAuthenticatedRequest(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
         ),
       ]);
 

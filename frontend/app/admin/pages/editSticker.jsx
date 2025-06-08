@@ -723,7 +723,7 @@ const EditStickerPage = () => {
     try {
       setLoadingCategories(true);
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/stickers/categories/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
       );
 
       if (response.ok) {
@@ -750,7 +750,7 @@ const EditStickerPage = () => {
     try {
       setLoadingStickers(true);
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/stickers/?category=${categoryId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/?category=${categoryId}`
       );
 
       if (response.ok) {
@@ -901,7 +901,7 @@ const EditStickerPage = () => {
         formDataForSubmission.append("image", selectedFile);
 
         response = await makeAuthenticatedRequest(
-          `http://localhost:8000/api/stickers/${selectedSticker.id}/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/${selectedSticker.id}/`,
           {
             method: "PUT",
             body: formDataForSubmission,
@@ -916,7 +916,7 @@ const EditStickerPage = () => {
         };
 
         response = await makeAuthenticatedRequest(
-          `http://localhost:8000/api/stickers/${selectedSticker.id}/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/${selectedSticker.id}/`,
           {
             method: "PATCH",
             body: JSON.stringify(updateData),

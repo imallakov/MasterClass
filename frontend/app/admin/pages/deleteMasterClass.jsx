@@ -97,7 +97,7 @@ const DeleteMasterClassPage = () => {
     setIsLoadingMasterclasses(true);
     try {
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/masterclasses/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`
       );
 
       if (!response.ok) {
@@ -140,7 +140,7 @@ const DeleteMasterClassPage = () => {
 
     try {
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/masterclasses/${deleteConfirmation.masterclass.id}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${deleteConfirmation.masterclass.id}/`,
         {
           method: "DELETE",
         }

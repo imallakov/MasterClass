@@ -137,7 +137,7 @@ const AddStickerCategory = () => {
       console.log("Submitting category data:", categoryData);
 
       const categoryResponse = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/stickers/categories/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`,
         {
           method: "POST",
           body: JSON.stringify(categoryData),

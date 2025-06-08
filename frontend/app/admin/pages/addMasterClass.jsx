@@ -947,7 +947,7 @@ const AddMasterClassPage = () => {
       }
 
       const masterclassResponse = await fetch(
-        "http://localhost:8000/api/masterclasses/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`,
         {
           method: "POST",
           headers: headers,
@@ -1005,7 +1005,7 @@ const AddMasterClassPage = () => {
         }
 
         const slotResponse = await fetch(
-          "http://localhost:8000/api/masterclasses/slots/",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
           {
             method: "POST",
             headers: slotHeaders,

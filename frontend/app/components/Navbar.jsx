@@ -166,7 +166,7 @@
 // export default Navbar;
 "use client";
 import Image from "next/image";
-import Link from "next/link";
+import _Link from "next/link";
 import React, { useState, useEffect } from "react";
 
 const Navbar = () => {

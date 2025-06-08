@@ -83,7 +83,7 @@ const BookingPage = ({ masterclassId }) => {
         setLoading(true);
 
         const response = await makeAuthenticatedRequest(
-          `http://localhost:8000/api/masterclasses/${masterclassId}/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${masterclassId}/`,
           {
             method: "GET",
           }
@@ -118,7 +118,7 @@ const BookingPage = ({ masterclassId }) => {
       setEnrollmentError(null);
 
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/masterclasses/enroll/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/enroll/`,
         {
           method: "POST",
           body: JSON.stringify({

@@ -50,7 +50,7 @@
 // contexts/NavigationContext.js
 "use client";
 import React, { createContext, useContext, useState, useCallback } from "react";
-
+import { useRouter } from "next/navigation";
 const NavigationContext = createContext();
 
 export const useNavigation = () => {
@@ -62,14 +62,16 @@ export const useNavigation = () => {
 };
 
 export const NavigationProvider = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState("profile");
+  const [currentPage, setCurrentPage] = useState("booking");
   const [selectedMasterclassId, setSelectedMasterclassId] = useState(null);
+  const router = useRouter();
 
   // Use useCallback to prevent unnecessary re-renders
   const navigateToBooking = useCallback((masterclassId) => {
     console.log("Navigating to booking with masterclass ID:", masterclassId); // Debug log
     setSelectedMasterclassId(masterclassId);
     setCurrentPage("booking");
+    router.push(`/user-account/`);
   }, []);
 
   const navigateToProfile = useCallback(() => {

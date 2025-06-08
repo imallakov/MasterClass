@@ -409,7 +409,7 @@ export default function RegistrationPage() {
         }
 
         const response = await fetch(
-          "http://localhost:8000/api/users/register/",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/register/`,
           {
             method: "GET",
             credentials: "include",
@@ -506,7 +506,7 @@ export default function RegistrationPage() {
       }
 
       const response = await fetch(
-        "http://localhost:8000/api/users/register/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/register/`,
         {
           method: "POST",
           headers: headers,

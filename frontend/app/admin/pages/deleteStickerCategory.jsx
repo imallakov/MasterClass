@@ -94,7 +94,7 @@ const DeleteStickerCategory = () => {
     try {
       setIsLoading(true);
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/stickers/categories/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
       );
 
       if (!response.ok) {
@@ -127,7 +127,7 @@ const DeleteStickerCategory = () => {
       setMessage({ type: "", text: "" });
 
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/stickers/categories/${categoryToDelete.id}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${categoryToDelete.id}/`,
         {
           method: "DELETE",
         }

@@ -34,13 +34,13 @@
 // export default StickerCard;
 
 import React from "react";
-import Image from "next/image";
+import _Image from "next/image";
 
 const StickerCard = ({ image, price, category }) => {
   return (
     <div className="max-w-sm mx-auto bg-white rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
       <div className="p-4">
-        <Image
+        <img
           src={image}
           alt={`Наклейка ${category}`}
           layout="responsive"

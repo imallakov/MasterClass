@@ -1258,7 +1258,7 @@ const EditMasterClassPage = () => {
     setIsLoadingSlots(true);
     try {
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/masterclasses/${masterclassId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${masterclassId}`
       );
 
       if (!response.ok) {
@@ -1357,7 +1357,7 @@ const EditMasterClassPage = () => {
     setIsLoadingMasterclasses(true);
     try {
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/masterclasses/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`
       );
 
       if (!response.ok) {
@@ -1499,7 +1499,7 @@ const EditMasterClassPage = () => {
       }
 
       const response = await fetch(
-        `http://localhost:8000/api/masterclasses/${selectedMasterclass.id}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${selectedMasterclass.id}/`,
         {
           method: "PATCH",
           headers: headers,
@@ -1700,7 +1700,7 @@ const EditMasterClassPage = () => {
     setIsLoading(true);
     try {
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/masterclasses/slots/${slotId}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/${slotId}/`,
         {
           method: "DELETE",
         }
@@ -1767,7 +1767,7 @@ const EditMasterClassPage = () => {
       };
 
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/masterclasses/slots/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
         {
           method: "POST",
           body: JSON.stringify(slotData),

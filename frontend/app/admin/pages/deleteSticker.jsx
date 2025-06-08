@@ -105,7 +105,7 @@ const DeleteStickerPage = () => {
     try {
       setLoadingCategories(true);
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/stickers/categories/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
       );
 
       if (response.ok) {
@@ -132,7 +132,7 @@ const DeleteStickerPage = () => {
     try {
       setLoadingStickers(true);
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/stickers/?category=${categoryId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/?category=${categoryId}`
       );
 
       if (response.ok) {
@@ -204,7 +204,7 @@ const DeleteStickerPage = () => {
 
     try {
       const response = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/stickers/${selectedSticker.id}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/${selectedSticker.id}/`,
         {
           method: "DELETE",
         }

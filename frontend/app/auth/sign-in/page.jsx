@@ -413,13 +413,16 @@ export default function SignInPage() {
         }
 
         // If no cookie token, fetch from endpoint to set the cookie
-        const response = await fetch("http://localhost:8000/api/users/login/", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/login/`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
 
         if (response.ok) {
           // After the request, the cookie should be set, try to get it again
@@ -506,15 +509,18 @@ export default function SignInPage() {
         password: formData.password,
       });
 
-      const response = await fetch("http://localhost:8000/api/users/login/", {
-        method: "POST",
-        headers: headers,
-        credentials: "include", // Important for CORS with credentials
-        body: JSON.stringify({
-          phone_number: formData.phone,
-          password: formData.password,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/login/`,
+        {
+          method: "POST",
+          headers: headers,
+          credentials: "include", // Important for CORS with credentials
+          body: JSON.stringify({
+            phone_number: formData.phone,
+            password: formData.password,
+          }),
+        }
+      );
 
       console.log("Response status:", response.status);
       console.log(

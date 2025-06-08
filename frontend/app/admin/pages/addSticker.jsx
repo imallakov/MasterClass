@@ -76,7 +76,7 @@ const AddStickerPage = () => {
       }
 
       const response = await fetch(
-        "http://localhost:8000/api/stickers/categories/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`,
         {
           method: "GET",
           headers: headers,
@@ -240,7 +240,7 @@ const AddStickerPage = () => {
       }
 
       const stickerResponse = await fetch(
-        "http://localhost:8000/api/stickers/",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/`,
         {
           method: "POST",
           headers: headers,

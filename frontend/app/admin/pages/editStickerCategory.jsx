@@ -97,7 +97,7 @@ const EditStickerCategory = () => {
     try {
       setCategoriesLoading(true);
       const response = await makeAuthenticatedRequest(
-        "http://localhost:8000/api/stickers/categories/"
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
       );
 
       if (!response.ok) {
@@ -189,7 +189,7 @@ const EditStickerCategory = () => {
       console.log("Updating category data:", categoryData);
 
       const categoryResponse = await makeAuthenticatedRequest(
-        `http://localhost:8000/api/stickers/categories/${selectedCategory.id}/`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${selectedCategory.id}/`,
         {
           method: "PUT", // or PATCH depending on your API
           body: JSON.stringify(categoryData),
