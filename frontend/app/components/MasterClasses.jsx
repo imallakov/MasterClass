@@ -1072,6 +1072,16 @@ const MasterClasses = () => {
                     {selectedClass.description}
                   </p>
 
+                  {/* Additional info */}
+                  <div className="mb-6">
+                    <p className="text-blue-600 text-sm italic mb-1">
+                      Возможность выбрать цвет
+                    </p>
+                    <p className="text-pink-400 text-sm">
+                      Мастер-класс рассчитан на взрослых и детей 7+
+                    </p>
+                  </div>
+
                   {/* Stats */}
                   {(selectedClass.participantLimit || selectedClass.slots) && (
                     <div className="mb-4 text-xs text-gray-500 space-y-1">
