@@ -1049,7 +1049,7 @@ const MasterClasses = () => {
                   </svg>
                 </button>
 
-                <div className="p-8 relative">
+                <div className="p-4 py-10 md:p-8 relative">
                   {/* Title */}
                   <h2 className="text-2xl font-bold text-[#3A6281] mb-4 leading-tight">
                     {selectedClass.title
@@ -1097,7 +1097,7 @@ const MasterClasses = () => {
                   {/* CTA Button */}
                   <div className="flex justify-end">
                     <button
-                      className="w-1/3 min-w-[200px] bg-[#E7717D] hover:bg-[#d26b75] text-white font-medium py-3 rounded-2xl text-base transition-colors"
+                      className="w-1/3 min-w-[160px] md:min-w-[200px] bg-[#E7717D] hover:bg-[#d26b75] text-white font-medium py-3 rounded-2xl text-base transition-colors"
                       onClick={handleBookingClick}
                     >
                       Узнать расписание

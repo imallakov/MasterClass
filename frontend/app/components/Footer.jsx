@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="flex flex-col space-y-4">
             <div className="text-3xl font-bold">+7 900 326 7660</div>
             <div className="text-xs font-semibold">
-              Ул. Московская, 60. 4 Этаж. 401 Студия
+              Ул. Московская 60, 2 этаж, 218 студия
             </div>
             <div className="flex items-center space-x-3 mt-6">
               {/* Logo */}
@@ -120,9 +120,11 @@ const Footer = () => {
 
           {/* Mobile Contact Info */}
           <div className="mb-8">
-            <div className="text-xl font-bold mb-2">+7 900 326 7660</div>
+            <a href="tel:+79003267660">
+              <div className="text-xl font-bold mb-2">+7 900 326 7660</div>
+            </a>
             <div className="text-xs font-semibold">
-              ул. Московская, 60. 4 этаж, 401 студия
+              Ул. Московская 60, 2 этаж, 218 студия
             </div>
           </div>
 

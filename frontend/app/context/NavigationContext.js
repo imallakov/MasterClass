@@ -62,7 +62,7 @@ export const useNavigation = () => {
 };
 
 export const NavigationProvider = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState("booking");
+  const [currentPage, setCurrentPage] = useState("profile");
   const [selectedMasterclassId, setSelectedMasterclassId] = useState(null);
   const router = useRouter();
 
@@ -97,7 +97,8 @@ export const NavigationProvider = ({ children }) => {
 
   return (
     <NavigationContext.Provider value={value}>
-      {children}
+      {" "}
+      {children}{" "}
     </NavigationContext.Provider>
   );
 };

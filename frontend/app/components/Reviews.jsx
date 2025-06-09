@@ -103,7 +103,9 @@ import { useRouter } from "next/navigation";
 
 const Reviews = () => {
   const router = useRouter();
-  const [reviews, setReviews] = useState([
+
+  // Initial/default reviews that will always be shown first
+  const initialReviews = [
     {
       id: 1,
       name: "Виктор",
@@ -118,7 +120,9 @@ const Reviews = () => {
       rating: 5,
       text: "Ребёнок был очень доволен, завтра идём вместе на макраме",
     },
-  ]);
+  ];
+
+  const [reviews, setReviews] = useState(initialReviews);
 
   // Authentication state
   const [accessToken, setAccessToken] = useState(null);
@@ -199,7 +203,7 @@ const Reviews = () => {
     return response;
   };
 
-  // Fetch reviews from API
+  // Fetch reviews from API and append them to initial reviews
   const fetchReviews = async () => {
     try {
       const response = await makeAuthenticatedRequest(
@@ -207,11 +211,18 @@ const Reviews = () => {
       );
 
       if (response.ok) {
-        const reviewsData = await response.json();
-        setReviews(reviewsData);
+        const fetchedReviews = await response.json();
 
-        // Check if user has already reviewed (you might need to adjust this logic based on your API)
-        // This assumes the API returns user info or you have another way to check
+        // Filter out any duplicates based on ID (optional)
+        const existingIds = new Set(initialReviews.map((review) => review.id));
+        const newReviews = fetchedReviews.filter(
+          (review) => !existingIds.has(review.id)
+        );
+
+        // Append fetched reviews to initial reviews
+        setReviews((prevReviews) => [...prevReviews, ...newReviews]);
+
+        // Check if user has already reviewed (adjust this logic based on your API)
         setUserHasReviewed(false); // Update this based on your logic
       }
     } catch (error) {
@@ -304,11 +315,16 @@ const Reviews = () => {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-          {reviews.map((review) => (
+          {reviews.map((review, index) => (
             <div
               key={review.id}
               className={`rounded-2xl md:rounded-4xl p-4 md:p-6 w-full min-h-[200px] md:h-54 ${
-                review.id === 1 ? "bg-[#9A743A]" : "bg-[#E9A980]"
+                // Use different colors for initial reviews vs fetched ones
+                index < initialReviews.length
+                  ? index === 0
+                    ? "bg-[#9A743A]"
+                    : "bg-[#E9A980]"
+                  : "bg-[#B8B8E0]" // Different color for API reviews
               }`}
             >
               <div className="flex items-center mb-3 md:mb-4">

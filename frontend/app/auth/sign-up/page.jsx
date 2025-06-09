@@ -388,6 +388,7 @@ export default function RegistrationPage() {
     fullName: "",
     birthDate: "",
     password: "",
+    passwordConfirm: "",
     phone: "",
     email: "",
     agreeToPolicy: false,
@@ -466,6 +467,12 @@ export default function RegistrationPage() {
       newErrors.password = "Пароль должен содержать минимум 6 символов";
     }
 
+    if (!formData.passwordConfirm) {
+      newErrors.passwordConfirm = "Подтвердите пароль";
+    } else if (formData.password !== formData.passwordConfirm) {
+      newErrors.passwordConfirm = "Пароли не совпадают";
+    }
+
     if (!formData.phone.trim()) {
       newErrors.phone = "Номер телефона обязателен для заполнения";
     }
@@ -513,8 +520,8 @@ export default function RegistrationPage() {
           credentials: "include",
           body: JSON.stringify({
             full_name: formData.fullName,
-            birth_date: formData.birthDate,
             password: formData.password,
+            password_confirm: formData.passwordConfirm,
             phone_number: formData.phone,
             email: formData.email,
           }),
@@ -548,6 +555,7 @@ export default function RegistrationPage() {
           fullName: "",
           birthDate: "",
           password: "",
+          passwordConfirm: "",
           phone: "",
           email: "",
           agreeToPolicy: false,
@@ -555,7 +563,7 @@ export default function RegistrationPage() {
 
         // Redirect after successful registration
         setTimeout(() => {
-          router.push("/login");
+          router.push("/");
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -601,6 +609,7 @@ export default function RegistrationPage() {
       fullName: "",
       birthDate: "",
       password: "",
+      passwordConfirm: "",
       phone: "",
       email: "",
       agreeToPolicy: false,
@@ -703,6 +712,27 @@ export default function RegistrationPage() {
                     />
                     {errors.password && (
                       <p className="text-red-500 text-sm">{errors.password}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <input
+                      id="passwordConfirm"
+                      name="passwordConfirm"
+                      type="password"
+                      value={formData.passwordConfirm}
+                      onChange={handleInputChange}
+                      placeholder="Подтвердите пароль"
+                      className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
+                        errors.passwordConfirm
+                          ? "border-red-300 focus:ring-red-500"
+                          : "border-gray-200 focus:ring-blue-500"
+                      }`}
+                    />
+                    {errors.passwordConfirm && (
+                      <p className="text-red-500 text-sm">
+                        {errors.passwordConfirm}
+                      </p>
                     )}
                   </div>
 
@@ -890,6 +920,27 @@ export default function RegistrationPage() {
                 />
                 {errors.password && (
                   <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  id="passwordConfirm"
+                  name="passwordConfirm"
+                  type="password"
+                  value={formData.passwordConfirm}
+                  onChange={handleInputChange}
+                  placeholder="Подтвердите пароль"
+                  className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
+                    errors.passwordConfirm
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-200 focus:ring-blue-500"
+                  }`}
+                />
+                {errors.passwordConfirm && (
+                  <p className="text-red-500 text-sm">
+                    {errors.passwordConfirm}
+                  </p>
                 )}
               </div>
 
