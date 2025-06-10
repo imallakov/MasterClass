@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import AboutUs
+from .models import AboutUs, Contacts
 
 
 class AboutUsSerializer(serializers.ModelSerializer):
@@ -13,3 +13,10 @@ class AboutUsSerializer(serializers.ModelSerializer):
         if 'image' in validated_data and instance.image:
             instance.image.delete(save=False)
         return super().update(instance, validated_data)
+
+
+class ContactsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contacts
+        fields = ['id', 'phone_number', 'email', 'address', 'telegram_id', 'vk_id']
+        read_only_fields = ['id']

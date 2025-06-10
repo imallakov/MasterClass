@@ -12,3 +12,11 @@ class AboutUs(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Contacts(models.Model):
+    phone_number = models.CharField(max_length=255)
+    email = models.EmailField()
+    address = models.TextField()
+    telegram_id = models.CharField(max_length=255)
+    vk_id = models.CharField(max_length=255)
