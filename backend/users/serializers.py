@@ -16,11 +16,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
 
+    birth_date = serializers.DateField(
+        required=False,
+        format="%d.%m.%Y",
+        input_formats=["%d.%m.%Y"]
+    )
+
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'password_confirm', 'full_name', 'phone_number']
+        fields = ['email', 'password', 'password_confirm', 'first_name', 'last_name', 'birth_date', 'phone_number']
         extra_kwargs = {
-            'full_name': {'required': False},
+            # 'full_name': {'required': False},
             'phone_number': {'required': True},
         }
 
@@ -37,16 +43,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
-            full_name=validated_data['full_name'],
+            # full_name=validated_data['full_name'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            birth_date=validated_data.get('birth_date', '01.01.1900'),
             phone_number=validated_data['phone_number'],
         )
         return user
 
 
 class UserSerializer(serializers.ModelSerializer):
+    birth_date = serializers.DateField(
+        format="%d.%m.%Y",
+        input_formats=["%d.%m.%Y"],
+        required=False
+    )
+
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'phone_number_verified', 'full_name', 'phone_number', 'is_active', 'is_staff', 'photo']
+        fields = ['id', 'email', 'phone_number_verified', 'first_name', 'last_name', 'birth_date', 'phone_number',
+                  'is_active',
+                  'is_staff', 'photo']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -54,9 +71,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    birth_date = serializers.DateField(
+        format="%d.%m.%Y",
+        input_formats=["%d.%m.%Y"],
+        required=False
+    )
+
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'full_name', 'phone_number', 'is_active', 'phone_number_verified', 'is_staff', 'photo']
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'birth_date', 'is_active',
+                  'phone_number_verified',
+                  'is_staff', 'photo']
         read_only_fields = ['id', 'is_active', 'is_staff']
 
     def update(self, instance, validated_data):
