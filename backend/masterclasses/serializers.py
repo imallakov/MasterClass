@@ -25,7 +25,8 @@ class MasterClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = MasterClass
         fields = [
-            'id', 'title', 'description', 'price', 'image', 'participant_limit', 'slots', 'created_at', 'updated_at'
+            'id', 'title', 'description', 'price', 'image', 'participant_limit', 'participant_min_age',
+            'participant_max_age', 'slots', 'created_at', 'updated_at'
         ]
 
     def update(self, instance, validated_data):

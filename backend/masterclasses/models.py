@@ -17,6 +17,8 @@ class MasterClass(models.Model):
         # optimized_image_quality=85  # Quality setting
     )
     participant_limit = models.PositiveIntegerField()
+    participant_min_age = models.PositiveIntegerField()
+    participant_max_age = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
