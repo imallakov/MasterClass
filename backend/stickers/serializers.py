@@ -35,5 +35,5 @@ class GroupedStickerOrderSerializer(serializers.Serializer):
 
     @extend_schema_field(StickerOrderSerializer(many=True))
     def get_orders(self, obj):
-        orders = obj.orders.all().order_by('-created_at')
-        return StickerOrderSerializer(orders, many=True).data
+        # Access the custom 'orders' attribute set by Prefetch
+        return StickerOrderSerializer(obj.orders, many=True).data
