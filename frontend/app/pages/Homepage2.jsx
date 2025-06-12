@@ -649,33 +649,43 @@ const Homepage2 = () => {
 
             <div className="flex justify-between items-center w-full">
               <div className="flex justify-center items-center gap-4">
-                <img
-                  className="w-24 h-24"
-                  src="/images/wildberries.png"
-                  alt="wildberries"
-                />
-                <img
-                  className="w-24 h-24 rounded-full object-cover"
-                  src="/images/ozon.png"
-                  alt="ozon"
-                />
-                <img
-                  className="w-24 h-24 rounded-full object-cover"
-                  src="/images/yandexmarket.png"
-                  alt="yandexmarket"
-                />
+                <a href="">
+                  <img
+                    className="w-24 h-24"
+                    src="/images/wildberries.png"
+                    alt="wildberries"
+                  />
+                </a>
+                <a href="https://www.instagram.com/dvorec_masterov">
+                  <img
+                    className="w-24 h-24 rounded-full object-cover"
+                    src="/images/instagram.png"
+                    alt="ozon"
+                  />
+                </a>
+                <a href="https://vk.com/club229163599">
+                  <img
+                    className="w-24 h-24 rounded-full object-cover"
+                    src="/images/vk.png"
+                    alt="vk"
+                  />
+                </a>
               </div>
               <div className="flex justify-center items-center gap-4">
-                <img
-                  className="`w-24 h-24 rounded-full object-cover"
-                  src="/images/telegram.png"
-                  alt="telegram"
-                />
-                <img
-                  className="w-28 h-28 rounded-full object-cover"
-                  src="/images/whatsapp.png"
-                  alt="whatsapp"
-                />
+                <a href="https://t.me/dvorec_masterov_kazan">
+                  <img
+                    className="`w-24 h-24 rounded-full object-cover"
+                    src="/images/telegram.png"
+                    alt="telegram"
+                  />
+                </a>
+                <a href="">
+                  <img
+                    className="w-28 h-28 rounded-full object-cover"
+                    src="/images/whatsapp.png"
+                    alt="whatsapp"
+                  />
+                </a>
               </div>
             </div>
           </div>

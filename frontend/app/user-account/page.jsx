@@ -328,7 +328,7 @@
 // export default PersonalCabinet;
 
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Wrench,
@@ -374,7 +374,8 @@ const PersonalCabinet = () => {
   const [profileData, setProfileData] = useState({
     id: 0,
     email: "",
-    full_name: "",
+    first_name: "",
+    last_name: "",
     phone_number: "",
     is_active: true,
     phone_number_verified: true,
@@ -391,20 +392,18 @@ const PersonalCabinet = () => {
   const [gender, setGender] = useState("Не выбрано");
   const [birthMonth, setBirthMonth] = useState("Выберите месяц");
   const [birthYear, setBirthYear] = useState("Выберите год");
+  const fileInputRef = useRef(null);
 
   // Loading and error states
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-
+  // Add photo preview state
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [newPhotoFile, setNewPhotoFile] = useState(null);
   // Authentication
   const [accessToken, setAccessToken] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
-
-  const [_selectedDate, setSelectedDate] = useState(18);
-  const [_selectedMonth, setSelectedMonth] = useState("Апрель 2025");
-  const [_selectedTime, setSelectedTime] = useState("9:30");
-  const [_participants, setParticipants] = useState(22);
 
   const {
     currentPage,
@@ -413,6 +412,24 @@ const PersonalCabinet = () => {
     navigateToBooking,
     navigateToMyClasses,
   } = useNavigation();
+
+  const getMonthNumber = (monthName) => {
+    const months = {
+      Январь: "01",
+      Февраль: "02",
+      Март: "03",
+      Апрель: "04",
+      Май: "05",
+      Июнь: "06",
+      Июль: "07",
+      Август: "08",
+      Сентябрь: "09",
+      Октябрь: "10",
+      Ноябрь: "11",
+      Декабрь: "12",
+    };
+    return months[monthName] || "01";
+  };
 
   // Check authentication on component mount
   useEffect(() => {
@@ -437,11 +454,8 @@ const PersonalCabinet = () => {
 
   // Update form fields when profile data changes
   useEffect(() => {
-    if (profileData.full_name) {
-      const nameParts = profileData.full_name.split(" ");
-      setFirstName(nameParts[0] || "");
-      setLastName(nameParts.slice(1).join(" ") || "");
-    }
+    setFirstName(profileData.first_name || "");
+    setLastName(profileData.last_name || "");
     setEmail(profileData.email || "");
     setPhoneNumber(profileData.phone_number || "");
     setPhoto(profileData.photo || "");
@@ -450,17 +464,21 @@ const PersonalCabinet = () => {
   const makeAuthenticatedRequest = async (url, options = {}) => {
     const headers = {
       Accept: "application/json",
-      "Content-Type": "application/json",
       ...options.headers,
     };
+
+    // Only add Content-Type for JSON, let browser set it for FormData
+    if (!(options.body instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+    }
 
     // Add authentication token
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
 
-    // Add CSRF token if available
-    if (csrfToken) {
+    // Add CSRF token if available (and not FormData - browser will handle multipart boundary)
+    if (csrfToken && !(options.body instanceof FormData)) {
       headers["X-CSRFTOKEN"] = csrfToken;
     }
 
@@ -480,6 +498,39 @@ const PersonalCabinet = () => {
 
     return response;
   };
+
+  // Update the handlePhotoChange function
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewPhotoFile(file); // Store the File object separately
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
+    }
+  };
+
+  // Update the useEffect that sets form data to handle photo preview
+  useEffect(() => {
+    setFirstName(profileData.first_name || "");
+    setLastName(profileData.last_name || "");
+    setEmail(profileData.email || "");
+    setPhoneNumber(profileData.phone_number || "");
+
+    // Handle photo display
+    if (profileData.photo) {
+      // If it's a full URL, use it directly
+      if (profileData.photo.startsWith("http")) {
+        setPhotoPreview(profileData.photo);
+      } else {
+        // If it's a relative path, prepend backend URL
+        setPhotoPreview(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}${profileData.photo}`
+        );
+      }
+    }
+  }, [profileData]);
 
   // Helper function to safely parse JSON response
   const parseResponse = async (response) => {
@@ -504,7 +555,7 @@ const PersonalCabinet = () => {
     try {
       setLoading(true);
       const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/`
       );
 
       if (response.ok) {
@@ -541,25 +592,58 @@ const PersonalCabinet = () => {
     try {
       setSaving(true);
 
+      // Create the data object for JSON request
       const updatedData = {
         email: email,
-        full_name: `${firstName} ${lastName}`.trim(),
+        first_name: firstName,
+        last_name: lastName,
         phone_number: phoneNumber,
         phone_number_verified: profileData.phone_number_verified,
-        photo: photo,
       };
 
-      const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-        {
-          method: "PUT",
-          body: JSON.stringify(updatedData),
-        }
-      );
+      // Add birth_date if available
+      if (birthMonth !== "Выберите месяц" && birthYear !== "Выберите год") {
+        const monthNumber = getMonthNumber(birthMonth);
+        updatedData.birth_date = `01.${monthNumber}.${birthYear}`;
+      }
+
+      let response;
+
+      // Check if we have a NEW photo file to upload
+      if (newPhotoFile && newPhotoFile instanceof File) {
+        // Use FormData when uploading a file
+        const formData = new FormData();
+
+        // Add all the text fields
+        Object.keys(updatedData).forEach((key) => {
+          formData.append(key, updatedData[key]);
+        });
+
+        // Add the photo file
+        formData.append("photo", newPhotoFile);
+
+        response = await makeAuthenticatedRequest(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/`,
+          {
+            method: "PATCH",
+            body: formData,
+          }
+        );
+      } else {
+        // Use JSON when no file upload is needed - DON'T include photo field at all
+        response = await makeAuthenticatedRequest(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(updatedData), // No photo field included
+          }
+        );
+      }
 
       if (response.ok) {
         const updatedProfile = await parseResponse(response);
         setProfileData(updatedProfile);
+        setNewPhotoFile(null); // Clear the new photo file after successful upload
         setMessage({
           type: "success",
           text: "Данные профиля успешно сохранены",
@@ -570,7 +654,6 @@ const PersonalCabinet = () => {
           setMessage({ type: "", text: "" });
         }, 3000);
       } else {
-        // Try to get error details from response
         let errorMessage = "Ошибка при сохранении данных";
         try {
           const errorData = await parseResponse(response);
@@ -659,20 +742,21 @@ const PersonalCabinet = () => {
     <UserRoute>
       <div className="min-h-screen">
         <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 py-8">
-          <ContentContainer>
+          {/* <ContentContainer> */}
+          <div className="bg-white h-[calc(100vh-4rem)] rounded-3xl shadow-lg mx-16 overflow-hidden flex flex-col">
             {/* Header */}
             <div className="h-24 bg-gradient-to-r from-pink-300 to-orange-300 rounded-t-3xl"></div>
 
-            <div className="flex">
+            <div className="flex flex-1 min-h-0">
               {/* Sidebar */}
-              <div className="w-80 bg-white min-h-screen shadow-lg">
+              <div className="w-80 bg-white shadow-lg flex-shrink-0 flex flex-col">
                 {/* Profile Section */}
                 <div className="p-6 border-b border-gray-100">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
-                      {profileData.photo ? (
+                  <div className="flex items-center space-x-4">
+                    <div className="w-24 h-20 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                      {profileData.photo || photoPreview ? (
                         <img
-                          src={profileData.photo}
+                          src={photoPreview || profileData.photo}
                           alt="Profile"
                           className="w-full h-full object-cover"
                         />
@@ -686,9 +770,16 @@ const PersonalCabinet = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-lg">
-                        {profileData.full_name || "Пользователь"}
+                        {profileData.full_name ||
+                          profileData.first_name +
+                            " " +
+                            profileData.last_name ||
+                          "Пользователь"}
                       </h3>
-                      <button className="text-sm text-blue-500 hover:text-blue-600 underline">
+                      <button
+                        onClick={handlePhotoChange}
+                        className="text-sm text-blue-500 hover:text-blue-600 underline"
+                      >
                         Изменить фото
                       </button>
                     </div>
@@ -766,7 +857,7 @@ const PersonalCabinet = () => {
               </div>
 
               {/* Main Content */}
-              <div className="flex-1 p-8 bg-white mx-8 my-8 rounded-3xl">
+              <div className="flex-1 p-8 bg-white overflow-y-auto min-h-0">
                 {currentPage === "profile" ? (
                   <ProfilePage
                     contactDataExpanded={contactDataExpanded}
@@ -781,8 +872,8 @@ const PersonalCabinet = () => {
                     setEmail={setEmail}
                     phoneNumber={phoneNumber}
                     setPhoneNumber={setPhoneNumber}
-                    photo={photo}
-                    setPhoto={setPhoto}
+                    photoPreview={photoPreview}
+                    handlePhotoChange={handlePhotoChange}
                     gender={gender}
                     setGender={setGender}
                     birthMonth={birthMonth}
@@ -794,7 +885,7 @@ const PersonalCabinet = () => {
                     message={message}
                   />
                 ) : currentPage === "booking" ? (
-                  <BookingPage masterclassId={selectedMasterclassId} />
+                  <BookingPage masterclassId={null} />
                 ) : currentPage === "myClasses" ? (
                   <MyClassesPage
                     enrollments={enrollments}
@@ -804,7 +895,8 @@ const PersonalCabinet = () => {
                 ) : null}
               </div>
             </div>
-          </ContentContainer>
+          </div>
+          {/* </ContentContainer> */}
         </div>
       </div>
     </UserRoute>
@@ -824,8 +916,6 @@ const ProfilePage = ({
   setEmail,
   phoneNumber,
   setPhoneNumber,
-  photo,
-  setPhoto,
   gender,
   setGender,
   birthMonth,
