@@ -10,4 +10,7 @@ urlpatterns = [
     path('enrollments/', views.UserEnrollmentsListView.as_view(), name='user-enrollments'),
     path('all_enrollments/', views.AdminMasterClassEnrollmentListView.as_view(),
          name='admin-masterclass-enrollments'),
+    path('payments/create/', views.PaymentCreateView.as_view(), name='payment-create'),
+    path('payments/webhook/', views.PaymentWebhookView.as_view(), name='payment-webhook'),
+    path('payments/status/<int:enrollment_id>/', views.PaymentStatusSSEView.as_view(), name='payment-status-sse'),
 ]

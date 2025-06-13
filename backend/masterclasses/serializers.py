@@ -94,3 +94,12 @@ class AdminMasterClassEnrollmentSerializer(serializers.ModelSerializer):
                 'created_at': enrollment.created_at
             } for enrollment in enrollments
         ]
+
+
+class PaymentCreateSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    masterclass_id = serializers.IntegerField()
+    slot_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1)
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    idempotency_key = serializers.CharField(max_length=36, required=False, allow_blank=True)

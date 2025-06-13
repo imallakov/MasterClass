@@ -46,6 +46,7 @@ class MasterClassEnrollment(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    payment_id = models.CharField(max_length=36, blank=True, null=True)
 
     class Meta:
         unique_together = ('user', 'slot')  # один юзер — одна бронь на слот
