@@ -10,8 +10,12 @@ from .serializers import AboutUsSerializer, ContactsSerializer
 class AboutUsRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = AboutUs.objects.all()
     serializer_class = AboutUsSerializer
-    permission_classes = [permissions.IsAdminUser]
     parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
     def get_object(self):
         # Get or create the AboutUs instance (there should be only one)
