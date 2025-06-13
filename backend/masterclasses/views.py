@@ -160,6 +160,7 @@ class PaymentCreateView(APIView):
 
         # Use provided idempotency_key or generate a new one
         idempotency_key = data.get('idempotency_key') or str(uuid.uuid4())
+        return_url = data.get('return_url') or 'https://дворецмастеров.рф/'
 
         # Check if there's a failed/cancelled enrollment for retry
         enrollment = MasterClassEnrollment.objects.filter(
@@ -183,7 +184,7 @@ class PaymentCreateView(APIView):
                 },
                 "confirmation": {
                     "type": "redirect",
-                    "return_url": "https://дворецмастеров.рф/"
+                    "return_url": return_url,
                 },
                 "capture": True,
                 "description": f"Payment for {masterclass.title}",
