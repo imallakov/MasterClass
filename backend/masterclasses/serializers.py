@@ -67,3 +67,30 @@ class UserEnrollmentSerializer(serializers.ModelSerializer):
 
     def get_masterclass(self, obj) -> MasterClassMiniSerializer:
         return MasterClassMiniSerializer(obj.slot.masterclass).data
+
+
+class AdminMasterClassEnrollmentSerializer(serializers.ModelSerializer):
+    enrollments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MasterClass
+        fields = ['id', 'title', 'enrollments']
+
+    def get_enrollments(self, obj):
+        # Get all enrollments across all slots for this masterclass, sorted by created_at
+        enrollments = MasterClassEnrollment.objects.filter(
+            slot__masterclass=obj
+        ).select_related('user', 'slot').order_by('-created_at')
+        return [
+            {
+                'id': enrollment.id,
+                'user_first_name': enrollment.user.first_name,
+                'user_last_name': enrollment.user.last_name,
+                'user_phone_number': getattr(enrollment.user, 'phone_number', ''),
+                'user_email': enrollment.user.email,
+                'quantity': enrollment.quantity,
+                'slot_start_time': enrollment.slot.start,
+                'status': enrollment.status,
+                'created_at': enrollment.created_at
+            } for enrollment in enrollments
+        ]

@@ -1,11 +1,11 @@
-from django.db.models import Sum
+from django.db.models import Sum, Prefetch
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
 from .models import MasterClass, MasterClassSlot, MasterClassEnrollment
 from .serializers import MasterClassSerializer, MasterClassSlotSerializer, MasterClassEnrollmentSerializer, \
-    UserEnrollmentSerializer
+    UserEnrollmentSerializer, AdminMasterClassEnrollmentSerializer
 
 
 class MasterClassListCreateView(generics.ListCreateAPIView):
@@ -92,3 +92,21 @@ class UserEnrollmentsListView(generics.ListAPIView):
 
     def get_queryset(self):
         return MasterClassEnrollment.objects.filter(user=self.request.user).select_related('slot', 'slot__masterclass')
+
+
+class AdminMasterClassEnrollmentListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    serializer_class = AdminMasterClassEnrollmentSerializer
+
+    def get_queryset(self):
+        # Prefetch enrollments sorted by created_at (descending)
+        enrollments_prefetch = Prefetch(
+            'slots__enrollments',
+            queryset=MasterClassEnrollment.objects.select_related('user', 'slot').order_by('-created_at')
+        )
+        return MasterClass.objects.prefetch_related(enrollments_prefetch).all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
