@@ -707,9 +707,9 @@ const MasterClasses = () => {
 
                   {/* Additional info */}
                   <div className="mb-6">
-                    <p className="text-blue-600 text-sm italic mb-1">
+                    {/* <p className="text-blue-600 text-sm italic mb-1">
                       Возможность выбрать цвет
-                    </p>
+                    </p> */}
                     {(selectedClass.participantMinAge ||
                       selectedClass.participantMaxAge) && (
                       <p className="text-pink-400 text-sm mb-1">

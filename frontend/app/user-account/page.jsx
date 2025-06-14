@@ -885,7 +885,7 @@ const PersonalCabinet = () => {
                     message={message}
                   />
                 ) : currentPage === "booking" ? (
-                  <BookingPage masterclassId={null} />
+                  <BookingPage masterclassId={selectedMasterclassId} />
                 ) : currentPage === "myClasses" ? (
                   <MyClassesPage
                     enrollments={enrollments}

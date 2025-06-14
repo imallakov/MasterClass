@@ -298,6 +298,9 @@ const Reviews = () => {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-600 mb-6 md:mb-10">
           Отзывы
         </h2>
+        <h3 className="text-lg my-6 sm:text-xl md:text-2xl font-regular text-slate-600">
+          Отзывы о наших мастер-классов
+        </h3>
 
         {/* Message Display */}
         {message.text && (

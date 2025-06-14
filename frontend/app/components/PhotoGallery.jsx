@@ -255,6 +255,9 @@ export default function PhotoGallery() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-600">
           Наша фотогалерея
         </h1>
+        <h3 className="text-lg mt-6 sm:text-xl md:text-2xl font-regular text-slate-600">
+          Как проходят мастер-классы
+        </h3>
       </div>
 
       {/* Mobile Gallery */}

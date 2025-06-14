@@ -962,6 +962,9 @@ import {
   ChevronDown,
   ChevronRight,
   Users,
+  Logs,
+  Contact,
+  Edit,
 } from "lucide-react";
 import AdminRoute from "@/app/components/AdminRoute";
 import { useAuth } from "@/app/context/AuthContext";
@@ -977,6 +980,9 @@ import DeleteStickerCategory from "../pages/deleteStickerCategory";
 import { useRouter } from "next/navigation";
 import { AddGalleryPage, DeleteGalleryPage } from "../pages/galleryManagement";
 import EnrollmentManagementPage from "../pages/enrollmentManagement";
+import StickerOrdersPage from "../pages/stickerOrderManagement";
+import ContactsPage from "../pages/contactsManagement";
+import AboutPage from "../pages/aboutManager";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
@@ -995,7 +1001,9 @@ const Sidebar = ({ currentPage, onPageChange }) => {
     useState(true);
   const [isGalleryExpanded, setIsGalleryExpanded] = useState(true);
   const [isEnrollmentsExpanded, setIsEnrollmentsExpanded] = useState(true);
-
+  const [isStickerOrdersExpanded, setIsStickerOrdersExpanded] = useState(true);
+  const [isContactManager, setIsContactManager] = useState(true);
+  const [isAboutManager, setIsAboutManager] = useState(true);
   const router = useRouter();
 
   const handleLogout = () => {
@@ -1261,6 +1269,45 @@ const Sidebar = ({ currentPage, onPageChange }) => {
             )}
           </div>
 
+          {/* Sticker Order Section */}
+          <div>
+            <div
+              className="flex items-center justify-between p-3 text-gray-900 hover:bg-gray-50 rounded-lg cursor-pointer font-medium transition-colors duration-200"
+              onClick={() =>
+                setIsStickerOrdersExpanded(!isStickerOrdersExpanded)
+              }
+            >
+              <div className="flex items-center space-x-3">
+                <div className="transition-transform duration-200">
+                  {isStickerOrdersExpanded ? (
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  )}
+                </div>
+                <span>Заказы на стикера</span>
+              </div>
+            </div>
+
+            {isStickerOrdersExpanded && (
+              <div className="ml-8 space-y-2 mt-2 animate-in slide-in-from-top-2 duration-200">
+                <button
+                  className={`flex items-center space-x-3 p-2 rounded-lg w-full text-left text-sm transition-colors duration-200 ${
+                    currentPage === "sticker-order-manage"
+                      ? "text-blue-500 bg-blue-50"
+                      : "text-gray-600 hover:bg-blue-50"
+                  }`}
+                  onClick={() => onPageChange("sticker-order-manage")}
+                >
+                  <span>
+                    <Logs className="w-4 h-4" />
+                  </span>
+                  <span>Управление заказами</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Gallery Section */}
           <div>
             <div
@@ -1307,6 +1354,80 @@ const Sidebar = ({ currentPage, onPageChange }) => {
                     <Trash2 className="w-4 h-4" />
                   </span>
                   <span>Удалить</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Contact Management Section */}
+          <div>
+            <div
+              className="flex items-center justify-between p-3 text-gray-900 hover:bg-gray-50 rounded-lg cursor-pointer font-medium transition-colors duration-200"
+              onClick={() => setIsContactManager(!isContactManager)}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="transition-transform duration-200">
+                  {isContactManager ? (
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  )}
+                </div>
+                <span>Контакты</span>
+              </div>
+            </div>
+
+            {isContactManager && (
+              <div className="ml-8 space-y-2 mt-2 animate-in slide-in-from-top-2 duration-200">
+                <button
+                  className={`flex items-center space-x-3 p-2 rounded-lg w-full text-left text-sm transition-colors duration-200 ${
+                    currentPage === "contact-manager"
+                      ? "text-blue-500 bg-blue-50"
+                      : "text-gray-600 hover:bg-blue-50"
+                  }`}
+                  onClick={() => onPageChange("contact-manager")}
+                >
+                  <span>
+                    <Contact className="w-4 h-4" />
+                  </span>
+                  <span>Изменить</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* About Management Section */}
+          <div>
+            <div
+              className="flex items-center justify-between p-3 text-gray-900 hover:bg-gray-50 rounded-lg cursor-pointer font-medium transition-colors duration-200"
+              onClick={() => setIsAboutManager(!isAboutManager)}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="transition-transform duration-200">
+                  {isAboutManager ? (
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  )}
+                </div>
+                <span>О нас</span>
+              </div>
+            </div>
+
+            {isAboutManager && (
+              <div className="ml-8 space-y-2 mt-2 animate-in slide-in-from-top-2 duration-200">
+                <button
+                  className={`flex items-center space-x-3 p-2 rounded-lg w-full text-left text-sm transition-colors duration-200 ${
+                    currentPage === "about-manager"
+                      ? "text-blue-500 bg-blue-50"
+                      : "text-gray-600 hover:bg-blue-50"
+                  }`}
+                  onClick={() => onPageChange("about-manager")}
+                >
+                  <span>
+                    <Edit className="w-4 h-4" />
+                  </span>
+                  <span>Изменить</span>
                 </button>
               </div>
             )}
@@ -1419,10 +1540,19 @@ const AdminManagement = () => {
       case "sticker-category-delete":
         return <DeleteStickerCategory />;
 
+      case "sticker-order-manage":
+        return <StickerOrdersPage />;
+
       case "gallery-add":
         return <AddGalleryPage />;
       case "gallery-delete":
         return <DeleteGalleryPage />;
+
+      case "contact-manager":
+        return <ContactsPage />;
+
+      case "about-manager":
+        return <AboutPage />;
 
       default:
         return <EditMasterClassPage />;

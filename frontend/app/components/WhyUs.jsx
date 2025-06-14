@@ -144,6 +144,13 @@ const WhyUs = () => {
       image: "/images/whyus4.jpg",
       button: "Хочу к вам!",
     },
+    {
+      id: 5,
+      title: "Уютная атмосфера",
+      description:
+        "В наших мастерских царит тёплая и дружелюбная атмосфера, способствующая творчеству и вдохновению. Вы будете чувствовать себя как дома!",
+      image: "/images/gallery3.jpg",
+    },
   ];
 
   // Function to get button styles based on item id

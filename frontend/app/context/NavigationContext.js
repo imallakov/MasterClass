@@ -1,7 +1,7 @@
 // // contexts/NavigationContext.js
 // "use client";
-// import React, { createContext, useContext, useState } from "react";
-
+// import React, { createContext, useContext, useState, useCallback } from "react";
+// import { useRouter } from "next/navigation";
 // const NavigationContext = createContext();
 
 // export const useNavigation = () => {
@@ -15,21 +15,27 @@
 // export const NavigationProvider = ({ children }) => {
 //   const [currentPage, setCurrentPage] = useState("profile");
 //   const [selectedMasterclassId, setSelectedMasterclassId] = useState(null);
+//   const router = useRouter();
 
-//   const navigateToBooking = (masterclassId) => {
+//   // Use useCallback to prevent unnecessary re-renders
+//   const navigateToBooking = useCallback((masterclassId) => {
+//     console.log("Navigating to booking with masterclass ID:", masterclassId); // Debug log
 //     setSelectedMasterclassId(masterclassId);
 //     setCurrentPage("booking");
-//   };
+//     router.push(`/user-account/`);
+//   }, []);
 
-//   const navigateToProfile = () => {
+//   const navigateToProfile = useCallback(() => {
+//     console.log("Navigating to profile"); // Debug log
 //     setCurrentPage("profile");
 //     setSelectedMasterclassId(null);
-//   };
+//   }, []);
 
-//   const navigateToMyClasses = () => {
+//   const navigateToMyClasses = useCallback(() => {
+//     console.log("Navigating to my classes"); // Debug log
 //     setCurrentPage("myClasses");
 //     setSelectedMasterclassId(null);
-//   };
+//   }, []);
 
 //   const value = {
 //     currentPage,
@@ -42,7 +48,8 @@
 
 //   return (
 //     <NavigationContext.Provider value={value}>
-//       {children}
+//       {" "}
+//       {children}{" "}
 //     </NavigationContext.Provider>
 //   );
 // };
@@ -51,6 +58,7 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 const NavigationContext = createContext();
 
 export const useNavigation = () => {
@@ -67,12 +75,15 @@ export const NavigationProvider = ({ children }) => {
   const router = useRouter();
 
   // Use useCallback to prevent unnecessary re-renders
-  const navigateToBooking = useCallback((masterclassId) => {
-    console.log("Navigating to booking with masterclass ID:", masterclassId); // Debug log
-    setSelectedMasterclassId(masterclassId);
-    setCurrentPage("booking");
-    router.push(`/user-account/`);
-  }, []);
+  const navigateToBooking = useCallback(
+    (masterclassId) => {
+      console.log("Navigating to booking with masterclass ID:", masterclassId); // Debug log
+      setSelectedMasterclassId(masterclassId);
+      setCurrentPage("booking");
+      router.push(`/user-account/`);
+    },
+    [router]
+  );
 
   const navigateToProfile = useCallback(() => {
     console.log("Navigating to profile"); // Debug log
@@ -89,6 +100,7 @@ export const NavigationProvider = ({ children }) => {
   const value = {
     currentPage,
     selectedMasterclassId,
+    setSelectedMasterclassId, // <- This was missing!
     navigateToBooking,
     navigateToProfile,
     navigateToMyClasses,
@@ -97,8 +109,7 @@ export const NavigationProvider = ({ children }) => {
 
   return (
     <NavigationContext.Provider value={value}>
-      {" "}
-      {children}{" "}
+      {children}
     </NavigationContext.Provider>
   );
 };
