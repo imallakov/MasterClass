@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+
 # from image_optimizer.fields import OptimizedImageField
 
 User = get_user_model()
@@ -23,16 +24,16 @@ class Sticker(models.Model):
         # optimized_image_quality=85  # Quality setting
     )
     category = models.ForeignKey(StickerCategories, on_delete=models.CASCADE, null=True, related_name='stickers')
+    wb_link = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
 
-
-class StickerOrder(models.Model):
-    sticker = models.ForeignKey(Sticker, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=255)
-    quantity = models.PositiveIntegerField()
-    phone_number = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class StickerOrder(models.Model):
+#     sticker = models.ForeignKey(Sticker, on_delete=models.CASCADE)
+#     full_name = models.CharField(max_length=255)
+#     quantity = models.PositiveIntegerField()
+#     phone_number = models.CharField(max_length=255)
+#     created_at = models.DateTimeField(auto_now_add=True)
