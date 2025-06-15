@@ -391,10 +391,49 @@ const getCsrfTokenFromCookie = () => {
   return cookieValue;
 };
 
+// Eye icon components
+const EyeIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+    />
+  </svg>
+);
+
+const EyeOffIcon = ({ className }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+    />
+  </svg>
+);
+
 export default function SignInPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    phone: "",
+    phone: "+7",
     password: "",
   });
 
@@ -402,7 +441,14 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginStatus, setLoginStatus] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Add this state
   const { login } = useAuth();
+
+  // 7. Add helper function to clean phone number for backend
+  const cleanPhoneForBackend = (phone) => {
+    // Remove +7 prefix and any spaces/formatting
+    return phone.replace(/^\+7\s*/, "").replace(/\s+/g, "");
+  };
 
   // Get CSRF token on component mount
   useEffect(() => {
@@ -456,10 +502,27 @@ export default function SignInPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "phone") {
+      // Ensure phone always starts with +7
+      if (value.startsWith("+7")) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      } else if (value.length < 2) {
+        // If user tries to delete everything, keep +7
+        setFormData((prev) => ({
+          ...prev,
+          [name]: "+7",
+        }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -473,10 +536,10 @@ export default function SignInPage() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.phone.trim()) {
+    // Updated phone validation
+    if (!formData.phone.trim() || formData.phone === "+7") {
       newErrors.phone = "Номер телефона обязателен для заполнения";
     }
-
     if (!formData.password) {
       newErrors.password = "Пароль обязателен для заполнения";
     }
@@ -519,7 +582,7 @@ export default function SignInPage() {
           headers: headers,
           credentials: "include", // Important for CORS with credentials
           body: JSON.stringify({
-            phone_number: formData.phone,
+            phone_number: cleanPhoneForBackend(formData.phone),
             password: formData.password,
           }),
         }
@@ -563,7 +626,7 @@ export default function SignInPage() {
 
         // Reset form
         setFormData({
-          phone: "",
+          phone: "+7",
           password: "",
         });
 
@@ -633,6 +696,11 @@ export default function SignInPage() {
     router.push("/auth/sign-up");
   };
 
+  // Add toggle function
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-200 via-purple-100 to-cyan-100">
       {/* Desktop Layout */}
@@ -679,9 +747,10 @@ export default function SignInPage() {
                       id="phone"
                       name="phone"
                       type="tel"
+                      maxLength={12}
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Ваш номер телефона"
+                      placeholder="Введите номер телефона"
                       className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
                         errors.phone
                           ? "border-red-300 focus:ring-red-500"
@@ -693,20 +762,34 @@ export default function SignInPage() {
                     )}
                   </div>
 
+                  {/* Updated password field with icon */}
                   <div className="space-y-2">
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Пароль"
-                      className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
-                        errors.password
-                          ? "border-red-300 focus:ring-red-500"
-                          : "border-gray-200 focus:ring-blue-500"
-                      }`}
-                    />
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="Пароль"
+                        className={`w-full h-12 px-4 pr-12 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
+                          errors.password
+                            ? "border-red-300 focus:ring-red-500"
+                            : "border-gray-200 focus:ring-blue-500"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className="h-5 w-5" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                     {errors.password && (
                       <p className="text-red-500 text-sm">{errors.password}</p>
                     )}
@@ -797,7 +880,7 @@ export default function SignInPage() {
                   type="tel"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="Ваш номер телефона"
+                  placeholder="+7 (XXX) XXX-XX-XX"
                   className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
                     errors.phone
                       ? "border-red-300 focus:ring-red-500"
@@ -809,20 +892,34 @@ export default function SignInPage() {
                 )}
               </div>
 
+              {/* Updated mobile password field with icon */}
               <div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Пароль"
-                  className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
-                    errors.password
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-200 focus:ring-blue-500"
-                  }`}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="Пароль"
+                    className={`w-full h-12 px-4 pr-12 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
+                      errors.password
+                        ? "border-red-300 focus:ring-red-500"
+                        : "border-gray-200 focus:ring-blue-500"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-gray-900 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-red-500 text-sm mt-1">{errors.password}</p>
                 )}

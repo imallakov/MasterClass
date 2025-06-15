@@ -31,7 +31,7 @@ export default function RegistrationPage() {
     birthDate: "",
     password: "",
     passwordConfirm: "",
-    phone: "",
+    phone: "+7",
     email: "",
     agreeToPolicy: false,
   });
@@ -40,6 +40,11 @@ export default function RegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
+
+  const cleanPhoneForBackend = (phone) => {
+    // Remove +7 prefix and any spaces/formatting
+    return phone.replace(/^\+7\s*/, "").replace(/\s+/g, "");
+  };
 
   const formatDateForBackend = (dateString) => {
     if (!dateString) return "";
@@ -84,10 +89,27 @@ export default function RegistrationPage() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+
+    if (name === "phone") {
+      // Ensure phone always starts with +7
+      if (value.startsWith("+7")) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      } else if (value.length < 2) {
+        // If user tries to delete everything, keep +7
+        setFormData((prev) => ({
+          ...prev,
+          [name]: "+7",
+        }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -125,8 +147,12 @@ export default function RegistrationPage() {
       newErrors.passwordConfirm = "Пароли не совпадают";
     }
 
-    if (!formData.phone.trim()) {
+    // Updated phone validation
+    if (!formData.phone.trim() || formData.phone === "+7") {
       newErrors.phone = "Номер телефона обязателен для заполнения";
+    } else if (formData.phone.length < 12) {
+      // +7 + 10 digits minimum
+      newErrors.phone = "Введите корректный номер телефона";
     }
 
     if (!formData.email.trim()) {
@@ -175,7 +201,7 @@ export default function RegistrationPage() {
             last_name: formData.lastName,
             password: formData.password,
             password_confirm: formData.passwordConfirm,
-            phone_number: formData.phone,
+            phone_number: cleanPhoneForBackend(formData.phone), // Clean phone number
             email: formData.email,
             birth_date: formatDateForBackend(formData.birthDate),
           }),
@@ -204,14 +230,13 @@ export default function RegistrationPage() {
           message: "Регистрация прошла успешно!",
         });
 
-        // Reset form
         setFormData({
           firstName: "",
           lastName: "",
           birthDate: "",
           password: "",
           passwordConfirm: "",
-          phone: "",
+          phone: "+7", // Reset to +7
           email: "",
           agreeToPolicy: false,
         });
@@ -266,7 +291,7 @@ export default function RegistrationPage() {
       birthDate: "",
       password: "",
       passwordConfirm: "",
-      phone: "",
+      phone: "+7", // Reset to +7
       email: "",
       agreeToPolicy: false,
     });
@@ -416,6 +441,7 @@ export default function RegistrationPage() {
                       id="phone"
                       name="phone"
                       type="tel"
+                      maxLength={12}
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="Введите номер телефона"
@@ -464,7 +490,11 @@ export default function RegistrationPage() {
                         className="text-sm text-gray-600"
                       >
                         Согласен с{" "}
-                        <a href="#" className="text-blue-500 underline">
+                        <a
+                          href="/documents/Оферта_МК.docx"
+                          download="Оферта_МК.docx"
+                          className="text-blue-500 underline"
+                        >
                           политикой конфиденциальности
                         </a>
                       </label>
@@ -541,20 +571,41 @@ export default function RegistrationPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <input
-                  id="fullName"
-                  name="fullName"
+                  id="firstName"
+                  name="firstName"
                   type="text"
-                  value={formData.fullName}
+                  value={formData.firstName}
                   onChange={handleInputChange}
-                  placeholder="Ваше ФИО"
+                  placeholder="Ваше имя"
                   className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
-                    errors.fullName
+                    errors.firstName
                       ? "border-red-300 focus:ring-red-500"
                       : "border-gray-200 focus:ring-blue-500"
                   }`}
                 />
-                {errors.fullName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.firstName}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  placeholder="Ваша фамилия"
+                  className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
+                    errors.lastName
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-gray-200 focus:ring-blue-500"
+                  }`}
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
                 )}
               </div>
 
@@ -626,7 +677,7 @@ export default function RegistrationPage() {
                   type="tel"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="Введите номер телефона"
+                  placeholder="+7 (XXX) XXX-XX-XX"
                   className={`w-full h-12 px-4 rounded-xl border bg-white/70 backdrop-blur-sm text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:border-transparent ${
                     errors.phone
                       ? "border-red-300 focus:ring-red-500"

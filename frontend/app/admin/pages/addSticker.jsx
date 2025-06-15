@@ -30,6 +30,7 @@ const AddStickerPage = () => {
     price: "",
     image: "",
     category: "",
+    wb_link: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -146,6 +147,24 @@ const AddStickerPage = () => {
       return false;
     }
 
+    if (!formData.wb_link.trim()) {
+      setMessage({
+        type: "error",
+        text: "Пожалуйста, введите ссылку на Wildberries",
+      });
+      return false;
+    }
+    // ADD URL VALIDATION
+    try {
+      new URL(formData.wb_link);
+    } catch {
+      setMessage({
+        type: "error",
+        text: "Пожалуйста, введите корректную ссылку",
+      });
+      return false;
+    }
+
     return true;
   };
 
@@ -215,6 +234,8 @@ const AddStickerPage = () => {
       );
       formDataForSubmission.append("category", parseInt(formData.category));
 
+      formDataForSubmission.append("wb_link", formData.wb_link.trim());
+
       // Add the actual file, not the blob URL
       if (selectedFile) {
         formDataForSubmission.append("image", selectedFile);
@@ -278,6 +299,7 @@ const AddStickerPage = () => {
         price: "",
         image: "",
         category: "",
+        wb_link: "",
       });
       setSelectedFile(null);
 
@@ -398,6 +420,22 @@ const AddStickerPage = () => {
                   ))}
                 </select>
               )}
+            </div>
+
+            {/* WB Link Input */}
+            <div>
+              <label className="block text-gray-900 font-medium mb-3 text-base">
+                Ссылка на Wildberries *
+              </label>
+              <input
+                type="url"
+                name="wb_link"
+                value={formData.wb_link}
+                onChange={handleInputChange}
+                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="https://www.wildberries.ru/catalog/..."
+                required
+              />
             </div>
 
             {/* Upload Image */}

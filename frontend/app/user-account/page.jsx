@@ -341,6 +341,7 @@ import UserRoute from "../components/UserRoute";
 import BookingPage from "../pages/bookingPage";
 import { useNavigation } from "../context/NavigationContext";
 import { useRouter } from "next/navigation"; // Add this import
+import { usePayment } from "../context/PaymentContext";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
@@ -499,7 +500,7 @@ const PersonalCabinet = () => {
     return response;
   };
 
-  // Update the handlePhotoChange function
+  // Update the handlePhotoChange function to handle file input change
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -509,6 +510,11 @@ const PersonalCabinet = () => {
       const previewUrl = URL.createObjectURL(file);
       setPhotoPreview(previewUrl);
     }
+  };
+
+  // Add a function to trigger file input
+  const triggerPhotoUpload = () => {
+    fileInputRef.current?.click();
   };
 
   // Update the useEffect that sets form data to handle photo preview
@@ -753,7 +759,7 @@ const PersonalCabinet = () => {
                 {/* Profile Section */}
                 <div className="p-6 border-b border-gray-100">
                   <div className="flex items-center space-x-4">
-                    <div className="w-24 h-20 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                    <div className="max-w-24 w-20 h-20 rounded-full overflow-hidden flex items-center justify-center">
                       {profileData.photo || photoPreview ? (
                         <img
                           src={photoPreview || profileData.photo}
@@ -776,8 +782,17 @@ const PersonalCabinet = () => {
                             profileData.last_name ||
                           "Пользователь"}
                       </h3>
+                      {/* Hidden file input */}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handlePhotoChange}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                      {/* Button to trigger file input */}
                       <button
-                        onClick={handlePhotoChange}
+                        onClick={triggerPhotoUpload}
                         className="text-sm text-blue-500 hover:text-blue-600 underline"
                       >
                         Изменить фото
@@ -1103,6 +1118,38 @@ const ProfilePage = ({
 };
 
 const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
+  const {
+    currentEnrollment,
+    paymentStatus,
+    isTrackingPayment,
+    paymentError,
+    canRetryPayment,
+    startPaymentTracking,
+    clearPaymentState,
+    resetPaymentForRetry,
+    createPayment,
+  } = usePayment();
+  const [showModal, setShowModal] = useState(false);
+  const [retryingPayment, setRetryingPayment] = useState(null); // Track which enrollment is being retried
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasResultModal = urlParams.has("result_modal");
+
+    if (hasResultModal && currentEnrollment?.enrollmentId) {
+      setShowModal(true);
+      // Start tracking payment status if not already tracking
+      if (!isTrackingPayment && !paymentStatus) {
+        startPaymentTracking(currentEnrollment.enrollmentId);
+      }
+    }
+  }, [
+    currentEnrollment,
+    isTrackingPayment,
+    paymentStatus,
+    startPaymentTracking,
+  ]);
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ru-RU", {
@@ -1128,6 +1175,10 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
         return "Подтверждено";
       case "cancelled":
         return "Отменено";
+      case "failed":
+        return "Ошибка оплаты";
+      case "paid":
+        return "Оплачено";
       default:
         return status;
     }
@@ -1140,10 +1191,92 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
       case "confirmed":
         return "bg-green-100 text-green-800 border-green-200";
       case "cancelled":
+      case "failed":
         return "bg-red-100 text-red-800 border-red-200";
+      case "paid":
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  const getPaymentStatusText = (status) => {
+    switch (status) {
+      case "paid":
+        return "Оплата прошла успешно!";
+      case "cancelled":
+        return "Оплата была отменена";
+      case "pending":
+        return "Ожидаем подтверждение оплаты...";
+      case "error":
+        return "Ошибка при обработке оплаты";
+      default:
+        return "Проверяем статус оплаты...";
+    }
+  };
+
+  const getPaymentStatusIcon = (status) => {
+    switch (status) {
+      case "paid":
+        return "✅";
+      case "cancelled":
+        return "❌";
+      case "pending":
+        return "⏳";
+      case "error":
+        return "⚠️";
+      default:
+        return "🔄";
+    }
+  };
+
+  const generateIdempotencyKey = (enrollmentId) => {
+    // Generate a unique key based on enrollment ID and timestamp
+    const timestamp = Date.now();
+    return `retry_${enrollmentId}_${timestamp}`;
+  };
+
+  const handleRetryPayment = async (enrollment) => {
+    try {
+      setRetryingPayment(enrollment.id);
+
+      const paymentData = {
+        enrollment_id: enrollment.id,
+        amount: enrollment.masterclass.price * enrollment.quantity,
+        idempotency_key: generateIdempotencyKey(enrollment.id),
+      };
+
+      const result = await createPayment(paymentData);
+
+      if (result.success && result.confirmationUrl) {
+        // Redirect to payment confirmation URL
+        window.location.href = result.confirmationUrl;
+      }
+    } catch (error) {
+      console.error("Payment retry failed:", error);
+      // You could show an error message to the user here
+      alert("Не удалось создать платеж. Попробуйте снова.");
+    } finally {
+      setRetryingPayment(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    clearPaymentState();
+    // Remove query parameter from URL
+    const url = new URL(window.location);
+    url.searchParams.delete("result_modal");
+    window.history.replaceState({}, "", url);
+    // Refresh enrollments to show updated data
+    onRefresh();
+  };
+
+  const handleModalRetryPayment = () => {
+    resetPaymentForRetry();
+    setShowModal(false);
+    // Redirect to booking page or payment form
+    // You can implement navigation logic here
   };
 
   if (loading) {
@@ -1167,6 +1300,58 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
         </button>
       </div>
 
+      {/* Payment Status Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="text-4xl mb-4">
+                {getPaymentStatusIcon(paymentStatus)}
+              </div>
+
+              <h3 className="text-xl font-semibold mb-4">Статус оплаты</h3>
+
+              <p className="text-gray-600 mb-6">
+                {getPaymentStatusText(paymentStatus)}
+              </p>
+
+              {isTrackingPayment && (
+                <div className="flex items-center justify-center mb-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                  <span className="ml-2 text-sm text-gray-600">
+                    Отслеживаем статус...
+                  </span>
+                </div>
+              )}
+
+              {paymentError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                  <p className="text-red-600 text-sm">{paymentError}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                {canRetryPayment && (
+                  <button
+                    onClick={handleModalRetryPayment}
+                    className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Повторить оплату
+                  </button>
+                )}
+
+                <button
+                  onClick={handleCloseModal}
+                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Закрыть
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {enrollments.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -1176,12 +1361,6 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
           <p className="text-gray-600 mb-6">
             Запишитесь на мастер-класс, чтобы они появились здесь
           </p>
-          {/* <button
-            onClick={() => navigateToBooking(null)}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Записаться на мастер-класс
-          </button> */}
         </div>
       ) : (
         <div className="space-y-6">
@@ -1267,12 +1446,40 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
                 )}
               </div>
 
+              {/* Status-specific messages and actions */}
               {enrollment.status === "pending" && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
                     Ваша запись ожидает подтверждения. Мы свяжемся с вами в
                     ближайшее время.
                   </p>
+                </div>
+              )}
+
+              {(enrollment.status === "cancelled" ||
+                enrollment.status === "failed") && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg flex-1">
+                      {enrollment.status === "cancelled"
+                        ? "Оплата была отменена. Вы можете попробовать оплатить снова."
+                        : "Произошла ошибка при оплате. Попробуйте оплатить снова."}
+                    </p>
+                    <button
+                      onClick={() => handleRetryPayment(enrollment)}
+                      disabled={retryingPayment === enrollment.id}
+                      className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center"
+                    >
+                      {retryingPayment === enrollment.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Обрабатываем...
+                        </>
+                      ) : (
+                        "Оплатить снова"
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

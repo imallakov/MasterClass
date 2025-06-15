@@ -306,6 +306,11 @@ const Footer = ({ scrollToSection, refs }) => {
                     Расписание
                   </button>
                 </li>
+                <li>
+                  <a href="/documents/Оферта_МК.docx" download="Оферта_МК.docx">
+                    Политика конфиденциальности
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -406,6 +411,11 @@ const Footer = ({ scrollToSection, refs }) => {
                   >
                     Фотогалерея
                   </button>
+                </li>
+                <li>
+                  <a href="/documents/Оферта_МК.docx" download="Оферта_МК.docx">
+                    Политика конфиденциальности
+                  </a>
                 </li>
               </ul>
             </div>

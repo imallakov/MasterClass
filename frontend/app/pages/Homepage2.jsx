@@ -10,138 +10,8 @@ import Reviews from "../components/Reviews";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
-
-// Authenticated request helper (similar to AddMasterClassPage)
-const makeAuthenticatedRequest = async (url, options = {}) => {
-  const accessToken = localStorage.getItem("access_token"); // Fixed: use "access_token" not "accessToken"
-  const csrfToken = getCsrfTokenFromCookie();
-
-  const headers = {
-    Accept: "application/json",
-    ...options.headers,
-  };
-
-  // Only set Content-Type to application/json if it's not a FormData upload
-  if (!options.body || !(options.body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  // Add authentication token
-  if (accessToken) {
-    headers["Authorization"] = `Bearer ${accessToken}`;
-  }
-
-  // Add CSRF token if available
-  if (csrfToken) {
-    headers["X-CSRFTOKEN"] = csrfToken;
-  }
-
-  const response = await fetch(url, {
-    ...options,
-    headers,
-    credentials: "include",
-  });
-
-  // Handle token expiration (same as AddMasterClassPage)
-  if (response.status === 401) {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    // You might want to redirect to login or show login modal
-    throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-  }
-
-  return response;
-};
-
 // Product Card Component with Order Modal
-const ProductCard = ({ title, price, image, stickerId }) => {
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [orderForm, setOrderForm] = useState({
-    full_name: "",
-    quantity: 1,
-    phone_number: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
-  const [orderError, setOrderError] = useState("");
-
-  const handleOrderSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setOrderError("");
-
-    try {
-      const orderData = {
-        sticker: stickerId,
-        full_name: orderForm.full_name,
-        quantity: parseInt(orderForm.quantity),
-        phone_number: orderForm.phone_number,
-      };
-
-      // Fix: Remove the null parameter and pass options directly
-      const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/orders/`,
-        {
-          method: "POST",
-          body: JSON.stringify(orderData),
-        }
-      );
-
-      // Check if response is OK
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log("Order created:", result);
-
-      setOrderSuccess(true);
-      // Reset form
-      setOrderForm({
-        full_name: "",
-        quantity: 1,
-        phone_number: "",
-      });
-
-      // Close modal after 2 seconds
-      setTimeout(() => {
-        setShowOrderModal(false);
-        setOrderSuccess(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Error creating order:", error);
-      setOrderError(error.message || "Произошла ошибка при оформлении заказа");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setOrderForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
+const ProductCard = ({ title, price, image, stickerId, wbURL }) => {
   return (
     <>
       <div className="bg-white rounded-lg border-2 border-solid border-[#3A6281] overflow-hidden max-w-80">
@@ -164,124 +34,13 @@ const ProductCard = ({ title, price, image, stickerId }) => {
               {price} ₽
             </span>
           </div>
-          <button
-            onClick={() => setShowOrderModal(true)}
-            className="w-full bg-[#61BF7D] hover:bg-[#49905e] text-white text-xl py-2 px-4 rounded-2xl font-medium mt-6 transition-colors"
-          >
-            Заказать
-          </button>
+          <a href={wbURL}>
+            <button className="w-full bg-[#61BF7D] hover:bg-[#49905e] text-white text-xl py-2 px-4 rounded-2xl font-medium mt-6 transition-colors">
+              Заказать
+            </button>
+          </a>
         </div>
       </div>
-
-      {/* Order Modal */}
-      {showOrderModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Оформить заказ</h2>
-              <button
-                onClick={() => setShowOrderModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-600">Товар: {title}</p>
-              <p className="text-sm text-gray-600">Цена: {price} ₽</p>
-            </div>
-
-            {orderSuccess ? (
-              <div className="text-center py-8">
-                <div className="text-green-500 text-4xl mb-4">✓</div>
-                <h3 className="text-lg font-semibold text-green-600 mb-2">
-                  Заказ успешно оформлен!
-                </h3>
-                <p className="text-gray-600">
-                  Мы свяжемся с вами в ближайшее время
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleOrderSubmit}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Полное имя *
-                  </label>
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={orderForm.full_name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#61BF7D]"
-                    placeholder="Введите ваше полное имя"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Количество *
-                  </label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={orderForm.quantity}
-                    onChange={handleInputChange}
-                    min="1"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#61BF7D]"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Номер телефона *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone_number"
-                    value={orderForm.phone_number}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#61BF7D]"
-                    placeholder="+7 (___) ___-__-__"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600">
-                    Итого: {(price * orderForm.quantity).toLocaleString()} ₽
-                  </p>
-                </div>
-
-                {orderError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-600 text-sm">{orderError}</p>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowOrderModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-[#61BF7D] hover:bg-[#49905e] text-white py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "Оформление..." : "Оформить заказ"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </>
   );
 };
@@ -304,7 +63,8 @@ const CategorySection = ({ category, items, description }) => {
             title={item.title}
             price={item.price}
             image={item.image}
-            stickerId={item.id} // Add this line to pass the sticker ID
+            stickerId={item.id}
+            wbURL={item.wb_link}
           />
         ))}
       </div>
@@ -465,6 +225,7 @@ const Homepage2 = () => {
             title: sticker.title,
             price: sticker.price,
             image: sticker.image,
+            wb_link: sticker.wb_link,
           })),
         };
       })
@@ -626,6 +387,145 @@ const Homepage2 = () => {
                   <button
                     onClick={() => setShowAll(!showAll)}
                     className="bg-transparent text-[#4E4E4E] border-1 border-black px-10 py-3 rounded-2xl font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    {showAll ? "Скрыть" : "Показать ещё"}
+                  </button>
+                </div>
+              )}
+          </div>
+        </section>
+      </div>
+
+      {/* Mobile Version */}
+      <div className="block md:hidden">
+        {/* Mobile Hero Section */}
+        <section
+          ref={homeRef}
+          className="relative bg-pink-200 py-8 px-4 overflow-hidden min-h-[60vh] inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/images/hero2.png')`,
+          }}
+        >
+          <div className="flex flex-col justify-between h-full relative z-4 min-h-[calc(70vh-4rem)]">
+            <div className="text-center py-3 px-4 bg-black/50 rounded-xl mx-auto max-w-sm mt-2">
+              <h1 className="text-xl font-medium text-white">
+                Брендовые стикеры{" "}
+                <span className="text-green-600">уже доступны</span>
+              </h1>
+            </div>
+
+            <div className="flex flex-col gap-4 pb-4">
+              {/* Top row of social icons */}
+              <div className="flex justify-center items-center gap-3">
+                <a href="">
+                  <img
+                    className="w-16 h-16"
+                    src="/images/wildberries.png"
+                    alt="wildberries"
+                  />
+                </a>
+                <a href="https://www.instagram.com/dvorec_masterov">
+                  <img
+                    className="w-16 h-16 rounded-full object-cover"
+                    src="/images/instagram.png"
+                    alt="instagram"
+                  />
+                </a>
+                <a href="https://vk.com/club229163599">
+                  <img
+                    className="w-16 h-16 rounded-full object-cover"
+                    src="/images/vk.png"
+                    alt="vk"
+                  />
+                </a>
+              </div>
+
+              {/* Bottom row of social icons */}
+              <div className="flex justify-center items-center gap-3">
+                <a href="https://t.me/dvorec_masterov_kazan">
+                  <img
+                    className="w-16 h-16 rounded-full object-cover"
+                    src="/images/telegram.png"
+                    alt="telegram"
+                  />
+                </a>
+                <a href="">
+                  <img
+                    className="w-18 h-18 rounded-full object-cover"
+                    src="/images/whatsapp.png"
+                    alt="whatsapp"
+                  />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Mobile Products Section */}
+        <section ref={catalogRef} className="py-8 px-4">
+          <div className="max-w-full mx-auto">
+            {/* Loading State */}
+            {loading && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-600 mx-auto mb-3"></div>
+                <p className="text-slate-600 text-sm">Загрузка каталога...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="text-center py-8">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mx-auto">
+                  <h3 className="text-red-800 font-semibold mb-2 text-sm">
+                    Ошибка загрузки данных
+                  </h3>
+                  <p className="text-red-600 text-xs mb-3">{error}</p>
+                  <button
+                    onClick={() => fetchData()}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
+                  >
+                    Попробовать снова
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Categories */}
+            {!loading &&
+              !error &&
+              categoriesToShow.length > 0 &&
+              categoriesToShow.map((categoryData, index) => (
+                <CategorySection
+                  key={categoryData.category || index}
+                  category={categoryData.category}
+                  items={categoryData.items}
+                  description={categoryData.description}
+                />
+              ))}
+
+            {/* No Data State */}
+            {!loading && !error && categoriesToShow.length === 0 && (
+              <div className="text-center py-8">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mx-auto">
+                  <h3 className="text-gray-800 font-semibold mb-2 text-sm">
+                    Каталог пуст
+                  </h3>
+                  <p className="text-gray-600 text-xs">
+                    На данный момент нет доступных стикеров для отображения.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Show More/Less Button */}
+            {!loading &&
+              !error &&
+              categoriesToShow.length > 0 &&
+              groupStickersByCategory().length > 2 && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={() => setShowAll(!showAll)}
+                    className="bg-transparent text-[#4E4E4E] border-1 border-black px-6 py-2 rounded-xl font-medium text-base transition-colors shadow-lg hover:shadow-xl w-full max-w-xs"
                   >
                     {showAll ? "Скрыть" : "Показать ещё"}
                   </button>

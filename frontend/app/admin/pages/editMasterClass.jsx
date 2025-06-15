@@ -808,17 +808,6 @@ const EditMasterClassPage = () => {
 
               <button
                 className={`text-left block font-medium underline ${
-                  editMode === "participant_limit"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-gray-900"
-                }`}
-                onClick={() => handleEditModeChange("slots")}
-              >
-                Управлять слотами времени
-              </button>
-
-              <button
-                className={`text-left block font-medium underline ${
                   editMode === "slots"
                     ? "text-blue-600"
                     : "text-gray-700 hover:text-gray-900"

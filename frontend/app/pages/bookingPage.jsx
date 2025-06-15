@@ -2612,7 +2612,7 @@ const BookingPage = ({ masterclassId }) => {
     clearPaymentState,
     canRetryPayment,
     resetPaymentForRetry,
-    startPaymentTracking, // Добавьте эту строку
+    startPaymentTracking,
   } = usePayment();
 
   const [loading, setLoading] = useState(true);
@@ -2624,8 +2624,8 @@ const BookingPage = ({ masterclassId }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [enrolling, setEnrolling] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState(null);
+
   // Helper function to get CSRF token from cookies
   const getCsrfTokenFromCookie = () => {
     if (typeof document === "undefined") return null;
@@ -2645,127 +2645,145 @@ const BookingPage = ({ masterclassId }) => {
     return cookieValue;
   };
 
-  // Authenticated request helper
+  // Enhanced authenticated request helper with better error handling
   const makeAuthenticatedRequest = async (url, options = {}) => {
-    const accessToken = localStorage.getItem("access_token");
-    const csrfToken = getCsrfTokenFromCookie();
+    try {
+      console.log("Making request to:", url);
 
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
+      const accessToken = localStorage.getItem("access_token");
+      const csrfToken = getCsrfTokenFromCookie();
 
-    if (!options.body || !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
+      const headers = {
+        Accept: "application/json",
+        ...options.headers,
+      };
 
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
-
-  // Check for payment return on component mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentReturn = urlParams.get("payment_return");
-
-    if (paymentReturn === "true") {
-      console.log("User returned from payment page");
-
-      // Проверяем, есть ли сохраненные данные о платеже
-      const storedEnrollment = localStorage.getItem("current_enrollment");
-      if (storedEnrollment) {
-        try {
-          const enrollmentData = JSON.parse(storedEnrollment);
-          console.log(
-            "Resuming payment tracking for enrollment:",
-            enrollmentData.enrollmentId
-          );
-
-          // Возобновляем отслеживание статуса платежа
-          if (enrollmentData.enrollmentId) {
-            startPaymentTracking(enrollmentData.enrollmentId);
-          }
-        } catch (error) {
-          console.error("Error parsing stored enrollment:", error);
-        }
+      if (!options.body || !(options.body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
       }
 
-      // Очищаем URL от параметра payment_return
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.delete("payment_return");
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, [startPaymentTracking]);
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
 
-  // Fetch masterclasses list
+      if (csrfToken) {
+        headers["X-CSRFTOKEN"] = csrfToken;
+      }
+
+      console.log("Request headers:", headers);
+
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", [...response.headers.entries()]);
+
+      // Check if response is actually JSON
+      const contentType = response.headers.get("content-type");
+      const isJson = contentType && contentType.includes("application/json");
+
+      if (!isJson) {
+        // Log the actual response text for debugging
+        const responseText = await response.text();
+        console.error("Non-JSON response received:", responseText);
+        throw new Error(
+          `Server returned ${response.status}: Expected JSON but received ${
+            contentType || "unknown content type"
+          }`
+        );
+      }
+
+      if (response.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Request failed:", error);
+      throw error;
+    }
+  };
+
+  // Enhanced fetch masterclasses list with better error handling
   const fetchMasterclasses = async () => {
     try {
       setLoading(true);
-      const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`,
-        { method: "GET" }
-      );
+      setError(null);
 
-      if (response.ok) {
-        const data = await response.json();
-        setMasterclasses(data.results || data || []);
-      } else {
-        throw new Error(`Failed to fetch masterclasses: ${response.status}`);
+      // Validate environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error(
+          "NEXT_PUBLIC_BACKEND_URL environment variable is not set"
+        );
       }
+
+      const apiUrl = `${backendUrl}/api/masterclasses/`;
+      console.log("Fetching masterclasses from:", apiUrl);
+
+      const response = await makeAuthenticatedRequest(apiUrl, {
+        method: "GET",
+      });
+
+      const data = await response.json();
+      console.log("Masterclasses data received:", data);
+
+      setMasterclasses(data.results || data || []);
     } catch (err) {
-      setError(err.message);
       console.error("Error fetching masterclasses:", err);
+      setError(`Ошибка загрузки мастер-классов: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch specific masterclass data
+  // Enhanced fetch specific masterclass data with better error handling
   const fetchMasterclass = async (id) => {
     try {
       setLoading(true);
-      const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/${id}/`,
-        { method: "GET" }
-      );
+      setError(null);
 
-      if (response.ok) {
-        const data = await response.json();
-        setMasterclass(data);
-        setAvailableSlots(data.slots || []);
-        setParticipants(1);
-      } else {
-        throw new Error(`Failed to fetch masterclass: ${response.status}`);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error(
+          "NEXT_PUBLIC_BACKEND_URL environment variable is not set"
+        );
       }
+
+      const apiUrl = `${backendUrl}/api/masterclasses/${id}/`;
+      console.log("Fetching masterclass from:", apiUrl);
+
+      const response = await makeAuthenticatedRequest(apiUrl, {
+        method: "GET",
+      });
+
+      const data = await response.json();
+      console.log("Masterclass data received:", data);
+
+      setMasterclass(data);
+      setAvailableSlots(data.slots || []);
+      setParticipants(1);
     } catch (err) {
-      setError(err.message);
       console.error("Error fetching masterclass:", err);
+      setError(`Ошибка загрузки мастер-класса: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Use selectedMasterclassId if it's set, otherwise use the prop masterclassId
     const idToUse = selectedMasterclassId || masterclassId;
 
     if (idToUse) {
@@ -2775,7 +2793,6 @@ const BookingPage = ({ masterclassId }) => {
     }
   }, [selectedMasterclassId, masterclassId]);
 
-  // Also add this useEffect to handle prop changes:
   useEffect(() => {
     if (masterclassId && masterclassId !== selectedMasterclassId) {
       setSelectedMasterclassId(masterclassId);
@@ -2787,7 +2804,7 @@ const BookingPage = ({ masterclassId }) => {
     setSelectedMasterclassId(id);
     setSelectedDate(null);
     setSelectedTime(null);
-    clearPaymentState(); // Clear any existing payment state
+    clearPaymentState();
   };
 
   // Go back to masterclasses list
@@ -2797,7 +2814,7 @@ const BookingPage = ({ masterclassId }) => {
     setAvailableSlots([]);
     setSelectedDate(null);
     setSelectedTime(null);
-    clearPaymentState(); // Clear payment state when going back
+    clearPaymentState();
     fetchMasterclasses();
   };
 
@@ -2817,6 +2834,7 @@ const BookingPage = ({ masterclassId }) => {
         quantity: participants,
         amount: totalAmount.toFixed(2),
         user_id: parseInt(userId),
+        return_url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/pages/payment-result`,
       };
 
       console.log("Creating payment with data:", paymentData);
@@ -2826,26 +2844,20 @@ const BookingPage = ({ masterclassId }) => {
       if (result.success) {
         console.log("Opening payment in new tab:", result.confirmationUrl);
 
-        // Method 1: Open in new tab (recommended)
         const paymentWindow = window.open(
           result.confirmationUrl,
           "_blank",
           "noopener,noreferrer"
         );
 
-        // Check if popup was blocked
         if (!paymentWindow) {
-          // Fallback: show modal with link
           setPaymentUrl(result.confirmationUrl);
-          setShowPaymentModal(true);
         } else {
-          // Show success message
           alert(
             "Страница оплаты открыта в новой вкладке. После завершения оплаты статус обновится автоматически."
           );
         }
 
-        // Start tracking payment status immediately
         if (result.enrollmentId) {
           startPaymentTracking(result.enrollmentId);
         }
@@ -2854,50 +2866,11 @@ const BookingPage = ({ masterclassId }) => {
       }
     } catch (err) {
       console.error("Error creating payment:", err);
-      setPaymentError(err.message);
     } finally {
       setEnrolling(false);
     }
   };
 
-  // Add this modal component before the return statement
-  const PaymentModal = () => {
-    if (!showPaymentModal || !paymentUrl) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-          <h3 className="text-lg font-semibold mb-4">Переход к оплате</h3>
-          <p className="text-gray-600 mb-4">
-            Всплывающие окна заблокированы. Нажмите кнопку ниже, чтобы перейти к
-            оплате:
-          </p>
-          <div className="flex gap-3">
-            <a
-              href={paymentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded text-center"
-            >
-              Перейти к оплате
-            </a>
-            <button
-              onClick={() => {
-                setShowPaymentModal(false);
-                setPaymentUrl(null);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-            >
-              Закрыть
-            </button>
-          </div>
-          <p className="text-xs text-gray-500 mt-3">
-            После завершения оплаты статус обновится автоматически
-          </p>
-        </div>
-      </div>
-    );
-  };
   // Generate calendar for current month
   const generateCalendar = (month, year) => {
     const firstDay = new Date(year, month, 1);
@@ -3043,18 +3016,40 @@ const BookingPage = ({ masterclassId }) => {
     return parseFloat(masterclass.price) * participants;
   };
 
-  if (loading) {
+  // Enhanced error display with retry functionality
+  if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Загрузка...</div>
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <div className="text-lg text-red-600 text-center max-w-md">{error}</div>
+        <button
+          onClick={() => {
+            if (selectedMasterclassId) {
+              fetchMasterclass(selectedMasterclassId);
+            } else {
+              fetchMasterclasses();
+            }
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Попробовать снова
+        </button>
+        <div className="text-sm text-gray-600 text-center max-w-md">
+          <p>Проверьте:</p>
+          <ul className="list-disc list-inside mt-2 space-y-1 text-left">
+            <li>Переменная NEXT_PUBLIC_BACKEND_URL настроена правильно</li>
+            <li>Backend сервер запущен и доступен</li>
+            <li>API endpoints возвращают JSON, а не HTML</li>
+            <li>Нет проблем с CORS или аутентификацией</li>
+          </ul>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-red-600">Ошибка: {error}</div>
+        <div className="text-lg text-gray-600">Загрузка...</div>
       </div>
     );
   }
@@ -3070,6 +3065,12 @@ const BookingPage = ({ masterclassId }) => {
         {masterclasses.length === 0 ? (
           <div className="text-center text-gray-600 py-12">
             <p className="text-lg">Нет доступных мастер-классов</p>
+            <button
+              onClick={fetchMasterclasses}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Обновить
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -3203,8 +3204,6 @@ const BookingPage = ({ masterclassId }) => {
           </div>
         </div>
       )}
-
-      <PaymentModal />
 
       <div className="flex gap-8">
         {/* Left Side - Calendar and Time */}

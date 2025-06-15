@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PaymentProvider } from "./context/PaymentContext";
+import AuthWrapper from "./components/AuthWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +30,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <PaymentProvider>
-            <NavigationProvider>{children}</NavigationProvider>
-          </PaymentProvider>
+          <AuthWrapper>
+            <NavigationProvider>
+              <PaymentProvider>{children}</PaymentProvider>
+            </NavigationProvider>
+          </AuthWrapper>
         </AuthProvider>
       </body>
     </html>

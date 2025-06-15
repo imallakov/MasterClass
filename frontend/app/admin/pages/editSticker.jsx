@@ -649,6 +649,7 @@ const EditStickerPage = () => {
     price: "",
     image: "",
     category: "",
+    wb_link: "",
   });
   const [originalData, setOriginalData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -787,6 +788,7 @@ const EditStickerPage = () => {
       price: sticker.price ? sticker.price.toString() : "",
       image: sticker.image || "",
       category: sticker.category ? sticker.category.toString() : "",
+      wb_link: sticker.wb_link || "",
     };
     setFormData(updatedFormData);
     setOriginalData(updatedFormData);
@@ -809,6 +811,7 @@ const EditStickerPage = () => {
       price: "",
       image: "",
       category: "",
+      wb_link: "",
     });
     setOriginalData(null);
     setImageChanged(false);
@@ -865,6 +868,24 @@ const EditStickerPage = () => {
       return false;
     }
 
+    if (!formData.wb_link.trim()) {
+      setMessage({
+        type: "error",
+        text: "Пожалуйста, введите ссылку на Wildberries",
+      });
+      return false;
+    }
+    // ADD URL VALIDATION
+    try {
+      new URL(formData.wb_link);
+    } catch {
+      setMessage({
+        type: "error",
+        text: "Пожалуйста, введите корректную ссылку",
+      });
+      return false;
+    }
+
     return true;
   };
 
@@ -898,6 +919,7 @@ const EditStickerPage = () => {
           parseFloat(formData.price).toFixed(2)
         );
         formDataForSubmission.append("category", parseInt(formData.category));
+        formDataForSubmission.append("wb_link", formData.wb_link.trim());
         formDataForSubmission.append("image", selectedFile);
 
         response = await makeAuthenticatedRequest(
@@ -913,6 +935,7 @@ const EditStickerPage = () => {
           title: formData.title.trim(),
           price: parseFloat(formData.price).toFixed(2),
           category: parseInt(formData.category),
+          wb_link: formData.wb_link.trim(),
         };
 
         response = await makeAuthenticatedRequest(
@@ -981,6 +1004,7 @@ const EditStickerPage = () => {
       formData.title !== originalData.title ||
       formData.price !== originalData.price ||
       formData.category !== originalData.category ||
+      formData.wb_link !== originalData.wb_link ||
       imageChanged
     );
   };
@@ -1199,6 +1223,22 @@ const EditStickerPage = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* WB Link Input - ADD THIS ENTIRE SECTION */}
+              <div>
+                <label className="block text-gray-900 font-medium mb-3 text-base">
+                  Ссылка на Wildberries *
+                </label>
+                <input
+                  type="url"
+                  name="wb_link"
+                  value={formData.wb_link}
+                  onChange={handleInputChange}
+                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  placeholder="https://www.wildberries.ru/catalog/..."
+                  required
+                />
               </div>
 
               {/* Upload New Image */}

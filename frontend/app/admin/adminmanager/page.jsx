@@ -980,7 +980,6 @@ import DeleteStickerCategory from "../pages/deleteStickerCategory";
 import { useRouter } from "next/navigation";
 import { AddGalleryPage, DeleteGalleryPage } from "../pages/galleryManagement";
 import EnrollmentManagementPage from "../pages/enrollmentManagement";
-import StickerOrdersPage from "../pages/stickerOrderManagement";
 import ContactsPage from "../pages/contactsManagement";
 import AboutPage from "../pages/aboutManager";
 
@@ -1001,10 +1000,11 @@ const Sidebar = ({ currentPage, onPageChange }) => {
     useState(true);
   const [isGalleryExpanded, setIsGalleryExpanded] = useState(true);
   const [isEnrollmentsExpanded, setIsEnrollmentsExpanded] = useState(true);
-  const [isStickerOrdersExpanded, setIsStickerOrdersExpanded] = useState(true);
   const [isContactManager, setIsContactManager] = useState(true);
   const [isAboutManager, setIsAboutManager] = useState(true);
   const router = useRouter();
+  const { user } = useAuth();
+  console.log(user);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -1017,19 +1017,17 @@ const Sidebar = ({ currentPage, onPageChange }) => {
       {/* User Profile Section */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800">
-            <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white text-xs">
-              VL
-            </div>
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-800">
+            <img src={user.photo} alt="user" />
           </div>
           <div>
-            {/* <h3 className="font-semibold text-gray-900">Виктор Ловецкий</h3> */}
+            <h3 className="font-semibold text-gray-900">{user.first_name}</h3>
             <p className="text-sm text-gray-500">Администратор</p>
           </div>
         </div>
-        <button className="text-sm text-blue-500 mt-2 hover:text-blue-600">
+        {/* <button className="text-sm text-blue-500 mt-2 hover:text-blue-600">
           Изменить фото
-        </button>
+        </button> */}
       </div>
 
       {/* Navigation */}
@@ -1269,45 +1267,6 @@ const Sidebar = ({ currentPage, onPageChange }) => {
             )}
           </div>
 
-          {/* Sticker Order Section */}
-          <div>
-            <div
-              className="flex items-center justify-between p-3 text-gray-900 hover:bg-gray-50 rounded-lg cursor-pointer font-medium transition-colors duration-200"
-              onClick={() =>
-                setIsStickerOrdersExpanded(!isStickerOrdersExpanded)
-              }
-            >
-              <div className="flex items-center space-x-3">
-                <div className="transition-transform duration-200">
-                  {isStickerOrdersExpanded ? (
-                    <ChevronDown className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                  )}
-                </div>
-                <span>Заказы на стикера</span>
-              </div>
-            </div>
-
-            {isStickerOrdersExpanded && (
-              <div className="ml-8 space-y-2 mt-2 animate-in slide-in-from-top-2 duration-200">
-                <button
-                  className={`flex items-center space-x-3 p-2 rounded-lg w-full text-left text-sm transition-colors duration-200 ${
-                    currentPage === "sticker-order-manage"
-                      ? "text-blue-500 bg-blue-50"
-                      : "text-gray-600 hover:bg-blue-50"
-                  }`}
-                  onClick={() => onPageChange("sticker-order-manage")}
-                >
-                  <span>
-                    <Logs className="w-4 h-4" />
-                  </span>
-                  <span>Управление заказами</span>
-                </button>
-              </div>
-            )}
-          </div>
-
           {/* Gallery Section */}
           <div>
             <div
@@ -1539,9 +1498,6 @@ const AdminManagement = () => {
         return <AddStickerCategory />;
       case "sticker-category-delete":
         return <DeleteStickerCategory />;
-
-      case "sticker-order-manage":
-        return <StickerOrdersPage />;
 
       case "gallery-add":
         return <AddGalleryPage />;
