@@ -433,7 +433,7 @@ const EyeOffIcon = ({ className }) => (
 export default function SignInPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    phone: "+7",
+    phone: "+",
     password: "",
   });
 
@@ -447,7 +447,7 @@ export default function SignInPage() {
   // 7. Add helper function to clean phone number for backend
   const cleanPhoneForBackend = (phone) => {
     // Remove +7 prefix and any spaces/formatting
-    return phone.replace(/^\+7\s*/, "").replace(/\s+/g, "");
+    return phone.replace(/^\+\s*/, "").replace(/\s+/g, "");
   };
 
   // Get CSRF token on component mount
@@ -505,7 +505,7 @@ export default function SignInPage() {
 
     if (name === "phone") {
       // Ensure phone always starts with +7
-      if (value.startsWith("+7")) {
+      if (value.startsWith("+")) {
         setFormData((prev) => ({
           ...prev,
           [name]: value,
@@ -514,7 +514,7 @@ export default function SignInPage() {
         // If user tries to delete everything, keep +7
         setFormData((prev) => ({
           ...prev,
-          [name]: "+7",
+          [name]: "+",
         }));
       }
     } else {
@@ -537,7 +537,7 @@ export default function SignInPage() {
     const newErrors = {};
 
     // Updated phone validation
-    if (!formData.phone.trim() || formData.phone === "+7") {
+    if (!formData.phone.trim() || formData.phone === "+") {
       newErrors.phone = "Номер телефона обязателен для заполнения";
     }
     if (!formData.password) {
@@ -626,7 +626,7 @@ export default function SignInPage() {
 
         // Reset form
         setFormData({
-          phone: "+7",
+          phone: "+",
           password: "",
         });
 
