@@ -34,6 +34,7 @@ const EnrollmentManagementPage = () => {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
+  console.log("aaa");
   // Fetch all enrollments
   const fetchEnrollments = async () => {
     try {
