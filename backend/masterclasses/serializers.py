@@ -103,3 +103,4 @@ class PaymentCreateSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1)
     amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     idempotency_key = serializers.CharField(max_length=36, required=False, allow_blank=True)
+    return_url = serializers.URLField()
