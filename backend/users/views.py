@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, ValidationError
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,7 +18,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .models import OTP
 from .permissions import IsOwnerAdmin, IsAdmin
-from .serializers import UserRegistrationSerializer, UserSerializer, UserDetailSerializer
+from .serializers import UserRegistrationSerializer, UserSerializer, UserDetailSerializer, PasswordUpdateSerializer
 from .utils import generate_otp, StandardResponse
 
 secure_cookie = settings.DEBUG is False
@@ -456,3 +456,14 @@ class EmailVerificationConfirmView(APIView):
                 "Invalid verification code.",
                 {"otp": ["The verification code is invalid."]}
             )
+
+
+class PasswordUpdateView(UpdateAPIView):
+    """
+    Handles password updates for the authenticated user.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = PasswordUpdateSerializer
+
+    def get_object(self):
+        return self.request.user
