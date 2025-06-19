@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import {
   Users,
   Calendar,
-  Clock,
   User,
   CheckCircle,
   XCircle,
   AlertCircle,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 // Import this component in your main AdminManagement file
@@ -35,12 +36,13 @@ const EnrollmentManagementPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
 
   console.log("aaa");
+
   // Fetch all enrollments
   const fetchEnrollments = async () => {
     try {
       setLoading(true);
       const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/enrollments/`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/all_enrollments/`
       );
 
       if (!response.ok) {
@@ -48,23 +50,46 @@ const EnrollmentManagementPage = () => {
       }
 
       const data = await response.json();
-      setEnrollments(Array.isArray(data) ? data : []);
 
-      // Extract unique masterclasses from enrollments
-      const uniqueMasterclasses = [];
-      const masterclassIds = new Set();
+      // Process the nested data structure
+      const allEnrollments = [];
+      const masterclassList = [];
 
-      data.forEach((enrollment) => {
-        if (
-          enrollment.masterclass &&
-          !masterclassIds.has(enrollment.masterclass.id)
-        ) {
-          masterclassIds.add(enrollment.masterclass.id);
-          uniqueMasterclasses.push(enrollment.masterclass);
+      // Extract enrollments and masterclasses from the API response
+      data.forEach((masterclass) => {
+        if (masterclass.enrollments && masterclass.enrollments.length > 0) {
+          // Add masterclass to list
+          masterclassList.push({
+            id: masterclass.id,
+            title: masterclass.title,
+          });
+
+          // Process each enrollment and add masterclass info
+          masterclass.enrollments.forEach((enrollment) => {
+            allEnrollments.push({
+              ...enrollment,
+              masterclass: {
+                id: masterclass.id,
+                title: masterclass.title,
+              },
+              // Map API fields to component expected fields
+              slot: {
+                start: enrollment.slot_start_time,
+                end: enrollment.slot_start_time, // API doesn't provide end time
+              },
+              user: {
+                first_name: enrollment.user_first_name,
+                last_name: enrollment.user_last_name,
+                phone_number: enrollment.user_phone_number,
+                email: enrollment.user_email,
+              },
+            });
+          });
         }
       });
 
-      setMasterclasses(uniqueMasterclasses);
+      setEnrollments(allEnrollments);
+      setMasterclasses(masterclassList);
     } catch (error) {
       console.error("Error fetching enrollments:", error);
       setError("Не удалось загрузить записи на мастер-классы");
@@ -99,7 +124,7 @@ const EnrollmentManagementPage = () => {
     fetchEnrollments();
   }, []);
 
-  // Get status badge styling
+  // Get status badge styling - updated to handle 'paid' status
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: {
@@ -111,6 +136,11 @@ const EnrollmentManagementPage = () => {
         color: "bg-green-100 text-green-800",
         icon: CheckCircle,
         text: "Подтверждено",
+      },
+      paid: {
+        color: "bg-blue-100 text-blue-800",
+        icon: CheckCircle,
+        text: "Оплачено",
       },
       cancelled: {
         color: "bg-red-100 text-red-800",
@@ -134,6 +164,7 @@ const EnrollmentManagementPage = () => {
 
   // Format date
   const formatDate = (dateString) => {
+    if (!dateString) return "Не указано";
     return new Date(dateString).toLocaleString("ru-RU", {
       year: "numeric",
       month: "short",
@@ -223,6 +254,7 @@ const EnrollmentManagementPage = () => {
               <option value="all">Все статусы</option>
               <option value="pending">Ожидает</option>
               <option value="confirmed">Подтверждено</option>
+              <option value="paid">Оплачено</option>
               <option value="cancelled">Отменено</option>
             </select>
           </div>
@@ -230,7 +262,7 @@ const EnrollmentManagementPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <Users className="h-8 w-8 text-blue-500" />
@@ -253,6 +285,18 @@ const EnrollmentManagementPage = () => {
                   filteredEnrollments.filter((e) => e.status === "confirmed")
                     .length
                 }
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <CheckCircle className="h-8 w-8 text-blue-500" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Оплачено</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {filteredEnrollments.filter((e) => e.status === "paid").length}
               </p>
             </div>
           </div>
@@ -320,10 +364,13 @@ const EnrollmentManagementPage = () => {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Пользователь
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Мастер-класс
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Слот
+                    Дата слота
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Количество
@@ -344,25 +391,27 @@ const EnrollmentManagementPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {enrollment.masterclass?.title || "Не указано"}
+                        {enrollment.user.first_name} {enrollment.user.last_name}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        Цена: {enrollment.masterclass?.price || 0} ₽
+                      <div className="text-sm text-gray-500 flex items-center mt-1">
+                        <Mail className="h-3 w-3 mr-1" />
+                        {enrollment.user.email}
+                      </div>
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Phone className="h-3 w-3 mr-1" />
+                        {enrollment.user.phone_number}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {enrollment.masterclass?.title || "Не указано"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
                         <Calendar className="h-4 w-4 mr-1" />
-                        {enrollment.slot
-                          ? formatDate(enrollment.slot.start)
-                          : "Не указано"}
+                        {formatDate(enrollment.slot_start_time)}
                       </div>
-                      {enrollment.slot && (
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {formatDate(enrollment.slot.end)}
-                        </div>
-                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
