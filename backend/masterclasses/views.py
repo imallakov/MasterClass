@@ -2,6 +2,7 @@ import ipaddress
 import json
 import time
 import uuid
+from decimal import Decimal
 
 from django.conf import settings
 from django.db.models import Sum, Prefetch
@@ -149,7 +150,7 @@ class PaymentCreateView(APIView):
         masterclass = MasterClass.objects.get(id=data["masterclass_id"])
         quantity = int(data["quantity"])
         amount = masterclass.price * quantity
-        amount = amount + (amount / 100 * 3.5)
+        amount = amount + (amount / Decimal(100) * Decimal(3.5))
         # Validate quantity and capacity
         participant_limit = masterclass.participant_limit
         current_enrollments = (
