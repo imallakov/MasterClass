@@ -39,9 +39,10 @@ class User(AbstractUser):
     email = models.EmailField('email address', unique=True, blank=False, null=False)
     phone_number = models.CharField(max_length=11, unique=True, blank=False, null=False)
     birth_date = models.DateField(blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='male', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     phone_number_verified = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
     photo = models.ImageField(
         upload_to='profile_photos/',
         # optimized_image_output_size=(0, 0),  # No resizing
