@@ -147,7 +147,9 @@ class PaymentCreateView(APIView):
         user = request.user
         slot = MasterClassSlot.objects.get(id=data["slot_id"])
         masterclass = MasterClass.objects.get(id=data["masterclass_id"])
-
+        quantity = int(data["quantity"])
+        amount = masterclass.price * quantity
+        amount = amount + (amount / 100 * 3.5)
         # Validate quantity and capacity
         participant_limit = masterclass.participant_limit
         current_enrollments = (
@@ -157,8 +159,7 @@ class PaymentCreateView(APIView):
             or 0
         )
 
-        if current_enrollments + data["quantity"] > participant_limit:
-
+        if current_enrollments + quantity > participant_limit:
             return Response(
                 {"detail": "Нет свободных мест на этом слоте!"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -176,7 +177,10 @@ class PaymentCreateView(APIView):
 
         # Use provided idempotency_key or generate a new one
         idempotency_key = data.get("idempotency_key") or str(uuid.uuid4())
-        return_url = data.get("return_url")
+        return_url = data.get("return_url") or "https://дворецмастеров.рф/"
+
+        print("Payment Create Post idempotency key: {}".format(idempotency_key))
+        print("Payment Create Post return url: {}".format(return_url))
 
         print("Payment Create Post idempotency key: {}".format(idempotency_key))
         print("Payment Create Post return url: {}".format(return_url))
@@ -188,14 +192,14 @@ class PaymentCreateView(APIView):
         if not enrollment:
             # Create new enrollment
             enrollment = MasterClassEnrollment.objects.create(
-                user=user, slot=slot, quantity=data["quantity"], status="pending"
+                user=user, slot=slot, quantity=quantity, status="pending"
             )
 
         # Create YooKassa payment
         try:
             payment = Payment.create(
                 {
-                    "amount": {"value": str(data["amount"]), "currency": "RUB"},
+                    "amount": {"value": str(amount), "currency": "RUB"},
                     "confirmation": {
                         "type": "redirect",
                         "return_url": return_url,
@@ -261,7 +265,7 @@ class PaymentWebhookView(APIView):
         #     f"IP Headers: REMOTE_ADDR={request.META.get('REMOTE_ADDR')}, X-Real-IP={request.META.get('HTTP_X_REAL_IP')}, X-Forwarded-For={request.META.get('HTTP_X_FORWARDED_FOR')}, All Headers={request.META}")
         if not client_ip:
             # logger.error("No valid client IP found in request headers")
-            # print('No valid client IP found in request headers')
+            print("No valid client IP found in request headers")
             return Response(
                 {"detail": "Missing client IP"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -270,7 +274,7 @@ class PaymentWebhookView(APIView):
             ip_addr = ipaddress.ip_address(client_ip)
         except ValueError as e:
             # logger.error(f"Invalid IP address: {client_ip}, Error: {str(e)}")
-            # print(f"Invalid IP address: {client_ip}, Error: {str(e)}")
+            print(f"Invalid IP address: {client_ip}, Error: {str(e)}")
             return Response(
                 {"detail": f"Invalid IP address: {client_ip}"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -294,7 +298,7 @@ class PaymentWebhookView(APIView):
 
         if not is_valid_ip:
             # logger.error(f"IP {client_ip} not in YOOKASSA_IPS")
-            # print(f"IP {client_ip} not in YOOKASSA_IPS")
+            print(f"IP {client_ip} not in YOOKASSA_IPS")
             return Response(
                 {"detail": "Unauthorized IP address"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -308,10 +312,12 @@ class PaymentWebhookView(APIView):
 
             yookassa_payment = Payment.find_one(payment_id)
             # logger.info(f"YooKassa payment status: {yookassa_payment.status}")
-            # print(f"YooKassa payment status: {yookassa_payment.status}")
+            print(f"YooKassa payment status: {yookassa_payment.status}")
             if yookassa_payment.status != payment["status"]:
                 # logger.error(f"Payment status mismatch: webhook={payment['status']}, API={yookassa_payment.status}")
-                # print(f"Payment status mismatch: webhook={payment['status']}, API={yookassa_payment.status}")
+                print(
+                    f"Payment status mismatch: webhook={payment['status']}, API={yookassa_payment.status}"
+                )
                 return Response(
                     {"detail": "Payment status mismatch"},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -329,7 +335,7 @@ class PaymentWebhookView(APIView):
                 enrollment.status = "cancelled"
             else:
                 # logger.warning(f"Unhandled event: {event}")
-                # print(f"Unhandled event: {event}")
+                print(f"Unhandled event: {event}")
                 return Response(
                     {"detail": f"Unsupported event: {event}"},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -341,16 +347,13 @@ class PaymentWebhookView(APIView):
             # return Response(status=status.HTTP_200_OK)
         except MasterClassEnrollment.DoesNotExist:
             # logger.error(f"Enrollment not found for payment_id={payment_id}")
-            # print(f"Enrollment not found for payment_id={payment_id}")
-            return Response(
-                {"detail": "Enrollment not found"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            print(f"Enrollment not found for payment_id={payment_id}")
+            # return Response({'detail': 'Enrollment not found'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # logger.error(f"Webhook processing failed: {str(e)}", exc_info=True)
-            # print(f"Webhook processing failed: {str(e)}", exc_info=True)
-            return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            print(f"Webhook processing failed: {str(e)}", exc_info=True)
+            # return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PaymentStatusSSEView(APIView):

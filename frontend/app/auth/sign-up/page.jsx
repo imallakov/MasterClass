@@ -31,7 +31,7 @@ export default function RegistrationPage() {
     birthDate: "",
     password: "",
     passwordConfirm: "",
-    phone: "+7",
+    phone: "+",
     email: "",
     agreeToPolicy: false,
   });
@@ -43,7 +43,7 @@ export default function RegistrationPage() {
 
   const cleanPhoneForBackend = (phone) => {
     // Remove +7 prefix and any spaces/formatting
-    return phone.replace(/^\+7\s*/, "").replace(/\s+/g, "");
+    return phone.replace(/^\+\s*/, "").replace(/\s+/g, "");
   };
 
   const formatDateForBackend = (dateString) => {
@@ -101,7 +101,7 @@ export default function RegistrationPage() {
         // If user tries to delete everything, keep +7
         setFormData((prev) => ({
           ...prev,
-          [name]: "+7",
+          [name]: "+",
         }));
       }
     } else {
@@ -236,14 +236,14 @@ export default function RegistrationPage() {
           birthDate: "",
           password: "",
           passwordConfirm: "",
-          phone: "+7", // Reset to +7
+          phone: "+", // Reset to +7
           email: "",
           agreeToPolicy: false,
         });
 
         // Redirect after successful registration
         setTimeout(() => {
-          router.push("/");
+          router.push("/auth/sign-in");
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -291,7 +291,7 @@ export default function RegistrationPage() {
       birthDate: "",
       password: "",
       passwordConfirm: "",
-      phone: "+7", // Reset to +7
+      phone: "+", // Reset to +7
       email: "",
       agreeToPolicy: false,
     });
