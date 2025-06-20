@@ -29,12 +29,24 @@ SECRET_KEY = env('SECRET_KEY')
 YOOKASSA_SHOP_ID = env('YOOKASSA_SHOP_ID')
 YOOKASSA_API_KEY = env('YOOKASSA_API_KEY')
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.com'  # Yandex SMTP server
+EMAIL_PORT = 465  # 587 - Port for TLS
+# EMAIL_USE_TLS = True  # Enable TLS
+EMAIL_USE_SSL = True  # Don't enable SSL (TLS is sufficient)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your Yandex email
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Replace with the app-specific password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default "From" email address
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_ADMIN = EMAIL_HOST_USER
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    'ebf6-82-153-50-46.ngrok-free.app',
 ]
 
 MEDIA_URL = '/media/'
@@ -72,10 +84,12 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    'https://ebf6-82-153-50-46.ngrok-free.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "https://ebf6-82-153-50-46.ngrok-free.app",
 ]
 
 MIDDLEWARE = [

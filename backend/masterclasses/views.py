@@ -81,10 +81,10 @@ class MasterClassEnrollmentCreateView(generics.CreateAPIView):
         # Check slot capacity
         participant_limit = slot.masterclass.participant_limit
         current_enrollments = (
-            slot.enrollments.filter(status__in=["pending", "paid"]).aggregate(
-                total=Sum("quantity")
-            )["total"]
-            or 0
+                slot.enrollments.filter(status__in=["pending", "paid"]).aggregate(
+                    total=Sum("quantity")
+                )["total"]
+                or 0
         )
 
         if current_enrollments + quantity > participant_limit:
@@ -154,10 +154,10 @@ class PaymentCreateView(APIView):
         # Validate quantity and capacity
         participant_limit = masterclass.participant_limit
         current_enrollments = (
-            slot.enrollments.filter(status__in=["pending", "paid"]).aggregate(
-                total=Sum("quantity")
-            )["total"]
-            or 0
+                slot.enrollments.filter(status__in=["pending", "paid"]).aggregate(
+                    total=Sum("quantity")
+                )["total"]
+                or 0
         )
 
         if current_enrollments + quantity > participant_limit:
@@ -285,13 +285,13 @@ class PaymentWebhookView(APIView):
         is_valid_ip = False
         for network in YOOKASSA_IPS:
             if isinstance(network, ipaddress.IPv4Network) or isinstance(
-                network, ipaddress.IPv6Network
+                    network, ipaddress.IPv6Network
             ):
                 if ip_addr in network:
                     is_valid_ip = True
                     break
             elif isinstance(network, ipaddress.IPv4Address) or isinstance(
-                network, ipaddress.IPv6Address
+                    network, ipaddress.IPv6Address
             ):
                 if ip_addr == network:
                     is_valid_ip = True
