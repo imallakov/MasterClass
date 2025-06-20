@@ -28,6 +28,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             # 'full_name': {'required': False},
             'phone_number': {'required': True},
+            'email': {'required': True},
         }
 
     def validate(self, attrs):
@@ -61,13 +62,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'phone_number_verified', 'first_name', 'last_name', 'birth_date', 'phone_number',
-                  'is_active',
-                  'is_staff', 'photo']
+        fields = ['id', 'email', 'email_verified', 'first_name', 'last_name', 'birth_date', 'phone_number',
+                  'phone_number_verified', 'is_active', 'is_staff', 'photo']
         extra_kwargs = {
             'password': {'write_only': True}
         }
-        read_only_fields = ['is_active', 'is_staff']
+        read_only_fields = ['is_active', 'is_staff', 'phone_number_verified', 'email_verified']
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -80,11 +80,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'birth_date', 'is_active',
-                  'phone_number_verified',
-                  'is_staff', 'photo']
-        read_only_fields = ['id', 'is_active', 'is_staff']
+                  'phone_number_verified', 'email_verified', 'is_staff', 'photo']
+        read_only_fields = ['id', 'is_active', 'is_staff', 'phone_number_verified', 'email_verified']
 
     def update(self, instance, validated_data):
+        if 'email' in validated_data and validated_data['email'] != instance.email:
+            validated_data['email_verified'] = False
+
+        if 'phone_number' in validated_data and validated_data['phone_number'] != instance.phone_number:
+            validated_data['phone_number_verified'] = False
+
         if 'photo' in validated_data:
             old_photo = instance.photo
             if old_photo:
