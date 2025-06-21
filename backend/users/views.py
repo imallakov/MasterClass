@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView, UpdateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,6 +25,22 @@ from .utils import generate_otp, StandardResponse
 secure_cookie = settings.DEBUG is False
 
 User = get_user_model()
+
+
+class PaginationClass(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+    def get_paginated_response(self, data):
+        return Response({
+            'meta': {
+                'count': self.page.paginator.count,  # Total number of items
+                'next': self.get_next_link(),  # URL of the next page
+                'previous': self.get_previous_link(),  # g
+            },
+            'results': data  # Paginated results
+        })
 
 
 class RegisterView(APIView):
@@ -187,8 +204,10 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class UserListView(ListAPIView):
+    queryset = get_user_model().objects.all()  # Fetch all users
     serializer_class = UserDetailSerializer
     permission_classes = [IsAdmin]
+    pagination_class = PaginationClass
 
 
 class PasswordResetRequestView(APIView):
