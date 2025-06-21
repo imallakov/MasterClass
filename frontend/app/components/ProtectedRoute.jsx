@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
       }
 
       if (requiredRole === "admin" && !isAdmin()) {
-        router.push("/unauthorized");
+        router.push("/");
         return;
       }
     }

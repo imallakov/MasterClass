@@ -15,6 +15,7 @@ const MasterClasses = () => {
   const scrollContainerRef = useRef(null);
   const desktopScrollContainerRef = useRef(null);
   const { navigateToBooking } = useNavigation();
+
   // Fetch masterclasses from backend
   const fetchMasterclasses = useCallback(async () => {
     try {
@@ -95,6 +96,28 @@ const MasterClasses = () => {
       setModalLoading(false);
     }
   }, []);
+
+  const navigateModal = useCallback(
+    (direction) => {
+      if (!selectedClass || classes.length === 0) return;
+
+      const currentIndex = classes.findIndex(
+        (cls) => cls.id === selectedClass.id
+      );
+      if (currentIndex === -1) return;
+
+      let newIndex;
+      if (direction === "next") {
+        newIndex = currentIndex === classes.length - 1 ? 0 : currentIndex + 1; // Loop to first
+      } else {
+        newIndex = currentIndex === 0 ? classes.length - 1 : currentIndex - 1; // Loop to last
+      }
+
+      const newClass = classes[newIndex];
+      fetchMasterclassDetails(newClass.id);
+    },
+    [selectedClass, classes, fetchMasterclassDetails]
+  );
 
   const formatAgeRange = (minAge, maxAge) => {
     if (!minAge && !maxAge) return null;
@@ -373,199 +396,12 @@ const MasterClasses = () => {
     </div>
   );
 
-  // const Modal = () => {
-  //   if (!isModalOpen) return null;
-
-  //   return (
-  //     <div
-  //       className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4"
-  //       onClick={handleModalBackdropClick}
-  //     >
-  //       <div className="relative sm:max-w-2xl md:max-w-4xl w-full">
-  //         <div className="absolute -top-10 left-4 items-center gap-3 mb-6">
-  //           <div className="flex justify-center gap-2">
-  //             <div className="w-20 h-20 rounded-full border border-green-600 flex items-center justify-center z-10">
-  //               <img src="/images/paper.png" alt="paper" />
-  //             </div>
-  //             <span className="text-green-600 text-sm font-medium">
-  //               Экологически чистый
-  //               <br />
-  //               материал
-  //             </span>
-  //           </div>
-  //         </div>
-
-  //         {/* Price tag */}
-  //         <div className="absolute -top-36 right-1/4 text-[#FFB283] text-2xl font-medium z-20">
-  //           {selectedClass.price}
-  //         </div>
-  //         {/* Navigation arrows */}
-  //         <button
-  //           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
-  //           onClick={() => scrollToSlide("prev")}
-  //           disabled={currentSlide === 0}
-  //         >
-  //           <svg
-  //             className="w-6 h-6 text-gray-600"
-  //             fill="none"
-  //             viewBox="0 0 24 24"
-  //             stroke="currentColor"
-  //           >
-  //             <path
-  //               strokeLinecap="round"
-  //               strokeLinejoin="round"
-  //               strokeWidth={2}
-  //               d="M15 19l-7-7 7-7"
-  //             />
-  //           </svg>
-  //         </button>
-  //         <button
-  //           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
-  //           onClick={() => scrollToSlide("next")}
-  //           disabled={currentSlide === classes.length - 1}
-  //         >
-  //           <svg
-  //             className="w-6 h-6 text-gray-600"
-  //             fill="none"
-  //             viewBox="0 0 24 24"
-  //             stroke="currentColor"
-  //           >
-  //             <path
-  //               strokeLinecap="round"
-  //               strokeLinejoin="round"
-  //               strokeWidth={2}
-  //               d="M9 5l7 7-7 7"
-  //             />
-  //           </svg>
-  //         </button>
-
-  //         <div className="relative bg-[#F4F1F1] rounded-3xl overflow-hidden mx-16 z-20">
-  //           {modalLoading && (
-  //             <div className="flex justify-center items-center py-20">
-  //               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-300"></div>
-  //             </div>
-  //           )}
-
-  //           {modalError && (
-  //             <div className="text-center py-8 px-6">
-  //               <p className="text-red-500 mb-4">
-  //                 Ошибка при загрузке деталей: {modalError}
-  //               </p>
-  //               <button
-  //                 onClick={() => fetchMasterclassDetails(selectedClass?.id)}
-  //                 className="px-4 py-2 bg-orange-300 text-gray-800 rounded-lg hover:bg-orange-400 transition-colors"
-  //               >
-  //                 Попробовать снова
-  //               </button>
-  //             </div>
-  //           )}
-
-  //           {selectedClass && !modalLoading && !modalError && (
-  //             <>
-  //               {/* Info icon */}
-  //               <button
-  //                 className="absolute top-6 right-6 mt-8 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors z-20"
-  //                 onClick={closeModal}
-  //                 aria-label="Close modal"
-  //               >
-  //                 <svg
-  //                   className="w-4 h-4 text-gray-600"
-  //                   fill="none"
-  //                   viewBox="0 0 24 24"
-  //                   stroke="currentColor"
-  //                 >
-  //                   <path
-  //                     strokeLinecap="round"
-  //                     strokeLinejoin="round"
-  //                     strokeWidth={2}
-  //                     d="M6 18L18 6M6 6l12 12"
-  //                   />
-  //                 </svg>
-  //               </button>
-
-  //               <div className="p-8 relative">
-  //                 {/* Eco badge */}
-  //                 {/* Title */}
-  //                 <h2 className="text-2xl font-bold text-[#3A6281] mb-4 leading-tight">
-  //                   {selectedClass.title
-  //                     .split(" ")
-  //                     .map((word, index, array) => (
-  //                       <span key={index}>
-  //                         {word}
-  //                         {index < array.length - 1 &&
-  //                         index === Math.floor(array.length / 2) - 1 ? (
-  //                           <br />
-  //                         ) : (
-  //                           " "
-  //                         )}
-  //                       </span>
-  //                     ))}
-  //                 </h2>
-
-  //                 {/* Description */}
-  //                 <p className="text-gray-700 text-sm leading-relaxed mb-4">
-  //                   {selectedClass.description}
-  //                 </p>
-
-  //                 {/* Additional info */}
-  //                 {/* <div className="mb-6">
-  //                   <p className="text-blue-600 text-sm italic mb-1">
-  //                     Возможность выбрать цвет
-  //                   </p>
-  //                   <p className="text-pink-400 text-sm">
-  //                     Мастер-класс рассчитан на взрослых и детей 7+
-  //                   </p>
-  //                 </div> */}
-
-  //                 {/* Stats - Optional, only show if you want */}
-  //                 {(selectedClass.participantLimit || selectedClass.slots) && (
-  //                   <div className="mb-4 text-xs text-gray-500 space-y-1">
-  //                     {selectedClass.participantLimit && (
-  //                       <p>
-  //                         Лимит участников: {selectedClass.participantLimit}
-  //                       </p>
-  //                     )}
-  //                     {selectedClass.slots && (
-  //                       <p>
-  //                         Доступные места:{" "}
-  //                         {Array.isArray(selectedClass.slots)
-  //                           ? selectedClass.slots.length
-  //                           : typeof selectedClass.slots === "object" &&
-  //                             selectedClass.slots?.free_places !== undefined
-  //                           ? selectedClass.slots.free_places
-  //                           : selectedClass.slots || 0}
-  //                       </p>
-  //                     )}
-  //                   </div>
-  //                 )}
-
-  //                 {/* CTA Button */}
-  //                 <div className="flex justify-end">
-  //                   <button
-  //                     className="w-1/3 min-w-[200px] bg-[#E7717D] hover:bg-[#d26b75] text-white font-medium py-3 rounded-2xl text-base transition-colors"
-  //                     onClick={() => {
-  //                       navigateToBooking(selectedClass.id);
-  //                       closeModal(); // Close the modal after navigation
-  //                     }}
-  //                   >
-  //                     Узнать расписание
-  //                   </button>
-  //                 </div>
-  //               </div>
-  //             </>
-  //           )}
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // };
-
   // Fixed Modal component with proper button handler
   const Modal = () => {
     if (!isModalOpen) return null;
 
     const handleBookingClick = () => {
-      console.log("Book button clicked for masterclass:", selectedClass?.id); // Debug log
+      console.log("Book button clicked for masterclass:", selectedClass?.id);
       if (selectedClass?.id) {
         navigateToBooking(selectedClass.id);
         closeModal();
@@ -574,35 +410,30 @@ const MasterClasses = () => {
       }
     };
 
+    // Get current masterclass position for navigation
+    const currentIndex = selectedClass
+      ? classes.findIndex((cls) => cls.id === selectedClass.id)
+      : -1;
+    const isFirstClass = currentIndex === 0;
+    const isLastClass = currentIndex === classes.length - 1;
+
     return (
       <div
         className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4"
         onClick={handleModalBackdropClick}
       >
         <div className="relative sm:max-w-2xl md:max-w-4xl w-full">
-          <div className="absolute -top-10 left-4 items-center gap-3 mb-6">
-            <div className="flex justify-center gap-2">
-              <div className="w-20 h-20 rounded-full border border-green-600 flex items-center justify-center z-10">
-                <img src="/images/paper.png" alt="paper" />
-              </div>
-              <span className="text-green-600 text-sm font-medium">
-                Экологически чистый
-                <br />
-                материал
-              </span>
-            </div>
-          </div>
-
           {/* Price tag */}
           <div className="absolute -top-36 right-1/4 text-[#FFB283] text-2xl font-medium z-20">
             {selectedClass?.price}
           </div>
 
-          {/* Navigation arrows */}
+          {/* Navigation arrows - Updated to navigate between masterclasses */}
           <button
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
-            onClick={() => scrollToSlide("prev")}
-            disabled={currentSlide === 0}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => navigateModal("prev")}
+            disabled={modalLoading}
+            aria-label="Previous masterclass"
           >
             <svg
               className="w-6 h-6 text-gray-600"
@@ -618,10 +449,12 @@ const MasterClasses = () => {
               />
             </svg>
           </button>
+
           <button
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
-            onClick={() => scrollToSlide("next")}
-            disabled={currentSlide === classes.length - 1}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => navigateModal("next")}
+            disabled={modalLoading}
+            aria-label="Next masterclass"
           >
             <svg
               className="w-6 h-6 text-gray-600"
@@ -638,7 +471,15 @@ const MasterClasses = () => {
             </svg>
           </button>
 
+          {/* Add a small indicator showing current position */}
+          {/* {classes.length > 1 && selectedClass && (
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 text-sm text-gray-500 z-20">
+              {currentIndex + 1} / {classes.length}
+            </div>
+          )} */}
+
           <div className="relative bg-[#F4F1F1] rounded-3xl overflow-hidden mx-16 z-20">
+            {/* Rest of your modal content remains the same */}
             {modalLoading && (
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-300"></div>
@@ -663,23 +504,11 @@ const MasterClasses = () => {
               <>
                 {/* Close button */}
                 <button
-                  className="absolute top-6 right-6 mt-8 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors z-20"
+                  className="absolute top-0 text-sm font-light right-6 mt-8 bg-gray-200 rounded-md p-2 flex items-center justify-center hover:bg-gray-300 transition-colors z-20"
                   onClick={closeModal}
                   aria-label="Close modal"
                 >
-                  <svg
-                    className="w-4 h-4 text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  назад
                 </button>
 
                 <div className="p-4 py-10 md:p-8 relative">
@@ -707,9 +536,6 @@ const MasterClasses = () => {
 
                   {/* Additional info */}
                   <div className="mb-6">
-                    {/* <p className="text-blue-600 text-sm italic mb-1">
-                      Возможность выбрать цвет
-                    </p> */}
                     {(selectedClass.participantMinAge ||
                       selectedClass.participantMaxAge) && (
                       <p className="text-pink-400 text-sm mb-1">
@@ -728,17 +554,6 @@ const MasterClasses = () => {
                       {selectedClass.participantLimit && (
                         <p>
                           Лимит участников: {selectedClass.participantLimit}
-                        </p>
-                      )}
-                      {selectedClass.slots && (
-                        <p>
-                          Доступные места:{" "}
-                          {Array.isArray(selectedClass.slots)
-                            ? selectedClass.slots.length
-                            : typeof selectedClass.slots === "object" &&
-                              selectedClass.slots?.free_places !== undefined
-                            ? selectedClass.slots.free_places
-                            : selectedClass.slots || 0}
                         </p>
                       )}
                     </div>
@@ -761,6 +576,7 @@ const MasterClasses = () => {
       </div>
     );
   };
+
   // Loading component
   const LoadingSpinner = () => (
     <div className="flex justify-center items-center py-20">

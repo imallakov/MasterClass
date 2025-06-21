@@ -2825,15 +2825,15 @@ const BookingPage = ({ masterclassId }) => {
     try {
       setEnrolling(true);
 
-      const userId = localStorage.getItem("user_id") || 2;
-      const totalAmount = parseFloat(masterclass.price) * participants;
+      // const userId = localStorage.getItem("user_id") || 2;
+      // const totalAmount = parseFloat(masterclass.price) * participants;
 
       const paymentData = {
         masterclass_id: masterclass.id,
         slot_id: selectedTime.id,
         quantity: participants,
-        amount: totalAmount.toFixed(2),
-        user_id: parseInt(userId),
+        // amount: totalAmount.toFixed(2),
+        // user_id: parseInt(userId),
         return_url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/pages/payment-result`,
       };
 
@@ -2937,7 +2937,7 @@ const BookingPage = ({ masterclassId }) => {
   // Get date styling
   const getDateClass = (dayInfo, status) => {
     const baseClass =
-      "p-2 text-sm font-medium cursor-pointer rounded-full w-8 h-8 flex items-center justify-center";
+      "p-1 sm:p-2 text-xs sm:text-sm font-medium cursor-pointer rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center";
 
     if (!dayInfo.isCurrentMonth) {
       return `${baseClass} text-gray-300`;
@@ -3057,7 +3057,7 @@ const BookingPage = ({ masterclassId }) => {
   // Show masterclasses list if no specific masterclass is selected
   if (!selectedMasterclassId) {
     return (
-      <div className="max-w-6xl">
+      <div className="max-w-6xl px-4 sm:px-6 lg:px-0">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
           Выберите мастер-класс
         </h1>
@@ -3073,7 +3073,7 @@ const BookingPage = ({ masterclassId }) => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {masterclasses.map((mc) => (
               <div
                 key={mc.id}
@@ -3148,7 +3148,7 @@ const BookingPage = ({ masterclassId }) => {
       {/* Back button */}
       <button
         onClick={handleBackToList}
-        className="mb-6 flex items-center text-blue-600 hover:text-blue-800 font-medium"
+        className="mb-4 sm:mb-6 flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base"
       >
         <svg
           className="w-5 h-5 mr-2"
@@ -3205,18 +3205,18 @@ const BookingPage = ({ masterclassId }) => {
         </div>
       )}
 
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Left Side - Calendar and Time */}
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
             Выбрать дату
           </h1>
 
           {/* Calendar */}
           <div className="mb-8">
-            <div className="border-2 border-blue-300 rounded-2xl p-6 bg-white">
+            <div className="border-2 border-blue-300 rounded-2xl p-4 sm:p-6 bg-white">
               {/* Month Navigation */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <button
                   onClick={() => navigateMonth("prev")}
                   className="p-2 hover:bg-gray-100 rounded"
@@ -3235,7 +3235,7 @@ const BookingPage = ({ masterclassId }) => {
                     />
                   </svg>
                 </button>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                   {monthNames[currentMonth]} {currentYear}
                 </h2>
                 <button
@@ -3271,7 +3271,7 @@ const BookingPage = ({ masterclassId }) => {
               </div>
 
               {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2 text-center">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
                 {calendar.map((week, weekIndex) =>
                   week.map((dayInfo, dayIndex) => {
                     const status = getDateStatus(dayInfo);
@@ -3292,17 +3292,17 @@ const BookingPage = ({ masterclassId }) => {
 
           {/* Available Time Slots */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
               Доступное время:
             </h3>
             {selectedDate ? (
               availableTimeSlots.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {availableTimeSlots.map((slot) => (
                     <button
                       key={slot.id}
                       onClick={() => setSelectedTime(slot)}
-                      className={`px-4 py-2 rounded-lg font-medium ${
+                      className={`px-3 py-2 sm:px-4 rounded-lg font-medium text-sm sm:text-base ${
                         selectedTime?.id === slot.id
                           ? "bg-green-500 text-white"
                           : "bg-gray-600 text-white hover:bg-gray-700"
@@ -3329,8 +3329,8 @@ const BookingPage = ({ masterclassId }) => {
         </div>
 
         {/* Right Side - Additional Info */}
-        <div className="w-80">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        <div className="w-full lg:w-80">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
             Дополнительные данные
           </h2>
 
@@ -3343,11 +3343,11 @@ const BookingPage = ({ masterclassId }) => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => setParticipants(Math.max(1, participants - 1))}
-                  className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400"
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400 text-sm sm:text-base"
                 >
                   -
                 </button>
-                <span className="text-xl font-bold text-orange-500">
+                <span className="text-lg sm:text-xl font-bold text-orange-500">
                   {participants}/{masterclass.participant_limit}
                 </span>
                 <button
@@ -3361,7 +3361,7 @@ const BookingPage = ({ masterclassId }) => {
                       )
                     )
                   }
-                  className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600"
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 text-sm sm:text-base"
                 >
                   +
                 </button>
@@ -3376,18 +3376,18 @@ const BookingPage = ({ masterclassId }) => {
 
           {/* Master Class Description */}
           <div className="mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">
               {masterclass.title}
             </h3>
             <p className="text-gray-700 text-sm leading-relaxed mb-3">
               {masterclass.description}
             </p>
-            <div className="text-lg font-bold text-green-600 mb-2">
+            <div className="text-base sm:text-lg font-bold text-green-600 mb-2">
               {parseFloat(masterclass.price).toLocaleString("ru-RU")} ₽ за
               участника
             </div>
             {participants > 1 && (
-              <div className="text-xl font-bold text-blue-600">
+              <div className="text-lg sm:text-xl font-bold text-blue-600">
                 Итого: {getTotalPrice().toLocaleString("ru-RU")} ₽
               </div>
             )}
@@ -3397,7 +3397,11 @@ const BookingPage = ({ masterclassId }) => {
           <div className="mb-6">
             <p className="text-xs text-gray-600 mb-2">
               Нажимая кнопку "Оплатить", вы автоматически соглашаетесь с{" "}
-              <a href="#" className="text-blue-500 underline">
+              <a
+                href="/documents/Оферта_МК.docx"
+                download="Оферта_МК.docx"
+                className="text-blue-500 underline"
+              >
                 обработкой ваших персональных данных
               </a>
             </p>
@@ -3412,7 +3416,7 @@ const BookingPage = ({ masterclassId }) => {
               participants > (selectedTime?.free_places || 0) ||
               enrolling
             }
-            className="w-full bg-blue-400 hover:bg-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-full font-medium text-lg shadow-lg transition-colors"
+            className="w-full bg-blue-400 hover:bg-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 rounded-full font-medium text-base sm:text-lg shadow-lg transition-colors"
           >
             {enrolling
               ? "Создаём платёж..."

@@ -268,15 +268,15 @@ const EditStickerCategory = () => {
   }
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col lg:flex-row">
       {/* Left Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Редактировать категорию
           </h1>
-          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm">
+          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm w-full sm:w-auto">
             Отключить блок
           </button>
         </div>
@@ -302,7 +302,7 @@ const EditStickerCategory = () => {
             </h2>
 
             {/* Search */}
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <div className="flex-1">
                 <input
                   type="text"
@@ -315,7 +315,7 @@ const EditStickerCategory = () => {
               <button
                 onClick={fetchCategories}
                 disabled={categoriesLoading}
-                className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium disabled:bg-gray-400"
+                className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium disabled:bg-gray-400 w-full sm:w-auto"
               >
                 {categoriesLoading ? "Загрузка..." : "Обновить"}
               </button>
@@ -353,22 +353,22 @@ const EditStickerCategory = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4 max-h-96 overflow-y-auto">
+              <div className="grid gap-4 overflow-y-auto">
                 {filteredCategories.map((category) => (
                   <div
                     key={category.id}
-                    className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300"
+                    cclassName="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300"
                     onClick={() => handleCategorySelect(category)}
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-row items-start justify-between space-y-3 sm:space-y-0">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                           {category.title}
                         </h3>
-                        <p className="text-gray-600 mb-3 line-clamp-2">
+                        <p className="text-gray-600 mb-3 line-clamp-2 text-sm sm:text-base">
                           {category.description}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-500">
                           {category.created_at && (
                             <span>
                               Создана:{" "}
@@ -379,7 +379,7 @@ const EditStickerCategory = () => {
                           )}
                         </div>
                       </div>
-                      <div className="ml-4 flex items-center">
+                      <div className="sm:ml-4 flex items-center justify-center sm:justify-start">
                         <svg
                           className="w-5 h-5 text-blue-500"
                           fill="none"
@@ -477,7 +477,7 @@ const EditStickerCategory = () => {
       </div>
 
       {/* Right Section - Category Preview */}
-      <div className="w-80 p-8 flex items-start justify-center">
+      <div className="w-80 p-8 hidden md:flex items-start justify-center">
         <div className="w-72">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="relative">

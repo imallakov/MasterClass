@@ -334,7 +334,7 @@ const EnrollmentManagementPage = () => {
       </div>
 
       {/* Enrollments Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
             {selectedMasterclass
@@ -431,7 +431,132 @@ const EnrollmentManagementPage = () => {
             </table>
           </div>
         )}
-      </div>
+      </div> */}
+      <>
+        {/* Mobile Card Layout */}
+        <div className="block sm:hidden">
+          <div className="divide-y divide-gray-200">
+            {filteredEnrollments.map((enrollment) => (
+              <div key={enrollment.id} className="p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-900 mb-1">
+                      #{enrollment.id} • {enrollment.user.first_name}{" "}
+                      {enrollment.user.last_name}
+                    </div>
+                    <div className="text-sm font-medium text-gray-700 mb-2">
+                      {enrollment.masterclass?.title || "Не указано"}
+                    </div>
+                  </div>
+                  <div className="ml-3 flex-shrink-0">
+                    {getStatusBadge(enrollment.status)}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="h-3 w-3 mr-2 flex-shrink-0" />
+                    <span className="truncate">{enrollment.user.email}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Phone className="h-3 w-3 mr-2 flex-shrink-0" />
+                    <span>{enrollment.user.phone_number}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
+                      <span>{formatDate(enrollment.slot_start_time)}</span>
+                    </div>
+                    <div className="flex items-center ml-4">
+                      <User className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span>{enrollment.quantity} чел.</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 pt-1">
+                    Записан: {formatDate(enrollment.created_at)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop Table Layout */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Пользователь
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Мастер-класс
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Дата слота
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Количество
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Статус
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Дата записи
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredEnrollments.map((enrollment) => (
+                <tr key={enrollment.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    #{enrollment.id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {enrollment.user.first_name} {enrollment.user.last_name}
+                    </div>
+                    <div className="text-sm text-gray-500 flex items-center mt-1">
+                      <Mail className="h-3 w-3 mr-1" />
+                      {enrollment.user.email}
+                    </div>
+                    <div className="text-sm text-gray-500 flex items-center">
+                      <Phone className="h-3 w-3 mr-1" />
+                      {enrollment.user.phone_number}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {enrollment.masterclass?.title || "Не указано"}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-sm text-gray-900">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {formatDate(enrollment.slot_start_time)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-sm text-gray-900">
+                      <User className="h-4 w-4 mr-1" />
+                      {enrollment.quantity} чел.
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(enrollment.status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(enrollment.created_at)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
     </div>
   );
 };

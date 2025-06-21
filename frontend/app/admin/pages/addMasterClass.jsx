@@ -251,7 +251,7 @@ const AddMasterClassPage = () => {
       formDataForSubmission.append("description", formData.description.trim());
       formDataForSubmission.append(
         "price",
-        parseFloat(formData.price).toFixed(2)
+        parseFloat(formData.price).toFixed(1)
       );
       formDataForSubmission.append(
         "participant_limit",
@@ -415,8 +415,8 @@ const AddMasterClassPage = () => {
   // Show loading while checking authentication
   if (accessToken === null) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="text-center px-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Проверка авторизации...</p>
         </div>
@@ -425,15 +425,15 @@ const AddMasterClassPage = () => {
   }
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col lg:flex-row">
       {/* Left Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 lg:mb-8 gap-4">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
             Добавить мастер - класс
           </h1>
-          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm">
+          <button className="bg-pink-400 hover:bg-pink-500 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-medium text-sm whitespace-nowrap">
             Отключить блок
           </button>
         </div>
@@ -441,7 +441,7 @@ const AddMasterClassPage = () => {
         {/* Message */}
         {message.text && (
           <div
-            className={`mb-6 p-4 rounded-lg ${
+            className={`mb-4 lg:mb-6 p-3 lg:p-4 rounded-lg text-sm lg:text-base ${
               message.type === "success"
                 ? "bg-green-100 text-green-800 border border-green-200"
                 : "bg-red-100 text-red-800 border border-red-200"
@@ -453,14 +453,12 @@ const AddMasterClassPage = () => {
 
         {/* Form Section */}
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-8">
-            Создание мастер - класса
-          </h2>
+          <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-6 lg:mb-8"></h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Add Master Class Name */}
             <div>
-              <label className="block text-gray-900 font-medium mb-3 text-base">
+              <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                 Название мастер класса *
               </label>
               <input
@@ -468,7 +466,7 @@ const AddMasterClassPage = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 placeholder="Название мастер-класса"
                 required
               />
@@ -476,14 +474,14 @@ const AddMasterClassPage = () => {
 
             {/* Add Description */}
             <div>
-              <label className="block text-gray-900 font-medium mb-3 text-base">
+              <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                 Описание *
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 h-32 resize-none"
+                className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 resize-none"
                 placeholder="Введите описание мастер-класса"
                 required
               />
@@ -491,7 +489,7 @@ const AddMasterClassPage = () => {
 
             {/* Set Price */}
             <div>
-              <label className="block text-gray-900 font-medium mb-3 text-base">
+              <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                 Стоимость *
               </label>
               <input
@@ -501,7 +499,7 @@ const AddMasterClassPage = () => {
                 onChange={handleInputChange}
                 step="0.01"
                 min="0"
-                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 placeholder="Стоимость в рублях"
                 required
               />
@@ -509,7 +507,7 @@ const AddMasterClassPage = () => {
 
             {/* Participant Limit */}
             <div>
-              <label className="block text-gray-900 font-medium mb-3 text-base">
+              <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                 Лимит участников *
               </label>
               <input
@@ -518,16 +516,16 @@ const AddMasterClassPage = () => {
                 value={formData.participant_limit}
                 onChange={handleInputChange}
                 min="1"
-                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 placeholder="Максимальное количество участников"
                 required
               />
             </div>
 
             {/* Start Date and Time */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Дата начала *
                 </label>
                 <input
@@ -535,12 +533,12 @@ const AddMasterClassPage = () => {
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleInputChange}
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Время начала *
                 </label>
                 <input
@@ -548,16 +546,16 @@ const AddMasterClassPage = () => {
                   name="start_time"
                   value={formData.start_time}
                   onChange={handleInputChange}
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 />
               </div>
             </div>
 
             {/* End Date and Time */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Дата окончания *
                 </label>
                 <input
@@ -565,12 +563,12 @@ const AddMasterClassPage = () => {
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleInputChange}
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Время окончания *
                 </label>
                 <input
@@ -578,16 +576,16 @@ const AddMasterClassPage = () => {
                   name="end_time"
                   value={formData.end_time}
                   onChange={handleInputChange}
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 />
               </div>
             </div>
 
             {/* Participant Age Range */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Минимальный возраст *
                 </label>
                 <input
@@ -597,13 +595,13 @@ const AddMasterClassPage = () => {
                   onChange={handleInputChange}
                   min="1"
                   max="100"
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   placeholder="Мин. возраст"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-900 font-medium mb-3 text-base">
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Максимальный возраст *
                 </label>
                 <input
@@ -613,7 +611,7 @@ const AddMasterClassPage = () => {
                   onChange={handleInputChange}
                   min="1"
                   max="100"
-                  className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   placeholder="Макс. возраст"
                   required
                 />
@@ -622,10 +620,10 @@ const AddMasterClassPage = () => {
 
             {/* Upload Photo */}
             <div>
-              <label className="block text-gray-900 font-medium mb-3 text-base">
+              <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                 Загрузить фото *
               </label>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-gray-300 cursor-pointer bg-gray-50">
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 lg:p-8 text-center hover:border-gray-300 cursor-pointer bg-gray-50">
                 <input
                   type="file"
                   className="hidden"
@@ -679,11 +677,11 @@ const AddMasterClassPage = () => {
             </div>
 
             {/* Save Button */}
-            <div className="flex justify-center mt-12">
+            <div className="flex justify-center mt-8 lg:mt-12">
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`px-10 py-3 rounded-full font-medium text-lg shadow-md ${
+                className={`px-8 lg:px-10 py-2.5 lg:py-3 rounded-full font-medium text-base lg:text-lg shadow-md w-full sm:w-auto ${
                   isLoading
                     ? "bg-gray-400 cursor-not-allowed text-white"
                     : "bg-[#64A0CE] hover:bg-[#6598c0] text-white"
@@ -697,11 +695,11 @@ const AddMasterClassPage = () => {
       </div>
 
       {/* Right Section - Product Card Preview */}
-      <div className="w-80 p-8 flex items-start justify-center">
-        <div className="w-72">
+      <div className="w-full lg:w-80 p-4 lg:p-8 flex items-start justify-center order-first lg:order-last">
+        <div className="w-full max-w-72 mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="relative">
-              <div className="w-full h-56 bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center">
+              <div className="w-full h-48 lg:h-56 bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center">
                 {formData.image ? (
                   <img
                     src={formData.image}
@@ -721,7 +719,7 @@ const AddMasterClassPage = () => {
                 <span className="text-blue-500 text-sm font-bold">ℹ</span>
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 lg:p-6">
               <h3 className="text-gray-600 font-medium mb-1">
                 {formData.title || "Название"}
               </h3>
@@ -738,14 +736,6 @@ const AddMasterClassPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Debug info - remove in production */}
-          {/* {process.env.NODE_ENV === "development" && (
-            <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
-              <p>Token: {accessToken ? "Available" : "Not available"}</p>
-              <p>CSRF: {csrfToken ? "Available" : "Not available"}</p>
-            </div>
-          )} */}
         </div>
       </div>
     </div>

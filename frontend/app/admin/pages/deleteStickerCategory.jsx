@@ -198,13 +198,13 @@ const DeleteStickerCategory = () => {
   return (
     <div className="flex flex-1">
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 md:mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Удалить категорию
           </h1>
-          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm">
+          <button className="bg-pink-400 hover:bg-pink-500 text-white px-4 md:px-6 py-2.5 rounded-full font-medium text-sm w-full sm:w-auto">
             Отключить блок
           </button>
         </div>
@@ -224,7 +224,7 @@ const DeleteStickerCategory = () => {
 
         {/* Search and Filter Section */}
         <div className="mb-6">
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
             <div className="flex-1">
               <input
                 type="text"
@@ -237,7 +237,7 @@ const DeleteStickerCategory = () => {
             <button
               onClick={fetchCategories}
               disabled={isLoading}
-              className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium disabled:bg-gray-400"
+              className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium disabled:bg-gray-400 w-full sm:w-auto"
             >
               {isLoading ? "Загрузка..." : "Обновить"}
             </button>
@@ -288,19 +288,16 @@ const DeleteStickerCategory = () => {
           ) : (
             <div className="grid gap-4">
               {filteredCategories.map((category) => (
-                <div
-                  key={category.id}
-                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
                         {category.title}
                       </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2">
+                      <p className="text-gray-600 mb-4 line-clamp-2 text-sm md:text-base">
                         {category.description}
                       </p>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs md:text-sm text-gray-500">
                         {category.created_at && (
                           <span>
                             Создана:{" "}
@@ -317,7 +314,7 @@ const DeleteStickerCategory = () => {
                     <button
                       onClick={() => handleDeleteClick(category)}
                       disabled={deleteLoading === category.id}
-                      className={`ml-4 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                      className={`sm:ml-4 px-3 md:px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors w-full sm:w-auto ${
                         deleteLoading === category.id
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-red-500 hover:bg-red-600 text-white"

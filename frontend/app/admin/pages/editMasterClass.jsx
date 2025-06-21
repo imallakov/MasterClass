@@ -483,68 +483,6 @@ const EditMasterClassPage = () => {
     return true;
   };
 
-  //   const handleSlotUpdate = async (e) => {
-  //     e.preventDefault();
-
-  //     if (!validateSlotForm() || !selectedMasterclass || !selectedSlot) {
-  //       return;
-  //     }
-
-  //     setIsLoading(true);
-  //     setMessage({ type: "", text: "" });
-
-  //     try {
-  //       const startDateTime = new Date(
-  //         `${slotFormData.start_date}T${slotFormData.start_time}`
-  //       );
-  //       const endDateTime = new Date(
-  //         `${slotFormData.end_date}T${slotFormData.end_time}`
-  //       );
-
-  //       const slotData = {
-  //         masterclass: selectedMasterclass.id,
-  //         start: startDateTime.toISOString(),
-  //         end: endDateTime.toISOString(),
-  //       };
-
-  //       const response = await makeAuthenticatedRequest(
-  //         `http://localhost:8000/api/masterclasses/slots/${selectedSlot.id}/`,
-  //         {
-  //           method: "PATCH",
-  //           body: JSON.stringify(slotData),
-  //         }
-  //       );
-
-  //       if (!response.ok) {
-  //         const errorText = await response.text();
-  //         throw new Error(`Ошибка при обновлении слота: ${errorText}`);
-  //       }
-
-  //       const updatedSlot = await response.json();
-
-  //       // Update slot in state
-  //       setSlots((prev) =>
-  //         prev.map((slot) => (slot.id === selectedSlot.id ? updatedSlot : slot))
-  //       );
-
-  //       // Update selected slot
-  //       setSelectedSlot(updatedSlot);
-
-  //       setMessage({
-  //         type: "success",
-  //         text: "Слот успешно обновлен!",
-  //       });
-  //     } catch (error) {
-  //       console.error("Error updating slot:", error);
-  //       setMessage({
-  //         type: "error",
-  //         text: error.message || "Ошибка при обновлении слота",
-  //       });
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
   const handleSlotDelete = async (slotId) => {
     if (!confirm("Вы уверены, что хотите удалить этот слот?")) {
       return;
@@ -678,13 +616,15 @@ const EditMasterClassPage = () => {
   }
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-col lg:flex-row flex-1">
       {/* Left Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Мастер - классы</h1>
-          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            Мастер - классы
+          </h1>
+          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm w-full sm:w-auto">
             Отключить блок
           </button>
         </div>
@@ -692,7 +632,7 @@ const EditMasterClassPage = () => {
         {/* Message */}
         {message.text && (
           <div
-            className={`mb-6 p-4 rounded-lg ${
+            className={`mb-4 lg:mb-6 p-3 lg:p-4 rounded-lg ${
               message.type === "success"
                 ? "bg-green-100 text-green-800 border border-green-200"
                 : "bg-red-100 text-red-800 border border-red-200"
@@ -1001,14 +941,14 @@ const EditMasterClassPage = () => {
                 </div>
 
                 {/* Slot Create Form */}
-                <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="bg-gray-50 p-4 lg:p-6 rounded-lg">
                   <h4 className="text-md font-medium text-gray-700">
                     Создать новый слот
                   </h4>
 
                   <form onSubmit={handleSlotCreate} className="space-y-4">
                     {/* Start Date and Time */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-gray-700 font-medium mb-2 text-sm">
                           Дата начала *
@@ -1197,7 +1137,7 @@ const EditMasterClassPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`px-10 py-3 rounded-full font-medium text-lg shadow-md ${
+                className={`px-6 lg:px-10 py-2 lg:py-3 rounded-full font-medium text-base lg:text-lg shadow-md w-full sm:w-auto ${
                   isLoading
                     ? "bg-gray-400 cursor-not-allowed text-white"
                     : "bg-[#64A0CE] hover:bg-[#6598c0] text-white"
@@ -1211,7 +1151,7 @@ const EditMasterClassPage = () => {
       </div>
 
       {/* Right Section - Product Card Preview */}
-      <div className="w-80 p-8 flex items-start justify-center">
+      <div className="flex w-80 p-8 items-center md:items-start justify-center">
         <div className="w-72">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="relative">
@@ -1275,9 +1215,6 @@ const EditMasterClassPage = () => {
                 )}
             </div>
           </div>
-
-          {/* Debug info - remove in production */}
-          {/*  */}
         </div>
       </div>
     </div>

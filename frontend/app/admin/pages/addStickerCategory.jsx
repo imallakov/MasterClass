@@ -196,15 +196,15 @@ const AddStickerCategory = () => {
   }
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col lg:flex-row">
       {/* Left Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Добавить категорию
           </h1>
-          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm">
+          <button className="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full font-medium text-sm w-full sm:w-auto">
             Отключить блок
           </button>
         </div>
@@ -280,7 +280,7 @@ const AddStickerCategory = () => {
       </div>
 
       {/* Right Section - Category Preview */}
-      <div className="w-80 p-8 flex items-start justify-center">
+      <div className="w-80 p-8 hidden md:flex items-start justify-center">
         <div className="w-72">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="relative">

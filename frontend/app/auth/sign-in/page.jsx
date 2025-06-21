@@ -689,6 +689,7 @@ export default function SignInPage() {
   const handleForgotPassword = () => {
     // Implement forgot password functionality
     console.log("Forgot password clicked");
+    router.push("/auth/password-reset");
     // You can add navigation to forgot password page or show a modal
   };
 

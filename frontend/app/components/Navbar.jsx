@@ -280,11 +280,12 @@ const Navbar = ({ scrollToSection, refs }) => {
   const navItems = [
     { key: "home", label: "Главная" },
     { key: "masterClasses", label: "Мастер-классы" },
-    { key: "catalog", label: "Каталог" },
+    // { key: "catalog", label: "Каталог" },
     { key: "aboutUs", label: "О Нас" },
     { key: "schedule", label: "Расписание" },
     { key: "contacts", label: "Контакты" },
-    { key: "catalogpage", label: "Наклейки" },
+    { key: "reviews", label: "Отзывы" },
+    { key: "catalog", label: "Наклейки" },
   ];
 
   const mobileNavItems = [
@@ -295,6 +296,7 @@ const Navbar = ({ scrollToSection, refs }) => {
     { key: "whyUs", label: "Почему мы?" },
     { key: "reviews", label: "Отзывы" },
     { key: "contacts", label: "Контакты" },
+    { key: "catalog", label: "Наклейки" },
     { key: "photoGallery", label: "Наша фотогалерея" },
   ];
 
@@ -331,35 +333,19 @@ const Navbar = ({ scrollToSection, refs }) => {
 
             {/* Navigation Links - Hidden on mobile */}
             <div className="hidden md:flex items-center space-x-8 w-full">
-              {navItems.map((item, uniqueKey) =>
-                item.key == "catalogpage" ? (
-                  <a href={item.key} key={uniqueKey}>
-                    <button
-                      key={item.key}
-                      onClick={() => handleNavClick(item.key)}
-                      className={`transition-colors cursor-pointer whitespace-nowrap ${
-                        isScrolled
-                          ? "text-gray-800 hover:text-[#E7717D]"
-                          : "text-[#EACCB9] hover:text-[#f6bc98]"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  </a>
-                ) : (
-                  <button
-                    key={item.key}
-                    onClick={() => handleNavClick(item.key)}
-                    className={`transition-colors cursor-pointer whitespace-nowrap ${
-                      isScrolled
-                        ? "text-gray-800 hover:text-[#E7717D]"
-                        : "text-[#EACCB9] hover:text-[#f6bc98]"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                )
-              )}
+              {navItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => handleNavClick(item.key)}
+                  className={`transition-colors cursor-pointer whitespace-nowrap ${
+                    isScrolled
+                      ? "text-gray-800 hover:text-[#E7717D]"
+                      : "text-[#EACCB9] hover:text-[#f6bc98]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -489,27 +475,15 @@ const Navbar = ({ scrollToSection, refs }) => {
 
         {/* Mobile Menu Items */}
         <div className="flex flex-col items-center space-y-6 px-8">
-          {mobileNavItems.map((item) =>
-            item.key == "catalogpage" ? (
-              <a href={item.key}>
-                <button
-                  key={item.key}
-                  onClick={() => handleNavClick(item.key)}
-                  className="text-white hover:text-[#f6bc98] text-2xl md:text-3xl font-bold transition-colors text-center"
-                >
-                  {item.label}
-                </button>
-              </a>
-            ) : (
-              <button
-                key={item.key}
-                onClick={() => handleNavClick(item.key)}
-                className="text-white hover:text-[#f6bc98] text-2xl md:text-3xl font-bold transition-colors text-center"
-              >
-                {item.label}
-              </button>
-            )
-          )}
+          {mobileNavItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => handleNavClick(item.key)}
+              className="text-white hover:text-[#f6bc98] text-2xl md:text-3xl font-bold transition-colors text-center"
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         {/* Mobile Auth Buttons */}

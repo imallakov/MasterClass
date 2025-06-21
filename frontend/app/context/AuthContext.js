@@ -1,3 +1,4 @@
+// last one, that works well
 // "use client";
 
 // import { createContext, useContext, useState, useEffect, useRef } from "react";
@@ -9,21 +10,18 @@
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const router = useRouter();
-//   const refreshPromiseRef = useRef(null); // Prevent multiple simultaneous refresh attempts
+//   const refreshPromiseRef = useRef(null);
+//   const refreshTimeoutRef = useRef(null);
 
 //   useEffect(() => {
 //     checkAuthStatus();
+//     setupTokenRefreshScheduler();
 
-//     // Set up automatic token refresh check every 5 minutes
-//     const interval = setInterval(() => {
-//       const token = getFromStorage("access_token");
-//       if (token && isTokenExpiringSoon(token)) {
-//         console.log("🔄 Token expiring soon, refreshing...");
-//         refreshAccessToken();
+//     return () => {
+//       if (refreshTimeoutRef.current) {
+//         clearTimeout(refreshTimeoutRef.current);
 //       }
-//     }, 5 * 60 * 1000); // Check every 5 minutes
-
-//     return () => clearInterval(interval);
+//     };
 //   }, []);
 
 //   // Helper function to check if we're on the client side
@@ -60,37 +58,74 @@
 //     }
 //   };
 
-//   // Helper function to decode JWT and check expiration
-//   const isTokenExpired = (token) => {
-//     if (!token) return true;
-
+//   // Helper function to decode JWT and get payload
+//   const decodeToken = (token) => {
+//     if (!token) return null;
 //     try {
-//       const payload = JSON.parse(atob(token.split(".")[1]));
-//       const currentTime = Date.now() / 1000;
-//       return payload.exp < currentTime;
+//       return JSON.parse(atob(token.split(".")[1]));
 //     } catch (error) {
 //       console.error("Error decoding token:", error);
-//       return true;
+//       return null;
 //     }
 //   };
 
-//   // Helper function to check if token expires within next 5 minutes
-//   const isTokenExpiringSoon = (token) => {
-//     if (!token) return true;
+//   // Helper function to check if token is expired
+//   const isTokenExpired = (token) => {
+//     const payload = decodeToken(token);
+//     if (!payload) return true;
 
-//     try {
-//       const payload = JSON.parse(atob(token.split(".")[1]));
-//       const currentTime = Date.now() / 1000;
-//       const fiveMinutesFromNow = currentTime + 5 * 60; // 5 minutes in seconds
-//       return payload.exp < fiveMinutesFromNow;
-//     } catch (error) {
-//       console.error("Error checking token expiration:", error);
-//       return true;
+//     const currentTime = Date.now() / 1000;
+//     return payload.exp < currentTime;
+//   };
+
+//   // Helper function to check if token expires within specified minutes
+//   const isTokenExpiringSoon = (token, minutesBeforeExpiry = 5) => {
+//     const payload = decodeToken(token);
+//     if (!payload) return true;
+
+//     const currentTime = Date.now() / 1000;
+//     const timeBeforeExpiry = currentTime + minutesBeforeExpiry * 60;
+//     return payload.exp < timeBeforeExpiry;
+//   };
+
+//   // Get time until token expires (in milliseconds)
+//   const getTimeUntilExpiry = (token) => {
+//     const payload = decodeToken(token);
+//     if (!payload) return 0;
+
+//     const currentTime = Date.now() / 1000;
+//     const timeUntilExpiry = (payload.exp - currentTime) * 1000;
+//     return Math.max(0, timeUntilExpiry);
+//   };
+
+//   // Setup intelligent token refresh scheduler
+//   const setupTokenRefreshScheduler = () => {
+//     const token = getFromStorage("access_token");
+//     if (!token || isTokenExpired(token)) return;
+
+//     const timeUntilExpiry = getTimeUntilExpiry(token);
+//     // Schedule refresh 2 minutes before expiry, but at least 30 seconds from now
+//     const refreshTime = Math.max(30000, timeUntilExpiry - 2 * 60 * 1000);
+
+//     if (refreshTimeoutRef.current) {
+//       clearTimeout(refreshTimeoutRef.current);
 //     }
+
+//     refreshTimeoutRef.current = setTimeout(() => {
+//       console.log("⏰ Scheduled token refresh triggered");
+//       refreshAccessToken().then(() => {
+//         // Schedule next refresh after successful refresh
+//         setupTokenRefreshScheduler();
+//       });
+//     }, refreshTime);
+
+//     console.log(
+//       `⏰ Token refresh scheduled in ${Math.round(refreshTime / 1000)} seconds`
+//     );
 //   };
 
 //   // Function to refresh access token using refresh token
-//   const refreshAccessToken = async () => {
+//   const refreshAccessToken = async (retryCount = 0) => {
 //     // Prevent multiple simultaneous refresh attempts
 //     if (refreshPromiseRef.current) {
 //       return refreshPromiseRef.current;
@@ -103,6 +138,12 @@
 
 //         if (!refreshToken) {
 //           throw new Error("No refresh token available");
+//         }
+
+//         // Check if refresh token is expired
+//         if (isTokenExpired(refreshToken)) {
+//           console.log("❌ Refresh token is expired");
+//           throw new Error("Refresh token expired");
 //         }
 
 //         const response = await fetch(
@@ -136,18 +177,39 @@
 //             setToStorage("refresh_token", data.refresh);
 //           }
 
+//           // Setup next refresh schedule
+//           setupTokenRefreshScheduler();
+
 //           return data.access;
 //         } else {
 //           const errorData = await response.text();
 //           console.error("❌ Token refresh failed:", response.status, errorData);
+
+//           // Retry once for server errors (5xx)
+//           if (response.status >= 500 && retryCount === 0) {
+//             console.log("🔄 Retrying token refresh due to server error...");
+//             await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+//             return refreshAccessToken(1);
+//           }
+
 //           throw new Error(`Failed to refresh token: ${response.status}`);
 //         }
 //       } catch (error) {
 //         console.error("❌ Token refresh error:", error);
-//         // If refresh fails, clear all tokens and redirect to login
-//         clearAuthTokens();
-//         setUser(null);
-//         router.push("/auth/sign-in");
+
+//         // Only logout on specific errors, not network issues
+//         if (
+//           error.message.includes("Refresh token expired") ||
+//           error.message.includes("No refresh token available") ||
+//           (error.message.includes("Failed to refresh token") &&
+//             error.message.includes("401"))
+//         ) {
+//           console.log("🚪 Logging out due to authentication failure");
+//           clearAuthTokens();
+//           setUser(null);
+//           router.push("/auth/sign-in");
+//         }
+
 //         return null;
 //       } finally {
 //         refreshPromiseRef.current = null;
@@ -194,7 +256,7 @@
 //         response = await fetch(url, requestOptions);
 
 //         if (response.status === 401) {
-//           // If still 401 after refresh, something is wrong
+//           // If still 401 after refresh, authentication is invalid
 //           console.error("❌ Still getting 401 after token refresh");
 //           clearAuthTokens();
 //           setUser(null);
@@ -217,6 +279,11 @@
 //     if (isClient()) {
 //       document.cookie =
 //         "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+//     }
+
+//     // Clear scheduled refresh
+//     if (refreshTimeoutRef.current) {
+//       clearTimeout(refreshTimeoutRef.current);
 //     }
 //   };
 
@@ -299,6 +366,9 @@
 //     if (tokens.refresh) {
 //       setToStorage("refresh_token", tokens.refresh);
 //     }
+
+//     // Setup token refresh scheduler after login
+//     setupTokenRefreshScheduler();
 //   };
 
 //   const logout = () => {
@@ -326,7 +396,7 @@
 //     checkAuthStatus,
 //     refreshUserData,
 //     makeAuthenticatedRequest,
-//     refreshAccessToken, // Expose this if you need manual refresh
+//     refreshAccessToken,
 //   };
 
 //   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -367,6 +437,7 @@
 //   };
 // }
 
+//implementation of new functions, but need to test
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef } from "react";
@@ -719,6 +790,173 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // NEW: Password Reset - Request OTP
+  const requestPasswordReset = async (email) => {
+    try {
+      console.log("🔐 Requesting password reset for:", email);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/password-reset/request/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Password reset OTP sent successfully");
+        return { success: true, data };
+      } else {
+        console.error("❌ Password reset request failed:", data);
+        return { success: false, error: data };
+      }
+    } catch (error) {
+      console.error("❌ Password reset request error:", error);
+      return {
+        success: false,
+        error: { message: "Network error occurred" },
+      };
+    }
+  };
+
+  // NEW: Password Reset - Validate OTP
+  const validatePasswordResetOTP = async (email, otp) => {
+    try {
+      console.log("🔐 Validating password reset OTP for:", email);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/password-reset/validate/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, otp }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Password reset OTP validated successfully");
+        return { success: true, data };
+      } else {
+        console.error("❌ Password reset OTP validation failed:", data);
+        return { success: false, error: data };
+      }
+    } catch (error) {
+      console.error("❌ Password reset OTP validation error:", error);
+      return {
+        success: false,
+        error: { message: "Network error occurred" },
+      };
+    }
+  };
+
+  // NEW: Password Reset - Confirm New Password
+  const confirmPasswordReset = async (tempToken, password) => {
+    try {
+      console.log("🔐 Confirming password reset");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/password-reset/confirm/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ temp_token: tempToken, password }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Password reset confirmed successfully");
+        return { success: true, data };
+      } else {
+        console.error("❌ Password reset confirmation failed:", data);
+        return { success: false, error: data };
+      }
+    } catch (error) {
+      console.error("❌ Password reset confirmation error:", error);
+      return {
+        success: false,
+        error: { message: "Network error occurred" },
+      };
+    }
+  };
+
+  // NEW: Email Verification - Request OTP
+  const requestEmailVerification = async (email) => {
+    try {
+      console.log("📧 Requesting email verification for:", email);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/email-verify/request/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Email verification OTP sent successfully");
+        return { success: true, data };
+      } else {
+        console.error("❌ Email verification request failed:", data);
+        return { success: false, error: data };
+      }
+    } catch (error) {
+      console.error("❌ Email verification request error:", error);
+      return {
+        success: false,
+        error: { message: "Network error occurred" },
+      };
+    }
+  };
+
+  // NEW: Email Verification - Confirm OTP
+  const confirmEmailVerification = async (email, otp) => {
+    try {
+      console.log("📧 Confirming email verification for:", email);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/email-verify/confirm/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, otp }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Email verification confirmed successfully");
+        // Refresh user data to update verification status
+        await refreshUserData();
+        return { success: true, data };
+      } else {
+        console.error("❌ Email verification confirmation failed:", data);
+        return { success: false, error: data };
+      }
+    } catch (error) {
+      console.error("❌ Email verification confirmation error:", error);
+      return {
+        success: false,
+        error: { message: "Network error occurred" },
+      };
+    }
+  };
+
   const login = (userData, tokens) => {
     console.log("✅ User logged in");
     setUser(userData);
@@ -765,6 +1003,13 @@ export function AuthProvider({ children }) {
     refreshUserData,
     makeAuthenticatedRequest,
     refreshAccessToken,
+    // NEW: Password Reset Functions
+    requestPasswordReset,
+    validatePasswordResetOTP,
+    confirmPasswordReset,
+    // NEW: Email Verification Functions
+    requestEmailVerification,
+    confirmEmailVerification,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

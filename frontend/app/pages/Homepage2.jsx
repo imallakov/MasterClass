@@ -256,6 +256,14 @@ const Homepage2 = () => {
     },
   };
 
+  const whatsappMessage =
+    encodeURIComponent(`Здравствуйте! Хочу заказать индивидуальную наклейку
+    размер наклейки в см...
+    цвет ...
+    текст ...`);
+
+  const whatsappUrl = `https://wa.me/79992667114?text=${whatsappMessage}`;
+
   return (
     <div className="min-h-screen">
       {/* Add Navbar with navigation props */}
@@ -280,20 +288,20 @@ const Homepage2 = () => {
 
             <div className="flex justify-between items-center w-full">
               <div className="flex justify-center items-center gap-4">
-                <a href="">
+                <a href="https://www.wildberries.ru/seller/1067989">
                   <img
-                    className="w-24 h-24"
+                    className="w-28 h-28"
                     src="/images/wildberries.png"
                     alt="wildberries"
                   />
                 </a>
-                <a href="https://www.instagram.com/dvorec_masterov">
+                {/* <a href="https://www.instagram.com/dvorec_masterov">
                   <img
                     className="w-24 h-24 rounded-full object-cover"
-                    src="/images/instagram.png"
+                    src="/images/ozon.png"
                     alt="ozon"
                   />
-                </a>
+                </a> */}
                 <a href="https://vk.com/club229163599">
                   <img
                     className="w-24 h-24 rounded-full object-cover"
@@ -303,16 +311,16 @@ const Homepage2 = () => {
                 </a>
               </div>
               <div className="flex justify-center items-center gap-4">
-                <a href="https://t.me/dvorec_masterov_kazan">
+                <a href="https://t.me/dvorec_masterov_stickers">
                   <img
                     className="`w-24 h-24 rounded-full object-cover"
                     src="/images/telegram.png"
                     alt="telegram"
                   />
                 </a>
-                <a href="">
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <img
-                    className="w-28 h-28 rounded-full object-cover"
+                    className="w-30 h-30 rounded-full object-cover"
                     src="/images/whatsapp.png"
                     alt="whatsapp"
                   />
@@ -417,20 +425,20 @@ const Homepage2 = () => {
             <div className="flex flex-col gap-4 pb-4">
               {/* Top row of social icons */}
               <div className="flex justify-center items-center gap-3">
-                <a href="">
+                <a href="https://www.wildberries.ru/seller/1067989">
                   <img
-                    className="w-16 h-16"
+                    className="w-20 h-20"
                     src="/images/wildberries.png"
                     alt="wildberries"
                   />
                 </a>
-                <a href="https://www.instagram.com/dvorec_masterov">
+                {/* <a href="https://www.instagram.com/dvorec_masterov">
                   <img
                     className="w-16 h-16 rounded-full object-cover"
                     src="/images/instagram.png"
                     alt="instagram"
                   />
-                </a>
+                </a> */}
                 <a href="https://vk.com/club229163599">
                   <img
                     className="w-16 h-16 rounded-full object-cover"
@@ -442,14 +450,14 @@ const Homepage2 = () => {
 
               {/* Bottom row of social icons */}
               <div className="flex justify-center items-center gap-3">
-                <a href="https://t.me/dvorec_masterov_kazan">
+                <a href="https://t.me/dvorec_masterov_stickers">
                   <img
                     className="w-16 h-16 rounded-full object-cover"
                     src="/images/telegram.png"
                     alt="telegram"
                   />
                 </a>
-                <a href="">
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <img
                     className="w-18 h-18 rounded-full object-cover"
                     src="/images/whatsapp.png"

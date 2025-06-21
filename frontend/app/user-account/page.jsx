@@ -1,332 +1,3 @@
-// "use client";
-// import React, { useState, useEffect } from "react";
-// import {
-//   User,
-//   Wrench,
-//   Calendar,
-//   LogOut,
-//   ChevronUp,
-//   ChevronDown,
-// } from "lucide-react";
-// import UserRoute from "../components/UserRoute";
-// import BookingPage from "../pages/bookingPage";
-// import { useNavigation } from "../context/NavigationContext";
-
-// // White rounded container for the main content
-// const ContentContainer = ({ children }) => {
-//   return (
-//     <div className="bg-white max-h-[750px] rounded-3xl shadow-lg mx-16 overflow-hidden">
-//       {children}
-//     </div>
-//   );
-// };
-
-// const PersonalCabinet = () => {
-//   const [contactDataExpanded, setContactDataExpanded] = useState(true);
-//   const [personalDataExpanded, setPersonalDataExpanded] = useState(true);
-//   const [firstName, setFirstName] = useState("");
-//   const [lastName, setLastName] = useState("");
-//   const [gender, setGender] = useState("Не выбрано");
-//   const [birthMonth, setBirthMonth] = useState("Выберите месяц");
-//   const [birthYear, setBirthYear] = useState("Выберите год");
-//   const [_selectedDate, setSelectedDate] = useState(18);
-//   const [_selectedMonth, setSelectedMonth] = useState("Апрель 2025");
-//   const [_selectedTime, setSelectedTime] = useState("9:30");
-//   const [_participants, setParticipants] = useState(22);
-//   const {
-//     currentPage,
-//     selectedMasterclassId,
-//     navigateToProfile,
-//     navigateToBooking,
-//     navigateToMyClasses,
-//   } = useNavigation();
-
-//   return (
-//     <UserRoute>
-//       <div className="min-h-screen">
-//         <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 py-8">
-//           <ContentContainer>
-//             {/* Header */}
-//             <div className="h-24 bg-gradient-to-r from-pink-300 to-orange-300 rounded-t-3xl"></div>
-
-//             <div className="flex">
-//               {/* Sidebar */}
-//               <div className="w-80 bg-white min-h-screen shadow-lg">
-//                 {/* Profile Section */}
-//                 <div className="p-6 border-b border-gray-100">
-//                   <div className="flex items-center space-x-4 mb-4">
-//                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
-//                       <img
-//                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face"
-//                         alt="Profile"
-//                         className="w-full h-full object-cover"
-//                       />
-//                     </div>
-//                     <div>
-//                       <h3 className="font-semibold text-gray-900 text-lg">
-//                         Виктор Ловецкий
-//                       </h3>
-//                       <button className="text-sm text-blue-500 hover:text-blue-600 underline">
-//                         Изменить фото
-//                       </button>
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* Navigation Menu */}
-//                 <div className="p-6">
-//                   <div className="space-y-4">
-//                     <button
-//                       onClick={navigateToProfile}
-//                       className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
-//                         currentPage === "profile" ? "bg-gray-50" : ""
-//                       }`}
-//                     >
-//                       <User className="w-5 h-5 text-gray-600" />
-//                       <span
-//                         className={`${
-//                           currentPage === "profile"
-//                             ? "font-medium text-gray-900"
-//                             : "text-gray-700"
-//                         }`}
-//                       >
-//                         Личные данные
-//                       </span>
-//                     </button>
-
-//                     <button
-//                       onClick={navigateToMyClasses}
-//                       className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
-//                         currentPage === "myClasses" ? "bg-gray-50" : ""
-//                       }`}
-//                     >
-//                       <Wrench className="w-5 h-5 text-gray-600" />
-//                       <span
-//                         className={`${
-//                           currentPage === "myClasses"
-//                             ? "font-medium text-gray-900"
-//                             : "text-gray-700"
-//                         }`}
-//                       >
-//                         Мои мастер - классы
-//                       </span>
-//                     </button>
-
-//                     <button
-//                       onClick={() => navigateToBooking(null)}
-//                       className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
-//                         currentPage === "booking" ? "bg-gray-50" : ""
-//                       }`}
-//                     >
-//                       <Calendar className="w-5 h-5 text-gray-600" />
-//                       <span
-//                         className={`${
-//                           currentPage === "booking"
-//                             ? "font-medium text-gray-900"
-//                             : "text-gray-700"
-//                         }`}
-//                       >
-//                         Запись на мастер - класс
-//                       </span>
-//                     </button>
-//                   </div>
-//                 </div>
-//                 {/* Logout Button */}
-//                 <div className="p-6">
-//                   <button className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left">
-//                     <LogOut className="w-5 h-5 text-gray-600" />
-//                     <span className="text-gray-700">Выйти из аккаунта</span>
-//                   </button>
-//                 </div>
-//               </div>
-
-//               {/* Main Content */}
-//               <div className="flex-1 p-8 bg-white mx-8 my-8 rounded-3xl">
-//                 {currentPage === "profile" ? (
-//                   <ProfilePage
-//                     contactDataExpanded={contactDataExpanded}
-//                     setContactDataExpanded={setContactDataExpanded}
-//                     personalDataExpanded={personalDataExpanded}
-//                     setPersonalDataExpanded={setPersonalDataExpanded}
-//                     firstName={firstName}
-//                     setFirstName={setFirstName}
-//                     lastName={lastName}
-//                     setLastName={setLastName}
-//                     gender={gender}
-//                     setGender={setGender}
-//                     birthMonth={birthMonth}
-//                     setBirthMonth={setBirthMonth}
-//                     birthYear={birthYear}
-//                     setBirthYear={setBirthYear}
-//                   />
-//                 ) : currentPage === "booking" ? (
-//                   <BookingPage masterclassId={selectedMasterclassId} />
-//                 ) : currentPage === "myClasses" ? (
-//                   <div>
-//                     <h1 className="text-3xl font-bold text-gray-900 mb-8">
-//                       Мои мастер-классы
-//                     </h1>
-//                     {/* Add your MyClasses component content here */}
-//                   </div>
-//                 ) : null}
-//               </div>
-//             </div>
-//           </ContentContainer>
-//         </div>
-//       </div>
-//     </UserRoute>
-//   );
-// };
-
-// const ProfilePage = ({
-//   contactDataExpanded,
-//   setContactDataExpanded,
-//   personalDataExpanded,
-//   setPersonalDataExpanded,
-//   firstName,
-//   setFirstName,
-//   lastName,
-//   setLastName,
-//   gender,
-//   setGender,
-//   birthMonth,
-//   setBirthMonth,
-//   birthYear,
-//   setBirthYear,
-// }) => {
-//   return (
-//     <div className="">
-//       <h1 className="text-3xl font-bold text-gray-900 mb-8">Личный кабинет</h1>
-
-//       {/* Contact Data Section */}
-//       <div className="mb-6">
-//         <button
-//           onClick={() => setContactDataExpanded(!contactDataExpanded)}
-//           className="flex items-center justify-between w-90 py-4 transition-colors"
-//         >
-//           <span className="font-semibold text-gray-900">Контактные данные</span>
-//           {contactDataExpanded ? (
-//             <ChevronUp className="w-5 h-5 text-gray-600" />
-//           ) : (
-//             <ChevronDown className="w-5 h-5 text-gray-600" />
-//           )}
-//         </button>
-
-//         {contactDataExpanded && (
-//           <div className="mt-4 grid grid-cols-2 gap-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Ваше имя
-//               </label>
-//               <input
-//                 type="text"
-//                 value={firstName}
-//                 onChange={(e) => setFirstName(e.target.value)}
-//                 placeholder="Введите имя"
-//                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Ваша фамилия
-//               </label>
-//               <input
-//                 type="text"
-//                 value={lastName}
-//                 onChange={(e) => setLastName(e.target.value)}
-//                 placeholder="Введите фамилию"
-//                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//               />
-//             </div>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Personal Data Section */}
-//       <div className="mb-8">
-//         <button
-//           onClick={() => setPersonalDataExpanded(!personalDataExpanded)}
-//           className="flex items-center justify-between w-90 py-4 transition-colors"
-//         >
-//           <span className="font-semibold text-gray-900">Личные данные</span>
-//           {personalDataExpanded ? (
-//             <ChevronUp className="w-5 h-5 text-gray-600" />
-//           ) : (
-//             <ChevronDown className="w-5 h-5 text-gray-600" />
-//           )}
-//         </button>
-
-//         {personalDataExpanded && (
-//           <div className="mt-4 grid grid-cols-3 gap-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Ваш пол
-//               </label>
-//               <select
-//                 value={gender}
-//                 onChange={(e) => setGender(e.target.value)}
-//                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-//               >
-//                 <option>Не выбрано</option>
-//                 <option>Мужской</option>
-//                 <option>Женский</option>
-//               </select>
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Месяц рождения
-//               </label>
-//               <select
-//                 value={birthMonth}
-//                 onChange={(e) => setBirthMonth(e.target.value)}
-//                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-//               >
-//                 <option>Выберите месяц</option>
-//                 <option>Январь</option>
-//                 <option>Февраль</option>
-//                 <option>Март</option>
-//                 <option>Апрель</option>
-//                 <option>Май</option>
-//                 <option>Июнь</option>
-//                 <option>Июль</option>
-//                 <option>Август</option>
-//                 <option>Сентябрь</option>
-//                 <option>Октябрь</option>
-//                 <option>Ноябрь</option>
-//                 <option>Декабрь</option>
-//               </select>
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">
-//                 Год рождения
-//               </label>
-//               <select
-//                 value={birthYear}
-//                 onChange={(e) => setBirthYear(e.target.value)}
-//                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-//               >
-//                 <option>Выберите год</option>
-//                 {Array.from({ length: 50 }, (_, i) => 2005 - i).map((year) => (
-//                   <option key={year}>{year}</option>
-//                 ))}
-//               </select>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Save Button */}
-//       <div className="flex justify-center">
-//         <button className="bg-blue-400 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-medium text-lg shadow-lg transition-colors">
-//           Сохранить
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default PersonalCabinet;
-
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -336,6 +7,8 @@ import {
   LogOut,
   ChevronUp,
   ChevronDown,
+  ChevronRight,
+  Home,
 } from "lucide-react";
 import UserRoute from "../components/UserRoute";
 import BookingPage from "../pages/bookingPage";
@@ -362,6 +35,63 @@ const getCsrfTokenFromCookie = () => {
     }
   }
   return null;
+};
+
+// Breadcrumb Component
+const Breadcrumb = ({ currentPage, masterclassTitle }) => {
+  const getBreadcrumbItems = () => {
+    const items = [{ label: "Главная", page: "home", icon: Home }];
+
+    switch (currentPage) {
+      case "profile":
+        items.push({ label: "Личные данные", page: "profile" });
+        break;
+      case "myClasses":
+        items.push({ label: "Мои мастер-классы", page: "myClasses" });
+        break;
+      case "booking":
+        items.push({ label: "Запись на мастер-класс", page: "booking" });
+        if (masterclassTitle) {
+          items.push({ label: masterclassTitle, page: "booking-specific" });
+        }
+        break;
+      default:
+        break;
+    }
+
+    return items;
+  };
+
+  const breadcrumbItems = getBreadcrumbItems();
+
+  return (
+    <nav className="flex items-center space-x-1 text-sm mb-4 md:mb-6 overflow-x-auto">
+      {breadcrumbItems.map((item, index) => (
+        <div key={item.page} className="flex items-center whitespace-nowrap">
+          {index > 0 && (
+            <ChevronRight className="w-4 h-4 text-gray-400 mx-1 flex-shrink-0" />
+          )}
+          <div className="flex items-center">
+            {item.icon && index === 0 && (
+              <item.icon className="w-4 h-4 text-gray-500 mr-1 flex-shrink-0" />
+            )}
+            <span
+              className={`${
+                index === breadcrumbItems.length - 1
+                  ? "text-gray-900 font-medium"
+                  : "text-gray-500 hover:text-gray-700"
+              } ${index === 0 ? "cursor-pointer" : ""}`}
+              onClick={
+                index === 0 ? () => (window.location.href = "/") : undefined
+              }
+            >
+              {item.label}
+            </span>
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
 };
 
 const PersonalCabinet = () => {
@@ -747,19 +477,19 @@ const PersonalCabinet = () => {
   return (
     <UserRoute>
       <div className="min-h-screen">
-        <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 py-8">
-          {/* <ContentContainer> */}
-          <div className="bg-white h-[calc(100vh-4rem)] rounded-3xl shadow-lg mx-16 overflow-hidden flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-orange-200 py-4">
+          {/* Remove the fixed height constraint */}
+          <div className="bg-white min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-4rem)] rounded-3xl shadow-lg mx-4 md:mx-16 overflow-hidden flex flex-col">
             {/* Header */}
-            <div className="h-24 bg-gradient-to-r from-pink-300 to-orange-300 rounded-t-3xl"></div>
+            <div className="h-16 md:h-24 bg-gradient-to-r from-pink-300 to-orange-300 rounded-t-3xl"></div>
 
-            <div className="flex flex-1 min-h-0">
+            <div className="flex flex-col md:flex-row flex-1 md:min-h-0">
               {/* Sidebar */}
-              <div className="w-80 bg-white shadow-lg flex-shrink-0 flex flex-col">
+              <div className="w-full md:w-80 bg-white shadow-lg flex-shrink-0 flex flex-col order-1 md:order-1">
                 {/* Profile Section */}
-                <div className="p-6 border-b border-gray-100">
-                  <div className="flex items-center space-x-4">
-                    <div className="max-w-24 w-20 h-20 rounded-full overflow-hidden flex items-center justify-center">
+                <div className="p-4 md:p-6 border-b border-gray-100">
+                  <div className="flex items-center space-x-3 md:space-x-4">
+                    <div className="max-w-16 md:max-w-24 w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden flex items-center justify-center">
                       {profileData.photo || photoPreview ? (
                         <img
                           src={photoPreview || profileData.photo}
@@ -800,19 +530,18 @@ const PersonalCabinet = () => {
                     </div>
                   </div>
                 </div>
-
                 {/* Navigation Menu */}
-                <div className="p-6">
-                  <div className="space-y-4">
+                <div className="p-4 md:p-6">
+                  <div className="flex flex-col md:flex-col md:space-y-4 overflow-x-auto md:overflow-x-visible gap-2 md:gap-0 pb-2 md:pb-0">
                     <button
                       onClick={navigateToProfile}
-                      className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
+                      className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 hover:bg-gray-50 rounded-lg whitespace-nowrap min-w-max md:w-full text-left ${
                         currentPage === "profile" ? "bg-gray-50" : ""
                       }`}
                     >
-                      <User className="w-5 h-5 text-gray-600" />
+                      <User className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                       <span
-                        className={`${
+                        className={`text-sm md:text-base ${
                           currentPage === "profile"
                             ? "font-medium text-gray-900"
                             : "text-gray-700"
@@ -824,13 +553,13 @@ const PersonalCabinet = () => {
 
                     <button
                       onClick={navigateToMyClasses}
-                      className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
+                      className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 hover:bg-gray-50 rounded-lg whitespace-nowrap min-w-max md:w-full text-left ${
                         currentPage === "myClasses" ? "bg-gray-50" : ""
                       }`}
                     >
-                      <Wrench className="w-5 h-5 text-gray-600" />
+                      <Wrench className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                       <span
-                        className={`${
+                        className={`text-sm md:text-base ${
                           currentPage === "myClasses"
                             ? "font-medium text-gray-900"
                             : "text-gray-700"
@@ -842,13 +571,13 @@ const PersonalCabinet = () => {
 
                     <button
                       onClick={() => navigateToBooking(null)}
-                      className={`flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left ${
+                      className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 hover:bg-gray-50 rounded-lg whitespace-nowrap min-w-max md:w-full text-left ${
                         currentPage === "booking" ? "bg-gray-50" : ""
                       }`}
                     >
-                      <Calendar className="w-5 h-5 text-gray-600" />
+                      <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                       <span
-                        className={`${
+                        className={`text-sm md:text-base ${
                           currentPage === "booking"
                             ? "font-medium text-gray-900"
                             : "text-gray-700"
@@ -860,7 +589,7 @@ const PersonalCabinet = () => {
                   </div>
                 </div>
                 {/* Logout Button */}
-                <div className="p-6">
+                <div className="py-2 px-4 md:py-6 md:px-6">
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg w-full text-left"
@@ -871,8 +600,14 @@ const PersonalCabinet = () => {
                 </div>
               </div>
 
-              {/* Main Content */}
-              <div className="flex-1 p-8 bg-white overflow-y-auto min-h-0">
+              {/* Main Content - Remove overflow-y-auto and min-h-0 for mobile */}
+              <div className="flex-1 p-4 md:p-8 bg-white md:overflow-y-auto md:min-h-0 order-2 md:order-2">
+                <Breadcrumb
+                  currentPage={currentPage}
+                  masterclassTitle={
+                    selectedMasterclassId ? "Выбранный мастер-класс" : null
+                  }
+                />
                 {currentPage === "profile" ? (
                   <ProfilePage
                     contactDataExpanded={contactDataExpanded}
@@ -911,7 +646,6 @@ const PersonalCabinet = () => {
               </div>
             </div>
           </div>
-          {/* </ContentContainer> */}
         </div>
       </div>
     </UserRoute>
@@ -973,7 +707,7 @@ const ProfilePage = ({
         </button>
 
         {contactDataExpanded && (
-          <div className="mt-4 grid grid-cols-2 gap-6">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ваше имя
@@ -1041,7 +775,7 @@ const ProfilePage = ({
         </button>
 
         {personalDataExpanded && (
-          <div className="mt-4 grid grid-cols-3 gap-6">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ваш пол
@@ -1098,6 +832,13 @@ const ProfilePage = ({
           </div>
         )}
       </div>
+
+      <a
+        href="/user-account/change-password"
+        className="text-blue-400 underline"
+      >
+        Изменить пароль
+      </a>
 
       {/* Save Button */}
       <div className="flex justify-center">
@@ -1290,11 +1031,13 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Мои мастер-классы</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 md:mb-8 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          Мои мастер-классы
+        </h1>
         <button
           onClick={onRefresh}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors self-start sm:self-auto"
         >
           Обновить
         </button>
@@ -1302,8 +1045,8 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
 
       {/* Payment Status Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full">
             <div className="text-center">
               <div className="text-4xl mb-4">
                 {getPaymentStatusIcon(paymentStatus)}
@@ -1367,16 +1110,16 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
           {enrollments.map((enrollment) => (
             <div
               key={enrollment.id}
-              className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-semibold text-gray-900">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-900">
                       {enrollment.masterclass.title}
                     </h3>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                      className={`px-3 py-1 rounded-full text-sm font-medium border self-start ${getStatusColor(
                         enrollment.status
                       )}`}
                     >
@@ -1384,11 +1127,11 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
                     </span>
                   </div>
 
-                  <p className="text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-gray-600 mb-4 text-sm md:text-base line-clamp-2">
                     {enrollment.masterclass.description}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 text-sm">
                     <div>
                       <span className="font-medium text-gray-700">Дата:</span>
                       <p className="text-gray-600">
@@ -1436,11 +1179,11 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
                 </div>
 
                 {enrollment.masterclass.image && (
-                  <div className="ml-6 flex-shrink-0">
+                  <div className="md:ml-6 flex-shrink-0 order-first md:order-last">
                     <img
                       src={enrollment.masterclass.image}
                       alt={enrollment.masterclass.title}
-                      className="w-24 h-24 object-cover rounded-lg"
+                      className="w-full h-32 md:w-24 md:h-24 object-cover rounded-lg"
                     />
                   </div>
                 )}
@@ -1459,7 +1202,7 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
               {(enrollment.status === "cancelled" ||
                 enrollment.status === "failed") && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg flex-1">
                       {enrollment.status === "cancelled"
                         ? "Оплата была отменена. Вы можете попробовать оплатить снова."
@@ -1468,7 +1211,7 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
                     <button
                       onClick={() => handleRetryPayment(enrollment)}
                       disabled={retryingPayment === enrollment.id}
-                      className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center"
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center whitespace-nowrap"
                     >
                       {retryingPayment === enrollment.id ? (
                         <>
