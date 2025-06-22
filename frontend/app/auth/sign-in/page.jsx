@@ -697,6 +697,11 @@ export default function SignInPage() {
     router.push("/auth/sign-up");
   };
 
+  const handleGoHome = () => {
+    router.push("/");
+  };
+
+
   // Add toggle function
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -832,6 +837,15 @@ export default function SignInPage() {
                     </button>
                   </p>
                 </div>
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={handleGoHome}
+                    className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  >
+                    Главная страница
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -963,6 +977,15 @@ export default function SignInPage() {
                   Зарегистрироваться
                 </button>
               </p>
+            </div>
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={handleGoHome}
+                className="text-sm text-gray-700 hover:text-gray-900 underline"
+              >
+                Главная страница
+              </button>
             </div>
           </div>
         </div>

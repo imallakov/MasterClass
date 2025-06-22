@@ -363,7 +363,7 @@ const Navbar = ({ scrollToSection, refs }) => {
                   <a
                     href={
                       isScrolled
-                        ? `tel:${phoneNumber.replace(/\s/g, "")}`
+                        ? `https://wa.me/${phoneNumber.replace(/\s/g, "").replace(/^\+/, "")}`
                         : "/auth/sign-in"
                     }
                   >
@@ -420,7 +420,7 @@ const Navbar = ({ scrollToSection, refs }) => {
                 <a
                   href={
                     isScrolled
-                      ? `tel:${phoneNumber.replace(/\s/g, "")}`
+                      ? `https://wa.me/${phoneNumber.replace(/\s/g, "").replace(/^\+/, "")}`
                       : "/auth/sign-in"
                   }
                 >

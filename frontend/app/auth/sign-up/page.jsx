@@ -297,6 +297,7 @@ export default function RegistrationPage() {
     });
     setErrors({});
     setRegistrationStatus(null);
+    router.push("/auth/sign-in");
   };
 
   return (
