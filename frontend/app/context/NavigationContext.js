@@ -70,7 +70,7 @@ export const useNavigation = () => {
 };
 
 export const NavigationProvider = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState("profile");
+  const [currentPage, setCurrentPage] = useState("myClasses");
   const [selectedMasterclassId, setSelectedMasterclassId] = useState(null);
   const router = useRouter();
 
