@@ -7,11 +7,16 @@ from decimal import Decimal
 from django.conf import settings
 from django.db.models import Sum, Prefetch
 from django.http import StreamingHttpResponse
-from rest_framework import generics, permissions, serializers, status
+from rest_framework import generics, permissions, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from yookassa import Configuration, Payment
+from datetime import datetime, date
+from calendar import monthrange
+from collections import defaultdict
+import re
 
 from .models import MasterClass, MasterClassSlot, MasterClassEnrollment
 from .serializers import (
@@ -24,15 +29,108 @@ from .serializers import (
 )
 
 
+class PaginationClass(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+    def get_paginated_response(self, data):
+        return Response({
+            'meta': {
+                'count': self.page.paginator.count,  # Total number of items
+                'next': self.get_next_link(),  # URL of the next page
+                'previous': self.get_previous_link(),
+                'current_page': self.page.number,  # Current page number
+                'total_pages': self.page.paginator.num_pages,  # Total pages
+            },
+            'results': data  # Paginated results
+        })
+
+
 class MasterClassListCreateView(generics.ListCreateAPIView):
     queryset = MasterClass.objects.all()
     serializer_class = MasterClassSerializer
     parser_classes = [MultiPartParser, FormParser]
+    pagination_class = PaginationClass
 
     def get_permissions(self):
         if self.request.method == "POST":
             return [permissions.IsAdminUser()]
         return [permissions.AllowAny()]
+
+
+class CalendarMonthView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        # Parse date parameter or use current month
+        date_param = request.query_params.get('date')
+
+        if date_param:
+            # Validate format YYYY-MM
+            if not re.match(r'^\d{4}-\d{1,2}$', date_param):
+                return Response(
+                    {"error": "Date format should be YYYY-MM or YYYY-M (e.g., 2025-06 or 2025-1)"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                year, month = map(int, date_param.split('-'))
+                if not (1 <= month <= 12):
+                    raise ValueError("Month must be between 1 and 12")
+            except ValueError as e:
+                return Response(
+                    {"error": f"Invalid date: {str(e)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            # Use current month
+            now = datetime.now()
+            year, month = now.year, now.month
+
+        # Get date range for the month
+        start_date = date(year, month, 1)
+        _, last_day = monthrange(year, month)
+        end_date = date(year, month, last_day)
+
+        # Get all slots for the month with masterclass info
+        slots = MasterClassSlot.objects.filter(
+            start__date__gte=start_date,
+            start__date__lte=end_date
+        ).select_related('masterclass').order_by('start__date', 'masterclass__title')
+
+        # Group by day
+        days_data = defaultdict(list)
+        has_masterclass_days = set()
+
+        for slot in slots:
+            day = slot.start.day
+            has_masterclass_days.add(day)
+
+            # Check if this masterclass is already added for this day
+            masterclass_ids_for_day = [mc['id'] for mc in days_data[day]]
+            if slot.masterclass.id not in masterclass_ids_for_day:
+                days_data[day].append({
+                    'id': slot.masterclass.id,
+                    'title': slot.masterclass.title
+                })
+
+        # Convert to the desired format
+        days_list = []
+        for day in sorted(days_data.keys()):
+            days_list.append({
+                'day': day,
+                'masterclasses': days_data[day]
+            })
+
+        response_data = {
+            'year': year,
+            'month': month,
+            'has_masterclass': sorted(list(has_masterclass_days)),
+            'days': days_list
+        }
+
+        return Response(response_data)
 
 
 class MasterClassDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.MasterClassListCreateView.as_view(), name='masterclass-list-create'),
+    path('calendar/', views.CalendarMonthView.as_view(), name='calendar-month'),
     path('<int:pk>/', views.MasterClassDetailUpdateDestroyView.as_view(), name='masterclass-detail'),
     path('slots/', views.MasterClassSlotCreateView.as_view(), name='slot-create'),
     path('slots/<int:pk>/', views.MasterClassSlotDeleteView.as_view(), name='slot-delete'),
