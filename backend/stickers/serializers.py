@@ -20,18 +20,15 @@ class StickerSerializer(serializers.ModelSerializer):
             instance.image.delete(save=False)
         return super().update(instance, validated_data)
 
-# class StickerOrderSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = StickerOrder
-#         fields = ['id', 'sticker', 'full_name', 'quantity', 'phone_number', 'created_at']
-#         read_only_fields = ['created_at']
-#
-#
-# class GroupedStickerOrderSerializer(serializers.Serializer):
-#     sticker = StickerSerializer()
-#     orders = serializers.SerializerMethodField()
-#
-#     @extend_schema_field(StickerOrderSerializer(many=True))
-#     def get_orders(self, obj):
-#         # Access the custom 'orders' attribute set by Prefetch
-#         return StickerOrderSerializer(obj.orders, many=True).data
+
+class StickerCategoriesWithStickersSerializer(serializers.ModelSerializer):
+    stickers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StickerCategories
+        fields = ['id', 'title', 'description', 'stickers']
+
+    def get_stickers(self, obj):
+        # Get first 10 stickers for this category
+        stickers = obj.stickers.all()[:10]
+        return StickerSerializer(stickers, many=True, context=self.context).data

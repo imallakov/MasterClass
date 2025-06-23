@@ -6,5 +6,5 @@ urlpatterns = [
     path('categories/<int:pk>/', views.StickerCategoriesDetailView.as_view(), name='sticker-categories-detail'),
     path('', views.StickerListCreateView.as_view(), name='sticker-list'),
     path('<int:pk>/', views.StickerDetailView.as_view(), name='sticker-detail'),
-    # path('orders/', views.StickerOrderView.as_view(), name='sticker-order'),
+    path('all/', views.StickerAllListView.as_view(), name='sticker-all')
 ]
