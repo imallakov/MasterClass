@@ -73,7 +73,7 @@ const Homepage = () => {
             {/* Desktop Catalog Button - Right Side */}
             <div className="hidden lg:block">
               <div className="relative">
-                <a href="/catalogpage">
+                <a href="/pages/catalogpage">
                   <button className="bg-white rounded-full w-32 h-32 flex items-center justify-center group hover:scale-105 transition-all duration-300 shadow-xl">
                     <div className="text-center">
                       <span className="text-[#3A6281] font-bold text-lg block mb-1">
