@@ -1,3 +1,4 @@
+// auth/sign-up
 "use client";
 
 import { useState, useEffect } from "react";

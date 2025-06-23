@@ -10,32 +10,34 @@ import Reviews from "../components/Reviews";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 
-// Product Card Component with Order Modal
+// Product Card Component with Order Modal - UPDATED for mobile responsiveness
 const ProductCard = ({ title, price, image, stickerId, wbURL }) => {
   return (
     <>
-      <div className="bg-white rounded-lg border-2 border-solid border-[#3A6281] overflow-hidden max-w-80">
-        <div className="h-80 flex items-center justify-center relative">
+      <div className="bg-white rounded-lg border-2 border-solid border-[#3A6281] overflow-hidden max-w-80 w-full mx-auto md:mx-0">
+        <div className="h-60 md:h-80 flex items-center justify-center relative">
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-full h-full aspect-[3/4] bg-white rounded-lg flex items-center justify-center">
               <img
                 src={image || "/images/gallery4.jpg"}
                 alt={title}
-                className="object-cover p-4 w-full h-full"
+                className="object-cover p-3 md:p-4 w-full h-full"
                 loading="lazy"
               />
             </div>
           </div>
         </div>
-        <div className="p-4">
-          <h3 className="text-[#000000] mb-3 text-lg">{title}</h3>
+        <div className="p-3 md:p-4">
+          <h3 className="text-[#000000] mb-2 md:mb-3 text-base md:text-lg line-clamp-2">
+            {title}
+          </h3>
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-semibold text-[#000000]">
+            <span className="text-xl md:text-2xl font-semibold text-[#000000]">
               {price} ₽
             </span>
           </div>
           <a href={wbURL}>
-            <button className="w-full bg-[#61BF7D] hover:bg-[#49905e] text-white text-xl py-2 px-4 rounded-2xl font-medium mt-6 transition-colors">
+            <button className="w-full bg-[#61BF7D] hover:bg-[#49905e] text-white text-lg md:text-xl py-2 px-4 rounded-2xl font-medium mt-4 md:mt-6 transition-colors">
               Заказать
             </button>
           </a>
@@ -48,15 +50,17 @@ const ProductCard = ({ title, price, image, stickerId, wbURL }) => {
 // Category Section Component - Updated
 const CategorySection = ({ category, items, description }) => {
   return (
-    <div className="mb-12">
-      <div className="mb-12">
-        <h2 className="text-5xl font-bold text-slate-600 mb-4">{category}:</h2>
-        <p className="text-lg font-bold text-slate-600">
+    <div className="mb-8 md:mb-12">
+      <div className="mb-6 md:mb-12 px-2 md:px-0">
+        <h2 className="text-3xl md:text-5xl font-bold text-slate-600 mb-2 md:mb-4 text-center md:text-left">
+          {category}:
+        </h2>
+        <p className="text-base md:text-lg font-bold text-slate-600 text-center md:text-left">
           {description ||
             "Создай уникальные наклейки по собственному дизайну. Воплотим любую задумку!"}
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
         {items.map((item, index) => (
           <ProductCard
             key={item.id || index}
@@ -239,17 +243,15 @@ const Homepage2 = () => {
     return showAll ? allCategories : allCategories.slice(0, 2);
   })();
 
-  // Pass navigation function to navbar
   const navigationProps = {
     scrollToSection,
     refs: {
       home: homeRef,
       masterClasses: masterClassesRef,
-      catalog: catalogRef,
+      stickers: stickersRef, // Changed from "catalog" to "stickers"
       aboutUs: aboutUsRef,
       schedule: scheduleRef,
       contacts: contactsRef,
-      stickers: stickersRef,
       whyUs: whyUsRef,
       reviews: reviewsRef,
       photoGallery: photoGalleryRef,
@@ -331,7 +333,7 @@ const Homepage2 = () => {
         </section>
 
         {/* Products Section */}
-        <section ref={catalogRef} className="py-16 px-4">
+        <section ref={stickersRef} className="py-16 px-4">
           <div className="max-w-7xl mx-auto">
             {/* Loading State */}
             {loading && (
@@ -470,7 +472,7 @@ const Homepage2 = () => {
         </section>
 
         {/* Mobile Products Section */}
-        <section ref={catalogRef} className="py-8 px-4">
+        <section ref={stickersRef} className="py-8 px-4">
           <div className="max-w-full mx-auto">
             {/* Loading State */}
             {loading && (

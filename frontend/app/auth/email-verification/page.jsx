@@ -1,3 +1,4 @@
+// auth/email-verification/page.jsx
 "use client";
 
 import { useState, useEffect } from "react"; // Adjust path as needed
