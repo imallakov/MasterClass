@@ -248,7 +248,7 @@ class PaymentCreateView(APIView):
         masterclass = MasterClass.objects.get(id=data["masterclass_id"])
         quantity = int(data["quantity"])
         amount = masterclass.price * quantity
-        amount = amount + (amount / Decimal(100) * Decimal(3.5))
+        # amount = amount + (amount / Decimal(100) * Decimal(3.5))
         # Validate quantity and capacity
         participant_limit = masterclass.participant_limit
         current_enrollments = (
