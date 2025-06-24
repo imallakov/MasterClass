@@ -200,15 +200,26 @@ const WhyUs = () => {
                           {reason.description}
                         </p>
                       </div>
-                      {reason.button && (
-                        <button
-                          className={`${getButtonStyles(
-                            reason.id
-                          )} text-sm md:text-lg px-4 md:px-8 py-2 md:py-3`}
-                        >
-                          {reason.button}
-                        </button>
-                      )}
+                      {reason.button &&
+                        (reason.button == "Перейти к расписанию" ? (
+                          <a href="/user-account?page=booking">
+                            <button
+                              className={`${getButtonStyles(
+                                reason.id
+                              )} text-sm md:text-lg px-4 md:px-8 py-2 md:py-3`}
+                            >
+                              {reason.button}
+                            </button>
+                          </a>
+                        ) : (
+                          <button
+                            className={`${getButtonStyles(
+                              reason.id
+                            )} text-sm md:text-lg px-4 md:px-8 py-2 md:py-3`}
+                          >
+                            {reason.button}
+                          </button>
+                        ))}
                     </div>
                     <div className="w-full md:w-3/3 relative h-48 sm:h-56 md:h-72 rounded-lg md:rounded-none overflow-hidden">
                       <Image

@@ -15,6 +15,7 @@ import BookingPage from "../pages/bookingPage";
 import { useNavigation } from "../context/NavigationContext";
 import { useRouter } from "next/navigation"; // Add this import
 import { usePayment } from "../context/PaymentContext";
+import { useAuth } from "../context/AuthContext";
 
 // White rounded container for the main content
 const ContentContainer = ({ children }) => {
@@ -135,6 +136,7 @@ const PersonalCabinet = () => {
   // Authentication
   const [accessToken, setAccessToken] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
+  const { user } = useAuth();
 
   const {
     currentPage,
@@ -633,6 +635,8 @@ const PersonalCabinet = () => {
                     onSave={saveProfileData}
                     saving={saving}
                     message={message}
+                    user={user}
+                    router={router}
                   />
                 ) : currentPage === "booking" ? (
                   <BookingPage masterclassId={selectedMasterclassId} />
@@ -662,6 +666,7 @@ const ProfilePage = ({
   lastName,
   setLastName,
   email,
+  user,
   setEmail,
   phoneNumber,
   setPhoneNumber,
@@ -674,6 +679,7 @@ const ProfilePage = ({
   onSave,
   saving,
   message,
+  router,
 }) => {
   return (
     <div className="">
@@ -743,6 +749,20 @@ const ProfilePage = ({
                 placeholder="Введите email"
                 className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+
+              {!user?.email_verified && (
+                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-2 py-2 md:px-4 md:py-3 my-4 rounded text-xs md:text-md">
+                  <div className="flex items-center justify-between">
+                    <span>Ваш email не подтвержден</span>
+                    <button
+                      onClick={() => router.push("/auth/email-verification")}
+                      className="text-yellow-800 underline hover:text-yellow-900"
+                    >
+                      Подтвердить сейчас
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

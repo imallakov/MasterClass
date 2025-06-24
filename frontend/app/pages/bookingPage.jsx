@@ -732,101 +732,101 @@
 //           </div>
 //         </div>
 
-//         {/* Right Side - Additional Info */}
-//         <div className="w-full lg:w-80">
-//           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-//             Дополнительные данные
-//           </h2>
+// {/* Right Side - Additional Info */}
+// <div className="w-full lg:w-80">
+//   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+//     Дополнительные данные
+//   </h2>
 
-//           {/* Participants Counter */}
-//           <div className="mb-6">
-//             <div className="flex items-center justify-between mb-2">
-//               <span className="font-medium text-gray-900">
-//                 Количество участников
-//               </span>
-//               <div className="flex items-center space-x-3">
-//                 <button
-//                   onClick={() => setParticipants(Math.max(1, participants - 1))}
-//                   className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400 text-sm sm:text-base"
-//                 >
-//                   -
-//                 </button>
-//                 <span className="text-lg sm:text-xl font-bold text-orange-500">
-//                   {participants}/{masterclass.participant_limit}
-//                 </span>
-//                 <button
-//                   onClick={() =>
-//                     setParticipants(
-//                       Math.min(
-//                         selectedTime
-//                           ? selectedTime.free_places
-//                           : masterclass.participant_limit,
-//                         participants + 1
-//                       )
-//                     )
-//                   }
-//                   className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 text-sm sm:text-base"
-//                 >
-//                   +
-//                 </button>
-//               </div>
-//             </div>
-//             {selectedTime && (
-//               <p className="text-xs text-gray-600">
-//                 Доступно мест в выбранное время: {selectedTime.free_places}
-//               </p>
-//             )}
-//           </div>
+//   {/* Participants Counter */}
+//   <div className="mb-6">
+//     <div className="flex items-center justify-between mb-2">
+//       <span className="font-medium text-gray-900">
+//         Количество участников
+//       </span>
+//       <div className="flex items-center space-x-3">
+//         <button
+//           onClick={() => setParticipants(Math.max(1, participants - 1))}
+//           className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400 text-sm sm:text-base"
+//         >
+//           -
+//         </button>
+//         <span className="text-lg sm:text-xl font-bold text-orange-500">
+//           {participants}/{masterclass.participant_limit}
+//         </span>
+//         <button
+//           onClick={() =>
+//             setParticipants(
+//               Math.min(
+//                 selectedTime
+//                   ? selectedTime.free_places
+//                   : masterclass.participant_limit,
+//                 participants + 1
+//               )
+//             )
+//           }
+//           className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 text-sm sm:text-base"
+//         >
+//           +
+//         </button>
+//       </div>
+//     </div>
+//     {selectedTime && (
+//       <p className="text-xs text-gray-600">
+//         Доступно мест в выбранное время: {selectedTime.free_places}
+//       </p>
+//     )}
+//   </div>
 
-//           {/* Master Class Description */}
-//           <div className="mb-6">
-//             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">
-//               {masterclass.title}
-//             </h3>
-//             <p className="text-gray-700 text-sm leading-relaxed mb-3">
-//               {masterclass.description}
-//             </p>
-//             <div className="text-base sm:text-lg font-bold text-green-600 mb-2">
-//               {parseFloat(masterclass.price).toLocaleString("ru-RU")} ₽ за
-//               участника
-//             </div>
-//             {participants > 1 && (
-//               <div className="text-lg sm:text-xl font-bold text-blue-600">
-//                 Итого: {getTotalPrice().toLocaleString("ru-RU")} ₽
-//               </div>
-//             )}
-//           </div>
+//   {/* Master Class Description */}
+//   <div className="mb-6">
+//     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">
+//       {masterclass.title}
+//     </h3>
+//     <p className="text-gray-700 text-sm leading-relaxed mb-3">
+//       {masterclass.description}
+//     </p>
+//     <div className="text-base sm:text-lg font-bold text-green-600 mb-2">
+//       {parseFloat(masterclass.price).toLocaleString("ru-RU")} ₽ за
+//       участника
+//     </div>
+//     {participants > 1 && (
+//       <div className="text-lg sm:text-xl font-bold text-blue-600">
+//         Итого: {getTotalPrice().toLocaleString("ru-RU")} ₽
+//       </div>
+//     )}
+//   </div>
 
-//           {/* Privacy Notice */}
-//           <div className="mb-6">
-//             <p className="text-xs text-gray-600 mb-2">
-//               Нажимая кнопку "Оплатить", вы автоматически соглашаетесь с{" "}
-//               <a
-//                 href="/documents/Оферта_МК.docx"
-//                 download="Оферта_МК.docx"
-//                 className="text-blue-500 underline"
-//               >
-//                 обработкой ваших персональных данных
-//               </a>
-//             </p>
-//           </div>
+//   {/* Privacy Notice */}
+//   <div className="mb-6">
+//     <p className="text-xs text-gray-600 mb-2">
+//       Нажимая кнопку "Оплатить", вы автоматически соглашаетесь с{" "}
+//       <a
+//         href="/documents/Оферта_МК.docx"
+//         download="Оферта_МК.docx"
+//         className="text-blue-500 underline"
+//       >
+//         обработкой ваших персональных данных
+//       </a>
+//     </p>
+//   </div>
 
-//           {/* Payment Button */}
-//           <button
-//             onClick={handlePaymentEnrollment}
-//             disabled={
-//               !selectedDate ||
-//               !selectedTime ||
-//               participants > (selectedTime?.free_places || 0) ||
-//               enrolling
-//             }
-//             className="w-full bg-blue-400 hover:bg-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 rounded-full font-medium text-base sm:text-lg shadow-lg transition-colors"
-//           >
-//             {enrolling
-//               ? "Создаём платёж..."
-//               : `Оплатить ${getTotalPrice().toLocaleString("ru-RU")} ₽`}
-//           </button>
-//         </div>
+//   {/* Payment Button */}
+//   <button
+//     onClick={handlePaymentEnrollment}
+//     disabled={
+//       !selectedDate ||
+//       !selectedTime ||
+//       participants > (selectedTime?.free_places || 0) ||
+//       enrolling
+//     }
+//     className="w-full bg-blue-400 hover:bg-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 rounded-full font-medium text-base sm:text-lg shadow-lg transition-colors"
+//   >
+//     {enrolling
+//       ? "Создаём платёж..."
+//       : `Оплатить ${getTotalPrice().toLocaleString("ru-RU")} ₽`}
+//   </button>
+// </div>
 //       </div>
 //     </div>
 //   );
@@ -834,10 +834,12 @@
 
 // export default BookingPage;
 
+//test 2
 "use client";
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "../context/NavigationContext";
 import { usePayment } from "../context/PaymentContext";
+import { useAuth } from "../context/AuthContext";
 
 const BookingPage = ({ masterclassId }) => {
   const [masterclass, setMasterclass] = useState(null);
@@ -866,99 +868,101 @@ const BookingPage = ({ masterclassId }) => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [enrolling, setEnrolling] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState(null);
+  const { makeAuthenticatedRequest } = useAuth();
 
   // New state to track the current step
   const [currentStep, setCurrentStep] = useState("date"); // 'date', 'masterclass', 'booking'
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Helper function to get CSRF token from cookies
-  const getCsrfTokenFromCookie = () => {
-    if (typeof document === "undefined") return null;
+  // const getCsrfTokenFromCookie = () => {
+  //   if (typeof document === "undefined") return null;
 
-    const name = "csrftoken";
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === name + "=") {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  };
+  //   const name = "csrftoken";
+  //   let cookieValue = null;
+  //   if (document.cookie && document.cookie !== "") {
+  //     const cookies = document.cookie.split(";");
+  //     for (let i = 0; i < cookies.length; i++) {
+  //       const cookie = cookies[i].trim();
+  //       if (cookie.substring(0, name.length + 1) === name + "=") {
+  //         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   return cookieValue;
+  // };
 
-  // Enhanced authenticated request helper with better error handling
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    try {
-      console.log("Making request to:", url);
+  // // Enhanced authenticated request helper with better error handling
+  // const makeAuthenticatedRequest = async (url, options = {}) => {
+  //   try {
+  //     console.log("Making request to:", url);
 
-      const accessToken = localStorage.getItem("access_token");
-      const csrfToken = getCsrfTokenFromCookie();
+  //     const accessToken = localStorage.getItem("access_token");
+  //     const csrfToken = getCsrfTokenFromCookie();
 
-      const headers = {
-        Accept: "application/json",
-        ...options.headers,
-      };
+  //     const headers = {
+  //       Accept: "application/json",
+  //       ...options.headers,
+  //     };
 
-      if (!options.body || !(options.body instanceof FormData)) {
-        headers["Content-Type"] = "application/json";
-      }
+  //     if (!options.body || !(options.body instanceof FormData)) {
+  //       headers["Content-Type"] = "application/json";
+  //     }
 
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
+  //     if (accessToken) {
+  //       headers["Authorization"] = `Bearer ${accessToken}`;
+  //     }
 
-      if (csrfToken) {
-        headers["X-CSRFTOKEN"] = csrfToken;
-      }
+  //     if (csrfToken) {
+  //       headers["X-CSRFTOKEN"] = csrfToken;
+  //     }
 
-      console.log("Request headers:", headers);
+  //     console.log("Request headers:", headers);
 
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        credentials: "include",
-      });
+  //     const response = await fetch(url, {
+  //       ...options,
+  //       headers,
+  //       credentials: "include",
+  //     });
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", [...response.headers.entries()]);
+  //     console.log("Response status:", response.status);
+  //     console.log("Response headers:", [...response.headers.entries()]);
 
-      // Check if response is actually JSON
-      const contentType = response.headers.get("content-type");
-      const isJson = contentType && contentType.includes("application/json");
+  //     // Check if response is actually JSON
+  //     const contentType = response.headers.get("content-type");
+  //     const isJson = contentType && contentType.includes("application/json");
 
-      if (!isJson) {
-        // Log the actual response text for debugging
-        const responseText = await response.text();
-        console.error("Non-JSON response received:", responseText);
-        throw new Error(
-          `Server returned ${response.status}: Expected JSON but received ${
-            contentType || "unknown content type"
-          }`
-        );
-      }
+  //     if (!isJson) {
+  //       // Log the actual response text for debugging
+  //       const responseText = await response.text();
+  //       console.error("Non-JSON response received:", responseText);
+  //       throw new Error(
+  //         `Server returned ${response.status}: Expected JSON but received ${
+  //           contentType || "unknown content type"
+  //         }`
+  //       );
+  //     }
 
-      if (response.status === 401) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-      }
+  //     if (response.status === 401) {
+  //       localStorage.removeItem("access_token");
+  //       localStorage.removeItem("refresh_token");
+  //       throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
+  //     }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`
-        );
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       throw new Error(
+  //         errorData.message || `HTTP ${response.status}: ${response.statusText}`
+  //       );
+  //     }
 
-      return response;
-    } catch (error) {
-      console.error("Request failed:", error);
-      throw error;
-    }
-  };
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Request failed:", error);
+  //     throw error;
+  //   }
+  // };
 
   // Enhanced fetch masterclasses list with better error handling
   const fetchMasterclasses = async () => {
@@ -1796,231 +1800,206 @@ const BookingPage = ({ masterclassId }) => {
         </div>
 
         {/* Right Side - Masterclass Info and Booking */}
-        <div className="w-full lg:w-96">
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 sm:p-6 sticky top-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-              {masterclass.title}
-            </h2>
+        <div className="w-full lg:w-80">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+            Дополнительные данные
+          </h2>
 
-            {masterclass.image && (
-              <img
-                src={masterclass.image}
-                alt={masterclass.title}
-                className="w-full h-32 sm:h-48 object-cover rounded-lg mb-4"
-              />
-            )}
-
-            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-              {masterclass.description}
-            </p>
-
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Цена:</span>
-                <span className="text-xl font-bold text-green-600">
-                  {parseFloat(masterclass.price).toLocaleString("ru-RU")} ₽
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Продолжительность:</span>
-                <span className="font-medium text-gray-900">
-                  {masterclass.duration} мин
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Макс. участников:</span>
-                <span className="font-medium text-gray-900">
-                  {masterclass.participant_limit}
-                </span>
-              </div>
-            </div>
-
-            {/* Participants Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Количество участников:
-              </label>
-              <div className="flex items-center border border-gray-300 rounded-lg">
+          {/* Participants Counter */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-gray-900">
+                Количество участников
+              </span>
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={() => setParticipants(Math.max(1, participants - 1))}
-                  className="p-2 text-gray-600 hover:text-gray-800"
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400 text-sm sm:text-base"
                   disabled={participants <= 1}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20 12H4"
-                    />
-                  </svg>
+                  -
                 </button>
-                <input
-                  type="number"
-                  min="1"
-                  max={
-                    selectedTime?.free_places || masterclass.participant_limit
-                  }
-                  value={participants}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    const maxParticipants =
-                      selectedTime?.free_places ||
-                      masterclass.participant_limit;
-                    setParticipants(
-                      Math.min(Math.max(1, value), maxParticipants)
-                    );
-                  }}
-                  className="flex-1 p-2 text-center border-0 focus:ring-0"
-                />
+                <span className="text-lg sm:text-xl font-bold text-orange-500">
+                  {participants}/{masterclass.participant_limit}
+                </span>
                 <button
-                  onClick={() => {
-                    const maxParticipants =
-                      selectedTime?.free_places ||
-                      masterclass.participant_limit;
+                  onClick={() =>
                     setParticipants(
-                      Math.min(participants + 1, maxParticipants)
-                    );
-                  }}
-                  className="p-2 text-gray-600 hover:text-gray-800"
+                      Math.min(
+                        selectedTime
+                          ? selectedTime.free_places
+                          : masterclass.participant_limit,
+                        participants + 1
+                      )
+                    )
+                  }
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 text-sm sm:text-base"
                   disabled={
                     participants >=
                     (selectedTime?.free_places || masterclass.participant_limit)
                   }
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
+                  +
                 </button>
               </div>
-              {selectedTime && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Доступно мест: {selectedTime.free_places}
-                </p>
-              )}
             </div>
+            {selectedTime && (
+              <p className="text-xs text-gray-600">
+                Доступно мест в выбранное время: {selectedTime.free_places}
+              </p>
+            )}
+          </div>
 
-            {/* Total Price */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-medium text-gray-900">
-                  Итого:
-                </span>
-                <span className="text-2xl font-bold text-green-600">
-                  {getTotalPrice().toLocaleString("ru-RU")} ₽
-                </span>
+          {/* Master Class Description */}
+          <div className="mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3">
+              {masterclass.title}
+            </h3>
+            <p className="text-gray-700 text-sm leading-relaxed mb-3">
+              {masterclass.description}
+            </p>
+            <div className="text-base sm:text-lg font-bold text-green-600 mb-2">
+              {parseFloat(masterclass.price).toLocaleString("ru-RU")} ₽ за
+              участника
+            </div>
+            {participants > 1 && (
+              <div className="text-lg sm:text-xl font-bold text-blue-600">
+                Итого: {getTotalPrice().toLocaleString("ru-RU")} ₽
+              </div>
+            )}
+          </div>
+
+          {/* Payment URL Banner */}
+          {paymentUrl && (
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+              <p className="text-sm mb-2">
+                Не удалось автоматически открыть страницу оплаты.
+              </p>
+              <a
+                href={paymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm inline-block"
+                onClick={() => setPaymentUrl(null)}
+              >
+                Открыть страницу оплаты
+              </a>
+            </div>
+          )}
+
+          {/* Payment Tracking Status */}
+          {isTrackingPayment && (
+            <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
+                <span className="text-sm">Отслеживаем статус платежа...</span>
               </div>
             </div>
+          )}
 
-            {/* Payment URL Banner */}
-            {paymentUrl && (
-              <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                <p className="text-sm mb-2">
-                  Не удалось автоматически открыть страницу оплаты.
-                </p>
-                <a
-                  href={paymentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm inline-block"
-                  onClick={() => setPaymentUrl(null)}
+          {paymentStatus === "completed" && currentEnrollment && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Открыть страницу оплаты
-                </a>
-              </div>
-            )}
-
-            {/* Payment Tracking Status */}
-            {isTrackingPayment && (
-              <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
-                  <span className="text-sm">Отслеживаем статус платежа...</span>
-                </div>
-              </div>
-            )}
-
-            {paymentStatus === "completed" && currentEnrollment && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <div>
-                    <div className="font-medium">Оплата успешна!</div>
-                    <div className="text-sm mt-1">
-                      Запись подтверждена. ID: {currentEnrollment.id}
-                    </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <div>
+                  <div className="font-medium">Оплата успешна!</div>
+                  <div className="text-sm mt-1">
+                    Запись подтверждена. ID: {currentEnrollment.id}
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Book Button */}
-            <button
-              onClick={handlePaymentEnrollment}
-              disabled={
-                !selectedTime ||
-                enrolling ||
-                isTrackingPayment ||
-                paymentStatus === "completed"
-              }
-              className={`w-full py-3 px-4 rounded-lg font-medium text-sm sm:text-base transition-colors ${
-                !selectedTime ||
-                enrolling ||
-                isTrackingPayment ||
-                paymentStatus === "completed"
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
-            >
-              {paymentStatus === "completed"
-                ? "✅ Запись подтверждена"
-                : enrolling
-                ? "Создаём платёж..."
-                : isTrackingPayment
-                ? "Ожидаем оплату..."
-                : !selectedTime
-                ? "Выберите время"
-                : `Записаться за ${getTotalPrice().toLocaleString("ru-RU")} ₽`}
-            </button>
-
-            {!masterclassId && (
-              <button
-                onClick={handleResetToStart}
-                className="w-full mt-3 py-2 px-4 text-blue-600 hover:text-blue-800 font-medium text-sm"
+          {/* Privacy Notice and Terms Agreement */}
+          <div className="mb-4">
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="terms-agreement"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="terms-agreement"
+                className="text-sm text-gray-700 leading-relaxed"
               >
-                ← Начать заново
-              </button>
-            )}
+                Нажимая кнопку "Оплатить", вы автоматически соглашаетесь с{" "}
+                <a
+                  href="/documents/Политики_в_отношении_обр_перс_данных.docx"
+                  download="Политики_в_отношении_обр_перс_данных.docx"
+                  className="text-blue-500 underline hover:text-blue-700"
+                >
+                  обработкой ваших персональных данных
+                </a>{" "}
+                и условиями оферты.
+              </label>
+            </div>
           </div>
+
+          {/* Payment Button - Updated */}
+          <button
+            onClick={handlePaymentEnrollment}
+            disabled={
+              !selectedDate ||
+              !selectedTime ||
+              participants > (selectedTime?.free_places || 0) ||
+              enrolling ||
+              isTrackingPayment ||
+              paymentStatus === "completed" ||
+              !agreedToTerms // Add this condition
+            }
+            className={`w-full py-2.5 sm:py-3 rounded-full font-medium text-base sm:text-lg shadow-lg transition-colors ${
+              !selectedDate ||
+              !selectedTime ||
+              participants > (selectedTime?.free_places || 0) ||
+              enrolling ||
+              isTrackingPayment ||
+              paymentStatus === "completed" ||
+              !agreedToTerms // Add this condition
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-400 hover:bg-blue-500 text-white"
+            }`}
+          >
+            {paymentStatus === "completed"
+              ? "✅ Запись подтверждена"
+              : enrolling
+              ? "Создаём платёж..."
+              : isTrackingPayment
+              ? "Ожидаем оплату..."
+              : `Оплатить ${getTotalPrice().toLocaleString("ru-RU")} ₽`}
+          </button>
+
+          {/* Helper text for disabled state */}
+          {(!selectedDate || !selectedTime || !agreedToTerms) && (
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              {!selectedDate && "Выберите дату. "}
+              {!selectedTime && "Выберите время. "}
+              {!agreedToTerms && "Согласитесь с условиями."}
+            </p>
+          )}
+
+          {!masterclassId && (
+            <button
+              onClick={handleResetToStart}
+              className="w-full mt-3 py-2 px-4 text-blue-600 hover:text-blue-800 font-medium text-sm"
+            >
+              ← Начать заново
+            </button>
+          )}
         </div>
       </div>
     </div>

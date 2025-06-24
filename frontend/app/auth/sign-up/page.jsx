@@ -493,8 +493,8 @@ export default function RegistrationPage() {
                       >
                         Согласен с{" "}
                         <a
-                          href="/documents/Оферта_МК.docx"
-                          download="Оферта_МК.docx"
+                          href="/documents/Политики_в_отношении_обр_перс_данных.docx"
+                          download="Политики_в_отношении_обр_перс_данных.docx"
                           className="text-blue-500 underline"
                         >
                           политикой конфиденциальности
@@ -725,7 +725,11 @@ export default function RegistrationPage() {
                     className="text-sm text-gray-700 leading-relaxed"
                   >
                     Согласен с{" "}
-                    <a href="#" className="text-blue-500 underline">
+                    <a
+                      href="/documents/Политики_в_отношении_обр_перс_данных.docx"
+                      download="Политики_в_отношении_обр_перс_данных.docx"
+                      className="text-blue-500 underline"
+                    >
                       политикой конфиденциальности
                     </a>
                   </label>
