@@ -281,9 +281,6 @@ class PaymentCreateView(APIView):
         print("Payment Create Post idempotency key: {}".format(idempotency_key))
         print("Payment Create Post return url: {}".format(return_url))
 
-        print("Payment Create Post idempotency key: {}".format(idempotency_key))
-        print("Payment Create Post return url: {}".format(return_url))
-
         # Check if there's a failed/cancelled enrollment for retry
         enrollment = MasterClassEnrollment.objects.filter(
             user=user, slot=slot, status="cancelled", payment_id__isnull=False
@@ -320,6 +317,7 @@ class PaymentCreateView(APIView):
             enrollment.save()
         except Exception as e:
             # logger.error(f"Payment creation failed: {str(e)}")
+            enrollment.delete()
             return Response(
                 {"detail": "Ошибка при создании платежа", "error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
