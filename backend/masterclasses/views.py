@@ -206,9 +206,49 @@ class UserEnrollmentsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return MasterClassEnrollment.objects.filter(
+        queryset = MasterClassEnrollment.objects.filter(
             user=self.request.user
         ).select_related("slot", "slot__masterclass")
+
+        # **Check and update pending enrollments**
+        self._update_pending_enrollments(queryset)
+
+        return queryset
+
+    def _update_pending_enrollments(self, queryset):
+        """Check YooKassa status for pending enrollments and update if needed"""
+        pending_enrollments = queryset.filter(
+            status='pending',
+            payment_id__isnull=False
+        )
+
+        for enrollment in pending_enrollments:
+            try:
+                # **Fetch payment status from YooKassa**
+                yookassa_payment = Payment.find_one(enrollment.payment_id)
+
+                # **Update enrollment status based on YooKassa response**
+                if yookassa_payment.status == 'succeeded':
+                    enrollment.status = 'paid'
+                    enrollment.save()
+                    print(f"Updated enrollment {enrollment.id} to 'paid' status")
+
+                elif yookassa_payment.status == 'canceled':
+                    enrollment.status = 'cancelled'
+                    enrollment.save()
+                    print(f"Updated enrollment {enrollment.id} to 'cancelled' status")
+
+                # **Handle other statuses if needed**
+                elif yookassa_payment.status in ['waiting_for_capture', 'pending']:
+                    # Keep as pending - payment is still processing
+                    continue
+
+            except Exception as e:
+                # **Log error but don't break the flow**
+                print(f"Error checking payment status for enrollment {enrollment.id}: {str(e)}")
+                # You might want to use proper logging here:
+                # logger.error(f"Error checking payment status for enrollment {enrollment.id}: {str(e)}")
+                continue
 
 
 class AdminMasterClassEnrollmentListView(generics.ListAPIView):
