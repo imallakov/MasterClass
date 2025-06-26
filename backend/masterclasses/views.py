@@ -48,7 +48,7 @@ class PaginationClass(PageNumberPagination):
 
 
 class MasterClassListCreateView(generics.ListCreateAPIView):
-    queryset = MasterClass.objects.all()
+    queryset = MasterClass.objects.order_by("title").all()
     serializer_class = MasterClassSerializer
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = PaginationClass
@@ -134,7 +134,7 @@ class CalendarMonthView(APIView):
 
 
 class MasterClassDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = MasterClass.objects.all()
+    queryset = MasterClass.objects.order_by("title").all()
     serializer_class = MasterClassSerializer
     parser_classes = [MultiPartParser, FormParser]
 
@@ -145,19 +145,20 @@ class MasterClassDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class MasterClassSlotCreateView(generics.CreateAPIView):
-    queryset = MasterClassSlot.objects.all()
+    queryset = MasterClassSlot.objects.order_by("start__date").all()
     serializer_class = MasterClassSlotSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class MasterClassSlotDeleteView(generics.DestroyAPIView):
-    queryset = MasterClassSlot.objects.all()
+    queryset = MasterClassSlot.objects.order_by("start__date").all()
     serializer_class = MasterClassSlotSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class MasterClassEnrollmentCreateView(generics.CreateAPIView):
-    queryset = MasterClassEnrollment.objects.all()
+    queryset = MasterClassEnrollment.objects.order_by("-created_at").all()
+
     serializer_class = MasterClassEnrollmentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -263,7 +264,7 @@ class AdminMasterClassEnrollmentListView(generics.ListAPIView):
                 "user", "slot"
             ).order_by("-created_at"),
         )
-        return MasterClass.objects.prefetch_related(enrollments_prefetch).all()
+        return MasterClass.objects.prefetch_related(enrollments_prefetch).order_by('title').all()
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -341,12 +342,27 @@ class PaymentCreateView(APIView):
                         "return_url": return_url,
                     },
                     "capture": True,
-                    "description": f"Payment for {masterclass.title}",
+                    "description": f"Оплата записи на мастеркласс {masterclass.title}",
                     "metadata": {
                         "enrollment_id": enrollment.id,
                         "user_id": user.id,
                         "masterclass_id": masterclass.id,
                         "slot_id": slot.id,
+                    },
+                    "receipt": {
+                        "customer": {
+                            "email": user.email,
+                        },
+                        "items": [
+                            {
+                                "description": f"Оплата записи на мастеркласс {masterclass.title}",
+                                "quantity": str(quantity),
+                                "amount": {"value": str(amount), "currency": "RUB"},
+                                "vat_code": "1",
+                                "payment_mode": "full_prepayment",
+                                "payment_subject": "service"
+                            },
+                        ]
                     },
                 },
                 idempotency_key,
