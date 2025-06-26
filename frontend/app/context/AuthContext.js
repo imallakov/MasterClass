@@ -564,6 +564,20 @@ export function AuthProvider({ children }) {
   };
 
   // Function to refresh access token using refresh token
+
+  // Helper function to get specific cookie value
+  const getCookie = (name) => {
+    if (!isClient()) return null;
+
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop().split(";").shift();
+    }
+    return null;
+  };
+
+  // Function to refresh access token using refresh token
   const refreshAccessToken = async (retryCount = 0) => {
     // Prevent multiple simultaneous refresh attempts
     if (refreshPromiseRef.current) {
@@ -573,28 +587,23 @@ export function AuthProvider({ children }) {
     refreshPromiseRef.current = (async () => {
       try {
         console.log("🔄 Starting token refresh...");
-        const refreshToken = getFromStorage("refresh_token");
 
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        // Check if refresh token is expired
-        if (isTokenExpired(refreshToken)) {
-          console.log("❌ Refresh token is expired");
-          throw new Error("Refresh token expired");
-        }
+        // Debug: Check if refresh token cookie exists
+        const refreshTokenFromCookie = getCookie("refreshToken");
+        console.log(
+          "🍪 Refresh token cookie:",
+          refreshTokenFromCookie ? "Found" : "Not found"
+        );
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/refresh/`,
           {
             method: "POST",
+            credentials: "include", // This sends cookies automatically
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              refresh: refreshToken,
-            }),
+            // No body needed - refresh token comes from 'refreshToken' cookie
           }
         );
 
@@ -604,16 +613,11 @@ export function AuthProvider({ children }) {
 
           setToStorage("access_token", data.access);
 
-          // Update cookie as well
+          // Update access token cookie as well (for middleware)
           if (isClient()) {
             document.cookie = `access_token=${data.access}; path=/; max-age=${
               7 * 24 * 60 * 60
             }`;
-          }
-
-          // If a new refresh token is provided, update it
-          if (data.refresh) {
-            setToStorage("refresh_token", data.refresh);
           }
 
           // Setup next refresh schedule
@@ -627,7 +631,7 @@ export function AuthProvider({ children }) {
           // Retry once for server errors (5xx)
           if (response.status >= 500 && retryCount === 0) {
             console.log("🔄 Retrying token refresh due to server error...");
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             return refreshAccessToken(1);
           }
 
@@ -636,17 +640,14 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.error("❌ Token refresh error:", error);
 
-        // Only logout on specific errors, not network issues
+        // Handle 401 refresh token errors - this means refresh token is invalid/expired
         if (
-          error.message.includes("Refresh token expired") ||
-          error.message.includes("No refresh token available") ||
-          (error.message.includes("Failed to refresh token") &&
-            error.message.includes("401"))
+          error.message.includes("Failed to refresh token: 401") ||
+          error.message.includes("Invalid refresh token")
         ) {
-          console.log("🚪 Logging out due to authentication failure");
-          clearAuthTokens();
-          setUser(null);
-          router.push("/auth/sign-in");
+          console.log("🚪 Refresh token invalid/expired, logging out");
+          await logout();
+          return null;
         }
 
         return null;
@@ -675,6 +676,7 @@ export function AuthProvider({ children }) {
     // First attempt with current token
     const requestOptions = {
       ...options,
+      credentials: "include",
       headers: {
         ...options.headers,
         Authorization: `Bearer ${token}`,
@@ -714,10 +716,19 @@ export function AuthProvider({ children }) {
   const clearAuthTokens = () => {
     console.log("🧹 Clearing all auth tokens");
     removeFromStorage("access_token");
-    removeFromStorage("refresh_token");
+
     if (isClient()) {
+      // Clear access token cookie
       document.cookie =
         "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+      // Clear refresh token cookie (matching backend name)
+      document.cookie =
+        "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+      // Clear CSRF token cookie
+      document.cookie =
+        "csrftoken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
 
     // Clear scheduled refresh
@@ -957,31 +968,58 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Updated login function - the backend sets the refreshToken cookie automatically
   const login = (userData, tokens) => {
     console.log("✅ User logged in");
     setUser(userData);
     setToStorage("access_token", tokens.access);
 
-    // Also set as cookie for middleware
+    // Set access token cookie for middleware
     if (isClient()) {
       document.cookie = `access_token=${tokens.access}; path=/; max-age=${
         7 * 24 * 60 * 60
       }`;
-    }
 
-    if (tokens.refresh) {
-      setToStorage("refresh_token", tokens.refresh);
+      // Debug: Check if refreshToken cookie was set by backend
+      setTimeout(() => {
+        const refreshTokenCookie = getCookie("refreshToken");
+        console.log(
+          "🍪 RefreshToken cookie after login:",
+          refreshTokenCookie ? "Set" : "Not set"
+        );
+
+        if (!refreshTokenCookie) {
+          console.warn(
+            "⚠️ Warning: refreshToken cookie not found after login!"
+          );
+        }
+      }, 100);
     }
 
     // Setup token refresh scheduler after login
     setupTokenRefreshScheduler();
   };
 
-  const logout = () => {
-    console.log("👋 User logged out");
+  // Updated logout function to call the correct backend endpoint
+  const logout = async () => {
+    console.log("👋 User logging out");
+
+    // Call backend logout to clear refresh token cookie
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/logout/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    }
+
     setUser(null);
     clearAuthTokens();
-    router.push("/");
+    router.push("/auth/sign-in");
   };
 
   const isAdmin = () => {
@@ -1036,7 +1074,7 @@ export function useRequireAuth(requiredRole = null) {
       }
 
       if (requiredRole === "admin" && !isAdmin()) {
-        router.push("/unauthorized");
+        router.push("/");
         return;
       }
     }

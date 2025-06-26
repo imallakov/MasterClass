@@ -145,12 +145,27 @@ const EditStickerPage = () => {
     try {
       setLoadingStickers(true);
       const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/?category=${categoryId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${categoryId}/`
       );
 
       if (response.ok) {
-        const stickersData = await response.json();
-        setStickers(stickersData.results || stickersData);
+        const responseData = await response.json();
+
+        // Update to handle the new API response structure
+        if (responseData.stickers && responseData.stickers.results) {
+          setStickers(responseData.stickers.results);
+        } else if (responseData.results) {
+          // Fallback for old structure
+          setStickers(responseData.results);
+        } else {
+          // Fallback for direct array
+          setStickers(responseData);
+        }
+
+        console.log(
+          "Stickers data:",
+          responseData.stickers?.results || responseData
+        );
       } else {
         setMessage({
           type: "error",

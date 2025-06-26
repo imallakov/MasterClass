@@ -147,46 +147,165 @@ const AddMasterClassPage = () => {
       return false;
     }
 
-    // ADD THESE NEW VALIDATIONS:
-    if (!formData.start_date) {
-      setMessage({ type: "error", text: "Пожалуйста, выберите дату начала" });
-      return false;
-    }
-    if (!formData.start_time) {
-      setMessage({ type: "error", text: "Пожалуйста, выберите время начала" });
-      return false;
-    }
-    if (!formData.end_date) {
-      setMessage({
-        type: "error",
-        text: "Пожалуйста, выберите дату окончания",
-      });
-      return false;
-    }
-    if (!formData.end_time) {
-      setMessage({
-        type: "error",
-        text: "Пожалуйста, выберите время окончания",
-      });
-      return false;
-    }
+    // OPTIONAL DATE/TIME VALIDATION - Only validate if provided
+    if (
+      formData.start_date ||
+      formData.start_time ||
+      formData.end_date ||
+      formData.end_time
+    ) {
+      // If any date/time field is provided, all must be provided
+      if (!formData.start_date) {
+        setMessage({ type: "error", text: "Пожалуйста, выберите дату начала" });
+        return false;
+      }
+      if (!formData.start_time) {
+        setMessage({
+          type: "error",
+          text: "Пожалуйста, выберите время начала",
+        });
+        return false;
+      }
+      if (!formData.end_date) {
+        setMessage({
+          type: "error",
+          text: "Пожалуйста, выберите дату окончания",
+        });
+        return false;
+      }
+      if (!formData.end_time) {
+        setMessage({
+          type: "error",
+          text: "Пожалуйста, выберите время окончания",
+        });
+        return false;
+      }
 
-    // Validate that end time is after start time
-    const startDateTime = new Date(
-      `${formData.start_date}T${formData.start_time}`
-    );
-    const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+      // Validate that end time is after start time
+      const startDateTime = new Date(
+        `${formData.start_date}T${formData.start_time}`
+      );
+      const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
 
-    if (endDateTime <= startDateTime) {
-      setMessage({
-        type: "error",
-        text: "Время окончания должно быть позже времени начала",
-      });
-      return false;
+      if (endDateTime <= startDateTime) {
+        setMessage({
+          type: "error",
+          text: "Время окончания должно быть позже времени начала",
+        });
+        return false;
+      }
     }
 
     return true;
   };
+
+  // const validateForm = () => {
+  //   if (!formData.title.trim()) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, введите название мастер-класса",
+  //     });
+  //     return false;
+  //   }
+  //   if (!formData.description.trim()) {
+  //     setMessage({ type: "error", text: "Пожалуйста, введите описание" });
+  //     return false;
+  //   }
+  //   if (!formData.price || parseFloat(formData.price) <= 0) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, введите корректную стоимость",
+  //     });
+  //     return false;
+  //   }
+  //   if (
+  //     !formData.participant_limit ||
+  //     parseInt(formData.participant_limit) <= 0
+  //   ) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, введите лимит участников",
+  //     });
+  //     return false;
+  //   }
+  //   if (!formData.image) {
+  //     setMessage({ type: "error", text: "Пожалуйста, загрузите фото" });
+  //     return false;
+  //   }
+
+  //   if (
+  //     !formData.participant_min_age ||
+  //     parseInt(formData.participant_min_age) <= 0
+  //   ) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, введите минимальный возраст участников",
+  //     });
+  //     return false;
+  //   }
+
+  //   if (
+  //     !formData.participant_max_age ||
+  //     parseInt(formData.participant_max_age) <= 0
+  //   ) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, введите максимальный возраст участников",
+  //     });
+  //     return false;
+  //   }
+
+  //   if (
+  //     parseInt(formData.participant_max_age) <
+  //     parseInt(formData.participant_min_age)
+  //   ) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Максимальный возраст должен быть больше минимального",
+  //     });
+  //     return false;
+  //   }
+
+  //   // ADD THESE NEW VALIDATIONS:
+  //   if (!formData.start_date) {
+  //     setMessage({ type: "error", text: "Пожалуйста, выберите дату начала" });
+  //     return false;
+  //   }
+  //   if (!formData.start_time) {
+  //     setMessage({ type: "error", text: "Пожалуйста, выберите время начала" });
+  //     return false;
+  //   }
+  //   if (!formData.end_date) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, выберите дату окончания",
+  //     });
+  //     return false;
+  //   }
+  //   if (!formData.end_time) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Пожалуйста, выберите время окончания",
+  //     });
+  //     return false;
+  //   }
+
+  //   // Validate that end time is after start time
+  //   const startDateTime = new Date(
+  //     `${formData.start_date}T${formData.start_time}`
+  //   );
+  //   const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+
+  //   if (endDateTime <= startDateTime) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Время окончания должно быть позже времени начала",
+  //     });
+  //     return false;
+  //   }
+
+  //   return true;
+  // };
 
   const makeAuthenticatedRequest = async (url, options = {}) => {
     const headers = {
@@ -225,6 +344,192 @@ const AddMasterClassPage = () => {
 
     return response;
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!validateForm()) {
+  //     return;
+  //   }
+
+  //   if (!accessToken) {
+  //     setMessage({
+  //       type: "error",
+  //       text: "Не авторизован. Пожалуйста, войдите в систему.",
+  //     });
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   setMessage({ type: "", text: "" });
+
+  //   try {
+  //     // Create FormData with all masterclass data including the image file
+  //     const formDataForSubmission = new FormData();
+  //     formDataForSubmission.append("title", formData.title.trim());
+  //     formDataForSubmission.append("description", formData.description.trim());
+  //     formDataForSubmission.append(
+  //       "price",
+  //       parseFloat(formData.price).toFixed(1)
+  //     );
+  //     formDataForSubmission.append(
+  //       "participant_limit",
+  //       parseInt(formData.participant_limit)
+  //     );
+
+  //     formDataForSubmission.append(
+  //       "participant_min_age",
+  //       parseInt(formData.participant_min_age)
+  //     );
+  //     formDataForSubmission.append(
+  //       "participant_max_age",
+  //       parseInt(formData.participant_max_age)
+  //     );
+
+  //     // Add the actual file, not the blob URL
+  //     if (selectedFile) {
+  //       formDataForSubmission.append("image", selectedFile);
+  //     }
+
+  //     console.log("Submitting masterclass with FormData");
+  //     console.log("Title:", formData.title.trim());
+  //     console.log("Price:", parseFloat(formData.price).toFixed(2));
+  //     console.log("Participant limit:", parseInt(formData.participant_limit));
+  //     console.log("File:", selectedFile ? selectedFile.name : "No file");
+
+  //     // Prepare headers (don't set Content-Type for FormData)
+  //     const headers = {
+  //       Accept: "application/json",
+  //     };
+
+  //     if (accessToken) {
+  //       headers["Authorization"] = `Bearer ${accessToken}`;
+  //     }
+
+  //     if (csrfToken) {
+  //       headers["X-CSRFTOKEN"] = csrfToken;
+  //     }
+
+  //     const masterclassResponse = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`,
+  //       {
+  //         method: "POST",
+  //         headers: headers,
+  //         body: formDataForSubmission,
+  //         credentials: "include",
+  //       }
+  //     );
+
+  //     if (!masterclassResponse.ok) {
+  //       const errorText = await masterclassResponse.text();
+  //       console.error("Masterclass creation error:", errorText);
+
+  //       let errorMessage;
+  //       try {
+  //         const errorData = JSON.parse(errorText);
+  //         errorMessage = errorData.detail || errorData.message || errorText;
+  //       } catch {
+  //         errorMessage = errorText;
+  //       }
+
+  //       throw new Error(`Ошибка при создании мастер-класса: ${errorMessage}`);
+  //     }
+
+  //     const masterclassResult = await masterclassResponse.json();
+  //     const masterclassId = masterclassResult.id;
+
+  //     console.log("Masterclass created:", masterclassResult);
+
+  //     // Create start and end datetime from form inputs
+  //     const startDateTime = new Date(
+  //       `${formData.start_date}T${formData.start_time}`
+  //     );
+  //     const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+
+  //     const slotData = {
+  //       masterclass: masterclassId,
+  //       start: startDateTime.toISOString(),
+  //       end: endDateTime.toISOString(),
+  //     };
+
+  //     console.log("Creating slot with data:", slotData);
+
+  //     try {
+  //       const slotHeaders = {
+  //         "Content-Type": "application/json",
+  //         Accept: "application/json",
+  //       };
+
+  //       if (accessToken) {
+  //         slotHeaders["Authorization"] = `Bearer ${accessToken}`;
+  //       }
+
+  //       if (csrfToken) {
+  //         slotHeaders["X-CSRFTOKEN"] = csrfToken;
+  //       }
+
+  //       const slotResponse = await fetch(
+  //         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
+  //         {
+  //           method: "POST",
+  //           headers: slotHeaders,
+  //           body: JSON.stringify(slotData),
+  //           credentials: "include",
+  //         }
+  //       );
+
+  //       if (!slotResponse.ok) {
+  //         const errorData = await slotResponse.text();
+  //         console.warn("Slot creation failed:", errorData);
+  //         setMessage({
+  //           type: "success",
+  //           text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот. Создайте слот отдельно.`,
+  //         });
+  //       } else {
+  //         const slotResult = await slotResponse.json();
+  //         console.log("Slot created:", slotResult);
+  //         setMessage({
+  //           type: "success",
+  //           text: `Мастер-класс "${masterclassResult.title}" и слот успешно созданы!`,
+  //         });
+  //       }
+  //     } catch (slotError) {
+  //       console.warn("Slot creation error:", slotError);
+  //       setMessage({
+  //         type: "success",
+  //         text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот.`,
+  //       });
+  //     }
+
+  //     // Reset form
+  //     setFormData({
+  //       title: "",
+  //       description: "",
+  //       price: "",
+  //       image: "",
+  //       participant_limit: "",
+  //       participant_min_age: "",
+  //       participant_max_age: "",
+  //       start_date: "",
+  //       start_time: "",
+  //       end_date: "",
+  //       end_time: "",
+  //     });
+  //     setSelectedFile(null);
+
+  //     // Reset file input
+  //     const fileInput = document.getElementById("photo-upload");
+  //     if (fileInput) fileInput.value = "";
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     setMessage({
+  //       type: "error",
+  //       text: error.message || "Ошибка соединения с сервером",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -321,64 +626,81 @@ const AddMasterClassPage = () => {
 
       console.log("Masterclass created:", masterclassResult);
 
-      // Create start and end datetime from form inputs
-      const startDateTime = new Date(
-        `${formData.start_date}T${formData.start_time}`
-      );
-      const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+      // Only create slot if date/time information is provided
+      const hasDateTimeInfo =
+        formData.start_date &&
+        formData.start_time &&
+        formData.end_date &&
+        formData.end_time;
 
-      const slotData = {
-        masterclass: masterclassId,
-        start: startDateTime.toISOString(),
-        end: endDateTime.toISOString(),
-      };
-
-      console.log("Creating slot with data:", slotData);
-
-      try {
-        const slotHeaders = {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        };
-
-        if (accessToken) {
-          slotHeaders["Authorization"] = `Bearer ${accessToken}`;
-        }
-
-        if (csrfToken) {
-          slotHeaders["X-CSRFTOKEN"] = csrfToken;
-        }
-
-        const slotResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
-          {
-            method: "POST",
-            headers: slotHeaders,
-            body: JSON.stringify(slotData),
-            credentials: "include",
-          }
+      if (hasDateTimeInfo) {
+        // Create start and end datetime from form inputs
+        const startDateTime = new Date(
+          `${formData.start_date}T${formData.start_time}`
+        );
+        const endDateTime = new Date(
+          `${formData.end_date}T${formData.end_time}`
         );
 
-        if (!slotResponse.ok) {
-          const errorData = await slotResponse.text();
-          console.warn("Slot creation failed:", errorData);
+        const slotData = {
+          masterclass: masterclassId,
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
+        };
+
+        console.log("Creating slot with data:", slotData);
+
+        try {
+          const slotHeaders = {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          };
+
+          if (accessToken) {
+            slotHeaders["Authorization"] = `Bearer ${accessToken}`;
+          }
+
+          if (csrfToken) {
+            slotHeaders["X-CSRFTOKEN"] = csrfToken;
+          }
+
+          const slotResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
+            {
+              method: "POST",
+              headers: slotHeaders,
+              body: JSON.stringify(slotData),
+              credentials: "include",
+            }
+          );
+
+          if (!slotResponse.ok) {
+            const errorData = await slotResponse.text();
+            console.warn("Slot creation failed:", errorData);
+            setMessage({
+              type: "success",
+              text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот. Создайте слот отдельно.`,
+            });
+          } else {
+            const slotResult = await slotResponse.json();
+            console.log("Slot created:", slotResult);
+            setMessage({
+              type: "success",
+              text: `Мастер-класс "${masterclassResult.title}" и слот успешно созданы!`,
+            });
+          }
+        } catch (slotError) {
+          console.warn("Slot creation error:", slotError);
           setMessage({
             type: "success",
-            text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот. Создайте слот отдельно.`,
-          });
-        } else {
-          const slotResult = await slotResponse.json();
-          console.log("Slot created:", slotResult);
-          setMessage({
-            type: "success",
-            text: `Мастер-класс "${masterclassResult.title}" и слот успешно созданы!`,
+            text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот.`,
           });
         }
-      } catch (slotError) {
-        console.warn("Slot creation error:", slotError);
+      } else {
+        // No date/time provided, just show success for masterclass creation
         setMessage({
           type: "success",
-          text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот.`,
+          text: `Мастер-класс "${masterclassResult.title}" успешно создан!`,
         });
       }
 
@@ -526,7 +848,7 @@ const AddMasterClassPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
-                  Дата начала *
+                  Дата начала
                 </label>
                 <input
                   type="date"
@@ -534,12 +856,12 @@ const AddMasterClassPage = () => {
                   value={formData.start_date}
                   onChange={handleInputChange}
                   className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  required
+                  // required
                 />
               </div>
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
-                  Время начала *
+                  Время начала
                 </label>
                 <input
                   type="time"
@@ -547,7 +869,7 @@ const AddMasterClassPage = () => {
                   value={formData.start_time}
                   onChange={handleInputChange}
                   className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  required
+                  // required
                 />
               </div>
             </div>
@@ -556,7 +878,7 @@ const AddMasterClassPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
-                  Дата окончания *
+                  Дата окончания
                 </label>
                 <input
                   type="date"
@@ -564,12 +886,12 @@ const AddMasterClassPage = () => {
                   value={formData.end_date}
                   onChange={handleInputChange}
                   className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  required
+                  // required
                 />
               </div>
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
-                  Время окончания *
+                  Время окончания
                 </label>
                 <input
                   type="time"
@@ -577,7 +899,7 @@ const AddMasterClassPage = () => {
                   value={formData.end_time}
                   onChange={handleInputChange}
                   className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                  required
+                  // required
                 />
               </div>
             </div>

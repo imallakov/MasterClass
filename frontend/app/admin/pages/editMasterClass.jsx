@@ -1184,7 +1184,7 @@ const EditMasterClassPage = () => {
               <h3 className="text-gray-600 font-medium mb-1">
                 {selectedMasterclass ? formData.title : "Название"}
               </h3>
-              <h4 className="text-gray-600 font-medium mb-4 text-sm">
+              <h4 className="text-gray-600 font-medium mb-4 text-sm whitespace-pre">
                 {selectedMasterclass
                   ? formData.description
                   : "Описание мастер-класса"}
