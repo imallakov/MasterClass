@@ -24,7 +24,7 @@ export default function EmailVerificationPage() {
   // If user is already verified, redirect them
   useEffect(() => {
     if (user?.is_email_verified) {
-      router.push("/dashboard"); // or wherever verified users should go
+      router.push("/user-account"); // or wherever verified users should go
     }
   }, [user, router]);
 

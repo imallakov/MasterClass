@@ -12,8 +12,10 @@ import {
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import UserRoute from "@/app/components/UserRoute";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function PasswordChangePage() {
+  const { makeAuthenticatedRequest } = useAuth();
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -106,24 +108,76 @@ export default function PasswordChangePage() {
     setMessage({ type: "", text: "" });
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await makeAuthenticatedRequest(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me/password/`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            old_password: formData.oldPassword,
+            new_password: formData.newPassword,
+          }),
+        }
+      );
 
-      // Simulate success
-      setSuccess(true);
-      setMessage({
-        type: "success",
-        text: "Пароль успешно изменен! Используйте новый пароль для входа в систему.",
-      });
-      setFormData({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      if (response.ok) {
+        // Success
+        setSuccess(true);
+        setMessage({
+          type: "success",
+          text: "Пароль успешно изменен! Используйте новый пароль для входа в систему.",
+        });
+        setFormData({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        // Handle API errors
+        const errorData = await response.json();
+
+        // Handle specific error cases
+        if (response.status === 400) {
+          // Bad request - likely validation errors
+          if (errorData.old_password) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              oldPassword:
+                errorData.old_password[0] || "Неверный текущий пароль",
+            }));
+          }
+          if (errorData.new_password) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              newPassword:
+                errorData.new_password[0] ||
+                "Новый пароль не соответствует требованиям",
+            }));
+          }
+          if (errorData.non_field_errors) {
+            setMessage({
+              type: "error",
+              text: errorData.non_field_errors[0] || "Ошибка валидации данных",
+            });
+          }
+        } else if (response.status === 401) {
+          setMessage({
+            type: "error",
+            text: "Неверный текущий пароль",
+          });
+        } else {
+          setMessage({
+            type: "error",
+            text:
+              errorData.message ||
+              "Произошла ошибка при изменении пароля. Попробуйте еще раз.",
+          });
+        }
+      }
     } catch (error) {
+      console.error("Password change error:", error);
       setMessage({
         type: "error",
-        text: "Произошла ошибка при изменении пароля. Попробуйте еще раз.",
+        text: "Произошла ошибка сети. Проверьте подключение и попробуйте еще раз.",
       });
     } finally {
       setLoading(false);

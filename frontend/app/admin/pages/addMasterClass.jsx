@@ -2,29 +2,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Add Master Class Page
 const AddMasterClassPage = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, user, loading } = useAuth();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -41,22 +25,13 @@ const AddMasterClassPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [selectedFile, setSelectedFile] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
 
-  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    // Check if user is authenticated and is admin
+    if (!loading && (!user || !user.is_staff)) {
       router.push("/auth/sign-in");
-      return;
     }
-    setAccessToken(token);
-
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
+  }, [user, loading, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -199,338 +174,6 @@ const AddMasterClassPage = () => {
     return true;
   };
 
-  // const validateForm = () => {
-  //   if (!formData.title.trim()) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, введите название мастер-класса",
-  //     });
-  //     return false;
-  //   }
-  //   if (!formData.description.trim()) {
-  //     setMessage({ type: "error", text: "Пожалуйста, введите описание" });
-  //     return false;
-  //   }
-  //   if (!formData.price || parseFloat(formData.price) <= 0) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, введите корректную стоимость",
-  //     });
-  //     return false;
-  //   }
-  //   if (
-  //     !formData.participant_limit ||
-  //     parseInt(formData.participant_limit) <= 0
-  //   ) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, введите лимит участников",
-  //     });
-  //     return false;
-  //   }
-  //   if (!formData.image) {
-  //     setMessage({ type: "error", text: "Пожалуйста, загрузите фото" });
-  //     return false;
-  //   }
-
-  //   if (
-  //     !formData.participant_min_age ||
-  //     parseInt(formData.participant_min_age) <= 0
-  //   ) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, введите минимальный возраст участников",
-  //     });
-  //     return false;
-  //   }
-
-  //   if (
-  //     !formData.participant_max_age ||
-  //     parseInt(formData.participant_max_age) <= 0
-  //   ) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, введите максимальный возраст участников",
-  //     });
-  //     return false;
-  //   }
-
-  //   if (
-  //     parseInt(formData.participant_max_age) <
-  //     parseInt(formData.participant_min_age)
-  //   ) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Максимальный возраст должен быть больше минимального",
-  //     });
-  //     return false;
-  //   }
-
-  //   // ADD THESE NEW VALIDATIONS:
-  //   if (!formData.start_date) {
-  //     setMessage({ type: "error", text: "Пожалуйста, выберите дату начала" });
-  //     return false;
-  //   }
-  //   if (!formData.start_time) {
-  //     setMessage({ type: "error", text: "Пожалуйста, выберите время начала" });
-  //     return false;
-  //   }
-  //   if (!formData.end_date) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, выберите дату окончания",
-  //     });
-  //     return false;
-  //   }
-  //   if (!formData.end_time) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Пожалуйста, выберите время окончания",
-  //     });
-  //     return false;
-  //   }
-
-  //   // Validate that end time is after start time
-  //   const startDateTime = new Date(
-  //     `${formData.start_date}T${formData.start_time}`
-  //   );
-  //   const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
-
-  //   if (endDateTime <= startDateTime) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Время окончания должно быть позже времени начала",
-  //     });
-  //     return false;
-  //   }
-
-  //   return true;
-  // };
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only set Content-Type to application/json if it's not a FormData upload
-    if (!options.body || !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!validateForm()) {
-  //     return;
-  //   }
-
-  //   if (!accessToken) {
-  //     setMessage({
-  //       type: "error",
-  //       text: "Не авторизован. Пожалуйста, войдите в систему.",
-  //     });
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   setMessage({ type: "", text: "" });
-
-  //   try {
-  //     // Create FormData with all masterclass data including the image file
-  //     const formDataForSubmission = new FormData();
-  //     formDataForSubmission.append("title", formData.title.trim());
-  //     formDataForSubmission.append("description", formData.description.trim());
-  //     formDataForSubmission.append(
-  //       "price",
-  //       parseFloat(formData.price).toFixed(1)
-  //     );
-  //     formDataForSubmission.append(
-  //       "participant_limit",
-  //       parseInt(formData.participant_limit)
-  //     );
-
-  //     formDataForSubmission.append(
-  //       "participant_min_age",
-  //       parseInt(formData.participant_min_age)
-  //     );
-  //     formDataForSubmission.append(
-  //       "participant_max_age",
-  //       parseInt(formData.participant_max_age)
-  //     );
-
-  //     // Add the actual file, not the blob URL
-  //     if (selectedFile) {
-  //       formDataForSubmission.append("image", selectedFile);
-  //     }
-
-  //     console.log("Submitting masterclass with FormData");
-  //     console.log("Title:", formData.title.trim());
-  //     console.log("Price:", parseFloat(formData.price).toFixed(2));
-  //     console.log("Participant limit:", parseInt(formData.participant_limit));
-  //     console.log("File:", selectedFile ? selectedFile.name : "No file");
-
-  //     // Prepare headers (don't set Content-Type for FormData)
-  //     const headers = {
-  //       Accept: "application/json",
-  //     };
-
-  //     if (accessToken) {
-  //       headers["Authorization"] = `Bearer ${accessToken}`;
-  //     }
-
-  //     if (csrfToken) {
-  //       headers["X-CSRFTOKEN"] = csrfToken;
-  //     }
-
-  //     const masterclassResponse = await fetch(
-  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`,
-  //       {
-  //         method: "POST",
-  //         headers: headers,
-  //         body: formDataForSubmission,
-  //         credentials: "include",
-  //       }
-  //     );
-
-  //     if (!masterclassResponse.ok) {
-  //       const errorText = await masterclassResponse.text();
-  //       console.error("Masterclass creation error:", errorText);
-
-  //       let errorMessage;
-  //       try {
-  //         const errorData = JSON.parse(errorText);
-  //         errorMessage = errorData.detail || errorData.message || errorText;
-  //       } catch {
-  //         errorMessage = errorText;
-  //       }
-
-  //       throw new Error(`Ошибка при создании мастер-класса: ${errorMessage}`);
-  //     }
-
-  //     const masterclassResult = await masterclassResponse.json();
-  //     const masterclassId = masterclassResult.id;
-
-  //     console.log("Masterclass created:", masterclassResult);
-
-  //     // Create start and end datetime from form inputs
-  //     const startDateTime = new Date(
-  //       `${formData.start_date}T${formData.start_time}`
-  //     );
-  //     const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
-
-  //     const slotData = {
-  //       masterclass: masterclassId,
-  //       start: startDateTime.toISOString(),
-  //       end: endDateTime.toISOString(),
-  //     };
-
-  //     console.log("Creating slot with data:", slotData);
-
-  //     try {
-  //       const slotHeaders = {
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json",
-  //       };
-
-  //       if (accessToken) {
-  //         slotHeaders["Authorization"] = `Bearer ${accessToken}`;
-  //       }
-
-  //       if (csrfToken) {
-  //         slotHeaders["X-CSRFTOKEN"] = csrfToken;
-  //       }
-
-  //       const slotResponse = await fetch(
-  //         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
-  //         {
-  //           method: "POST",
-  //           headers: slotHeaders,
-  //           body: JSON.stringify(slotData),
-  //           credentials: "include",
-  //         }
-  //       );
-
-  //       if (!slotResponse.ok) {
-  //         const errorData = await slotResponse.text();
-  //         console.warn("Slot creation failed:", errorData);
-  //         setMessage({
-  //           type: "success",
-  //           text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот. Создайте слот отдельно.`,
-  //         });
-  //       } else {
-  //         const slotResult = await slotResponse.json();
-  //         console.log("Slot created:", slotResult);
-  //         setMessage({
-  //           type: "success",
-  //           text: `Мастер-класс "${masterclassResult.title}" и слот успешно созданы!`,
-  //         });
-  //       }
-  //     } catch (slotError) {
-  //       console.warn("Slot creation error:", slotError);
-  //       setMessage({
-  //         type: "success",
-  //         text: `Мастер-класс "${masterclassResult.title}" создан, но не удалось создать слот.`,
-  //       });
-  //     }
-
-  //     // Reset form
-  //     setFormData({
-  //       title: "",
-  //       description: "",
-  //       price: "",
-  //       image: "",
-  //       participant_limit: "",
-  //       participant_min_age: "",
-  //       participant_max_age: "",
-  //       start_date: "",
-  //       start_time: "",
-  //       end_date: "",
-  //       end_time: "",
-  //     });
-  //     setSelectedFile(null);
-
-  //     // Reset file input
-  //     const fileInput = document.getElementById("photo-upload");
-  //     if (fileInput) fileInput.value = "";
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     setMessage({
-  //       type: "error",
-  //       text: error.message || "Ошибка соединения с сервером",
-  //     });
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -538,7 +181,7 @@ const AddMasterClassPage = () => {
       return;
     }
 
-    if (!accessToken) {
+    if (!user || !user.is_staff) {
       setMessage({
         type: "error",
         text: "Не авторизован. Пожалуйста, войдите в систему.",
@@ -583,26 +226,11 @@ const AddMasterClassPage = () => {
       console.log("Participant limit:", parseInt(formData.participant_limit));
       console.log("File:", selectedFile ? selectedFile.name : "No file");
 
-      // Prepare headers (don't set Content-Type for FormData)
-      const headers = {
-        Accept: "application/json",
-      };
-
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (csrfToken) {
-        headers["X-CSRFTOKEN"] = csrfToken;
-      }
-
-      const masterclassResponse = await fetch(
+      const masterclassResponse = await makeAuthenticatedRequest(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/`,
         {
           method: "POST",
-          headers: headers,
           body: formDataForSubmission,
-          credentials: "include",
         }
       );
 
@@ -651,26 +279,11 @@ const AddMasterClassPage = () => {
         console.log("Creating slot with data:", slotData);
 
         try {
-          const slotHeaders = {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          };
-
-          if (accessToken) {
-            slotHeaders["Authorization"] = `Bearer ${accessToken}`;
-          }
-
-          if (csrfToken) {
-            slotHeaders["X-CSRFTOKEN"] = csrfToken;
-          }
-
-          const slotResponse = await fetch(
+          const slotResponse = await makeAuthenticatedRequest(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/masterclasses/slots/`,
             {
               method: "POST",
-              headers: slotHeaders,
               body: JSON.stringify(slotData),
-              credentials: "include",
             }
           );
 
@@ -735,7 +348,7 @@ const AddMasterClassPage = () => {
   };
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="text-center px-4">

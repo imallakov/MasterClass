@@ -1284,9 +1284,9 @@ const MasterClasses = () => {
       >
         <div className="relative w-full max-w-sm sm:max-w-2xl md:max-w-4xl">
           {/* Price tag */}
-          <div className="absolute -top-8 sm:-top-36 right-4 sm:right-1/4 text-[#FFB283] text-lg sm:text-2xl font-medium z-20">
+          {/* <div className="absolute -top-8 sm:-top-36 right-4 sm:right-1/4 text-[#FFB283] text-lg sm:text-2xl font-medium z-20">
             {selectedClass?.price}
-          </div>
+          </div> */}
 
           {/* Navigation arrows - Hidden on mobile, visible on larger screens */}
           <button
@@ -1490,6 +1490,12 @@ const MasterClasses = () => {
                         )}
                       </div>
                     )}
+
+                  <div className="mb-4 sm:mb-6 flex justify-end">
+                    <div className="text-[#FFB283] text-lg sm:text-2xl font-medium z-20">
+                      {selectedClass?.price}
+                    </div>
+                  </div>
 
                   {/* CTA Button */}
                   <div className="flex justify-end">

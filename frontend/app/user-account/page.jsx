@@ -26,18 +26,6 @@ const ContentContainer = ({ children }) => {
   );
 };
 
-// Helper function to get CSRF token from cookie
-const getCsrfTokenFromCookie = () => {
-  const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-    if (name === "csrftoken") {
-      return value;
-    }
-  }
-  return null;
-};
-
 // Breadcrumb Component
 const Breadcrumb = ({ currentPage, masterclassTitle }) => {
   const getBreadcrumbItems = () => {
@@ -133,10 +121,8 @@ const PersonalCabinet = () => {
   // Add photo preview state
   const [photoPreview, setPhotoPreview] = useState("");
   const [newPhotoFile, setNewPhotoFile] = useState(null);
-  // Authentication
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
-  const { user } = useAuth();
+
+  const { user, logout, makeAuthenticatedRequest } = useAuth();
 
   const {
     currentPage,
@@ -164,26 +150,12 @@ const PersonalCabinet = () => {
     return months[monthName] || "01";
   };
 
-  // Check authentication on component mount
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      router.push("/auth/sign-in");
-      return;
-    }
-    setAccessToken(token);
-
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
   // Fetch profile data when token is available
   useEffect(() => {
-    if (accessToken) {
+    if (user) {
       fetchProfileData();
     }
-  }, [accessToken]);
+  }, [user]);
 
   // Update form fields when profile data changes
   useEffect(() => {
@@ -193,44 +165,6 @@ const PersonalCabinet = () => {
     setPhoneNumber(profileData.phone_number || "");
     setPhoto(profileData.photo || "");
   }, [profileData]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only add Content-Type for JSON, let browser set it for FormData
-    if (!(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available (and not FormData - browser will handle multipart boundary)
-    if (csrfToken && !(options.body instanceof FormData)) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
 
   // Update the handlePhotoChange function to handle file input change
   const handlePhotoChange = (e) => {
@@ -452,15 +386,13 @@ const PersonalCabinet = () => {
   };
 
   useEffect(() => {
-    if (accessToken && currentPage === "myClasses") {
+    if (user && currentPage === "myClasses") {
       fetchEnrollments();
     }
-  }, [accessToken, currentPage]);
+  }, [user, currentPage]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    router.push("/auth/sign-in");
+  const handleLogout = async () => {
+    await logout();
   };
 
   if (loading) {

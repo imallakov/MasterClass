@@ -2,29 +2,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Edit Category Page
 const EditStickerCategory = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, isAuthenticated, user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState({
@@ -34,64 +17,17 @@ const EditStickerCategory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!isAuthenticated) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
 
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch categories when component mounts and token is available
-  useEffect(() => {
-    if (accessToken) {
-      fetchCategories();
-    }
-  }, [accessToken]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
+    fetchCategories();
+  }, [isAuthenticated, router]);
 
   const fetchCategories = async () => {
     try {
@@ -164,14 +100,6 @@ const EditStickerCategory = () => {
       setMessage({
         type: "error",
         text: "Пожалуйста, выберите категорию для редактирования",
-      });
-      return;
-    }
-
-    if (!accessToken) {
-      setMessage({
-        type: "error",
-        text: "Не авторизован. Пожалуйста, войдите в систему.",
       });
       return;
     }
@@ -255,8 +183,7 @@ const EditStickerCategory = () => {
       category.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Show loading while checking authentication
-  if (accessToken === null) {
+  if (!isAuthenticated()) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
