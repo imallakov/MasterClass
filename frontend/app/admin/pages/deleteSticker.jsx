@@ -2,30 +2,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Delete Sticker Page
 const DeleteStickerPage = () => {
   const router = useRouter();
-
+  const { makeAuthenticatedRequest, isAuthenticated, loading } = useAuth();
   // Step management
   const [currentStep, setCurrentStep] = useState("category"); // "category", "sticker", "confirm"
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -42,64 +24,17 @@ const DeleteStickerPage = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // Authentication
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
-
   // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!loading && !isAuthenticated()) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
 
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch categories when token is available
-  useEffect(() => {
-    if (accessToken) {
+    if (!loading && isAuthenticated()) {
       fetchCategories();
     }
-  }, [accessToken]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
+  }, [loading, isAuthenticated, router]);
 
   const fetchCategories = async () => {
     try {
@@ -132,12 +67,24 @@ const DeleteStickerPage = () => {
     try {
       setLoadingStickers(true);
       const response = await makeAuthenticatedRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/?category=${categoryId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${categoryId}/`
       );
 
       if (response.ok) {
-        const stickersData = await response.json();
-        setStickers(stickersData.results || stickersData);
+        const responseData = await response.json();
+
+        if (responseData.stickers && responseData.stickers.results) {
+          setStickers(responseData.stickers.results);
+        } else if (responseData.results) {
+          setStickers(responseData.results);
+        } else {
+          setStickers(responseData);
+        }
+
+        console.log(
+          "Stickers data:",
+          responseData.stickers?.results || responseData
+        );
       } else {
         setMessage({
           type: "error",
@@ -190,7 +137,7 @@ const DeleteStickerPage = () => {
   };
 
   const handleDeleteSticker = async () => {
-    if (!selectedSticker || !accessToken) {
+    if (!selectedSticker || !isAuthenticated()) {
       setMessage({
         type: "error",
         text: "Не авторизован или стикер не выбран.",
@@ -228,9 +175,9 @@ const DeleteStickerPage = () => {
       });
 
       // Wait a moment to show success message, then redirect
-      setTimeout(() => {
-        router.back();
-      }, 2000);
+      // setTimeout(() => {
+      //   router.back();
+      // }, 2000);
     } catch (error) {
       console.error("Error:", error);
       setMessage({
@@ -243,7 +190,7 @@ const DeleteStickerPage = () => {
   };
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -255,7 +202,7 @@ const DeleteStickerPage = () => {
   }
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col lg:flex-row">
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -308,10 +255,18 @@ const DeleteStickerPage = () => {
       )}
 
       {/* Left Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Удалить стикер</h1>
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 gap-4">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            Удалить стикер
+          </h1>
+          <button
+            onClick={() => router.back()}
+            className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2.5 rounded-full font-medium text-sm self-start sm:self-auto"
+          >
+            Назад к списку
+          </button>
         </div>
 
         {/* Message */}
@@ -330,7 +285,7 @@ const DeleteStickerPage = () => {
         {/* Step 1: Category Selection */}
         {currentStep === "category" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-8">
+            <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-6 lg:mb-8">
               Выберите категорию
             </h2>
 
@@ -365,14 +320,14 @@ const DeleteStickerPage = () => {
         {/* Step 2: Sticker Selection */}
         {currentStep === "sticker" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 gap-4">
+              <h2 className="text-lg lg:text-xl font-semibold text-gray-900">
                 Выберите стикер для удаления из категории "
                 {selectedCategory?.title}"
               </h2>
               <button
                 onClick={handleBackToCategories}
-                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-full font-medium text-sm"
+                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-full font-medium text-sm self-start sm:self-auto"
               >
                 Назад к категориям
               </button>
@@ -397,50 +352,61 @@ const DeleteStickerPage = () => {
                     onClick={() => handleStickerSelect(sticker)}
                     className="bg-white rounded-xl shadow-md hover:shadow-lg cursor-pointer transition-all duration-200 overflow-hidden border border-gray-200 hover:border-red-400 relative group"
                   >
-                    {/* Delete overlay on hover */}
-                    <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 z-10 flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        {/* <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                          <svg
-                            className="w-6 h-6 text-red-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </div> */}
-                      </div>
-                    </div>
-
-                    <div className="h-48 bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
+                    {/* Image Container - Updated this part */}
+                    <div className="h-48 bg-gray-100 flex items-center justify-center relative">
                       {sticker.image ? (
                         <img
                           src={sticker.image}
                           alt={sticker.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback if image fails to load
+                            e.target.style.display = "none";
+                            e.target.nextSibling.style.display = "flex";
+                          }}
                         />
-                      ) : (
-                        <div className="w-24 h-32 bg-white rounded-lg shadow-sm flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="w-16 h-20 bg-gray-300 rounded mb-2"></div>
-                            <div className="text-xs text-gray-500">Стикер</div>
+                      ) : null}
+
+                      {/* Fallback placeholder - always present but hidden if image loads */}
+                      <div
+                        className={`w-24 h-32 bg-white rounded-lg shadow-sm flex items-center justify-center ${
+                          sticker.image ? "absolute" : ""
+                        }`}
+                        style={{ display: sticker.image ? "none" : "flex" }}
+                      >
+                        <div className="text-center">
+                          <div className="w-16 h-20 bg-gray-200 rounded mb-2 flex items-center justify-center">
+                            <svg
+                              className="w-8 h-8 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Изображение
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
+
+                    {/* Card Content */}
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                         {sticker.title}
                       </h3>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Стикер</span>
-                        <span className="text-xl font-bold text-gray-800">
+                        <span className="text-sm text-gray-500">
+                          ID: {sticker.id}
+                        </span>
+                        <span className="text-xl font-bold text-red-600">
                           {sticker.price} ₽
                         </span>
                       </div>
@@ -455,13 +421,13 @@ const DeleteStickerPage = () => {
         {/* Step 3: Confirmation */}
         {currentStep === "confirm" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 gap-4">
+              <h2 className="text-lg lg:text-xl font-semibold text-gray-900">
                 Подтверждение удаления стикера
               </h2>
               <button
                 onClick={handleBackToStickers}
-                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-full font-medium text-sm"
+                className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-full font-medium text-sm self-start sm:self-auto"
               >
                 Назад к стикерам
               </button>
@@ -524,6 +490,16 @@ const DeleteStickerPage = () => {
                       </span>
                       <p className="text-gray-900">{selectedCategory?.title}</p>
                     </div>
+                    {selectedSticker?.wb_link && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">
+                          Ссылка Wildberries:
+                        </span>
+                        <p className="text-gray-900 text-sm break-all">
+                          {selectedSticker.wb_link}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-center">
@@ -567,68 +543,6 @@ const DeleteStickerPage = () => {
           </div>
         )}
       </div>
-
-      {/* Right Section - Selected Sticker Preview */}
-      {/* {currentStep === "confirm" && selectedSticker && (
-        <div className="w-80 p-8 flex items-start justify-center">
-          <div className="w-72">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-red-200">
-              <div className="relative">
-                <div className="w-full h-56 bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
-                  {selectedSticker.image ? (
-                    <img
-                      src={selectedSticker.image}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-24 h-32 bg-white rounded-lg shadow-sm flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-16 h-20 bg-gray-300 rounded mb-2"></div>
-                        <div className="text-xs text-gray-500">
-                          Превью стикера
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="absolute top-3 right-3 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center shadow-sm">
-                  <svg
-                    className="w-4 h-4 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </div>
-                <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                  К удалению
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-gray-600 font-medium mb-1">
-                  {selectedSticker.title}
-                </h3>
-                <h4 className="text-gray-600 font-medium mb-4 text-sm">
-                  {selectedCategory?.title}
-                </h4>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Стикер</span>
-                  <span className="text-2xl font-bold text-gray-800">
-                    {selectedSticker.price} ₽
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

@@ -1149,10 +1149,8 @@ const Sidebar = ({
   const { user } = useAuth();
   console.log(user);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    router.push("/auth/sign-in");
+  const handleLogout = async () => {
+    await logout();
   };
 
   const handlePageChange = (page) => {
@@ -1606,7 +1604,7 @@ const AdminManagement = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
-  const { loading, isAuthenticated, isAdmin } = useAuth();
+  const { loading, isAuthenticated, isAdmin, logout } = useAuth();
 
   // Ensure component only renders on client side
   useEffect(() => {

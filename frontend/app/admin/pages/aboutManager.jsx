@@ -2,29 +2,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // About Management Page
 const AboutPage = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -40,48 +23,20 @@ const AboutPage = () => {
   const [hasExistingAbout, setHasExistingAbout] = useState(false);
   const [aboutId, setAboutId] = useState(null); // Store the ID for PATCH requests
 
-  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
-
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch existing about data when component mounts and token is available
-  useEffect(() => {
-    if (accessToken) {
-      fetchAbout();
-    }
-  }, [accessToken]);
+    fetchAbout();
+  }, [isAuthenticated, router]);
 
   const fetchAbout = async () => {
     try {
-      const headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      };
-
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (csrfToken) {
-        headers["X-CSRFTOKEN"] = csrfToken;
-      }
-
-      const response = await fetch(
+      const response = await makeAuthenticatedRequest(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/configs/about/`,
         {
           method: "GET",
-          headers: headers,
-          credentials: "include",
         }
       );
 
@@ -93,27 +48,21 @@ const AboutPage = () => {
           aboutData &&
           (aboutData.id !== undefined || Object.keys(aboutData).length > 1)
         ) {
-          // Store the ID for future PATCH requests
           setAboutId(aboutData.id);
-
-          // Populate form with existing data
           setFormData({
             title: aboutData.title || "",
             description: aboutData.description || "",
             image: aboutData.image || "",
           });
 
-          // Set image preview if image exists
           if (aboutData.image) {
             setImagePreview(aboutData.image);
           }
           setHasExistingAbout(true);
         } else {
-          // No existing about data found
           setHasExistingAbout(false);
         }
       } else if (response.status === 404) {
-        // No about data found - this is normal for new users
         setHasExistingAbout(false);
         console.log("No existing about data found (404)");
       } else {
@@ -195,44 +144,6 @@ const AboutPage = () => {
     return true;
   };
 
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only add Content-Type for non-FormData requests
-    if (!(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -240,7 +151,7 @@ const AboutPage = () => {
       return;
     }
 
-    if (!accessToken) {
+    if (!isAuthenticated()) {
       setMessage({
         type: "error",
         text: "Не авторизован. Пожалуйста, войдите в систему.",
@@ -252,12 +163,10 @@ const AboutPage = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Prepare data for submission
       const submitData = new FormData();
       submitData.append("title", formData.title.trim());
       submitData.append("description", formData.description.trim());
 
-      // Add image file if selected
       if (imageFile) {
         submitData.append("image", imageFile);
       }
@@ -269,7 +178,6 @@ const AboutPage = () => {
       console.log("Using method:", hasExistingAbout ? "PATCH" : "POST");
       console.log("About ID:", aboutId);
 
-      // Use PATCH if we have existing data, POST if creating new
       const method = hasExistingAbout ? "PATCH" : "POST";
       const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/configs/about/`;
 
@@ -296,7 +204,6 @@ const AboutPage = () => {
       const result = await response.json();
       console.log("About updated:", result);
 
-      // Update local state with the response
       if (result.id) {
         setAboutId(result.id);
       }
@@ -307,8 +214,6 @@ const AboutPage = () => {
       });
 
       setHasExistingAbout(true);
-
-      // Refresh about data to ensure UI is in sync
       await fetchAbout();
     } catch (error) {
       console.error("Error:", error);
@@ -322,7 +227,7 @@ const AboutPage = () => {
   };
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (!isAuthenticated()) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

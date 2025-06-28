@@ -1,97 +1,32 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 const DeleteMasterClassPage = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, user, loading } = useAuth();
   const [masterclasses, setMasterclasses] = useState([]);
   const [isLoadingMasterclasses, setIsLoadingMasterclasses] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
     masterclass: null,
   });
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!loading && !user) {
       router.push("/auth/sign-in");
-      return;
     }
-    setAccessToken(token);
+  }, [user, loading, router]);
 
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch masterclasses when component mounts and token is available
+  // Fetch masterclasses when user is available
   useEffect(() => {
-    if (accessToken) {
+    if (user) {
       fetchMasterclasses();
     }
-  }, [accessToken]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only set Content-Type to application/json if it's not a FormData upload
-    if (!options.body || !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
+  }, [user]);
 
   const fetchMasterclasses = async () => {
     setIsLoadingMasterclasses(true);
@@ -188,7 +123,7 @@ const DeleteMasterClassPage = () => {
   };
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

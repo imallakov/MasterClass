@@ -2,93 +2,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Delete Category Page
 const DeleteStickerCategory = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, isAuthenticated } = useAuth();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
-
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch categories when component mounts and token is available
-  useEffect(() => {
-    if (accessToken) {
-      fetchCategories();
-    }
-  }, [accessToken]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
+    fetchCategories();
+  }, [router, isAuthenticated]);
 
   const fetchCategories = async () => {
     try {
@@ -184,7 +119,7 @@ const DeleteStickerCategory = () => {
   );
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (!isAuthenticated()) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -288,7 +223,10 @@ const DeleteStickerCategory = () => {
           ) : (
             <div className="grid gap-4">
               {filteredCategories.map((category) => (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div
+                  key={category.id}
+                  className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow"
+                >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0">
                     <div className="flex-1">
                       <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">

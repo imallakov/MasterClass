@@ -2,29 +2,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Edit Sticker Page
 const EditStickerPage = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, isAuthenticated, loading } = useAuth();
 
   // Step management
   const [currentStep, setCurrentStep] = useState("category"); // "category", "sticker", "edit"
@@ -51,68 +34,16 @@ const EditStickerPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageChanged, setImageChanged] = useState(false);
 
-  // Authentication
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
-
-  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!loading && !isAuthenticated()) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
 
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch categories when token is available
-  useEffect(() => {
-    if (accessToken) {
+    if (!loading && isAuthenticated()) {
       fetchCategories();
     }
-  }, [accessToken]);
-
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only set Content-Type to application/json if it's not a FormData upload
-    if (!options.body || !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
+  }, [loading, isAuthenticated, router]);
 
   const fetchCategories = async () => {
     try {
@@ -151,14 +82,11 @@ const EditStickerPage = () => {
       if (response.ok) {
         const responseData = await response.json();
 
-        // Update to handle the new API response structure
         if (responseData.stickers && responseData.stickers.results) {
           setStickers(responseData.stickers.results);
         } else if (responseData.results) {
-          // Fallback for old structure
           setStickers(responseData.results);
         } else {
-          // Fallback for direct array
           setStickers(responseData);
         }
 
@@ -305,7 +233,7 @@ const EditStickerPage = () => {
       return;
     }
 
-    if (!accessToken) {
+    if (!isAuthenticated()) {
       setMessage({
         type: "error",
         text: "Не авторизован. Пожалуйста, войдите в систему.",
@@ -418,8 +346,7 @@ const EditStickerPage = () => {
     );
   };
 
-  // Show loading while checking authentication
-  if (accessToken === null) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

@@ -2,29 +2,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// Helper function to get CSRF token from cookies
-const getCsrfTokenFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const name = "csrftoken";
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
+import { useAuth } from "@/app/context/AuthContext";
 
 // Add Sticker Page
 const AddStickerPage = () => {
   const router = useRouter();
+  const { makeAuthenticatedRequest, isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -35,54 +18,21 @@ const AddStickerPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [selectedFile, setSelectedFile] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const [csrfToken, setCsrfToken] = useState("");
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!isAuthenticated()) {
       router.push("/auth/sign-in");
       return;
     }
-    setAccessToken(token);
-
-    // Get CSRF token
-    const csrf = getCsrfTokenFromCookie();
-    setCsrfToken(csrf || "");
-  }, [router]);
-
-  // Fetch categories when component mounts and token is available
-  useEffect(() => {
-    if (accessToken) {
-      fetchCategories();
-    }
-  }, [accessToken]);
+    fetchCategories();
+  }, [router, isAuthenticated]);
 
   const fetchCategories = async () => {
     try {
-      const headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      };
-
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (csrfToken) {
-        headers["X-CSRFTOKEN"] = csrfToken;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`,
-        {
-          method: "GET",
-          headers: headers,
-          credentials: "include",
-        }
+      const response = await makeAuthenticatedRequest(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/`
       );
 
       if (response.ok) {
@@ -168,44 +118,6 @@ const AddStickerPage = () => {
     return true;
   };
 
-  const makeAuthenticatedRequest = async (url, options = {}) => {
-    const headers = {
-      Accept: "application/json",
-      ...options.headers,
-    };
-
-    // Only set Content-Type to application/json if it's not a FormData upload
-    if (!options.body || !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    // Add authentication token
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // Add CSRF token if available
-    if (csrfToken) {
-      headers["X-CSRFTOKEN"] = csrfToken;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include",
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      router.push("/auth/sign-in");
-      throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
-    }
-
-    return response;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -213,7 +125,7 @@ const AddStickerPage = () => {
       return;
     }
 
-    if (!accessToken) {
+    if (!isAuthenticated()) {
       setMessage({
         type: "error",
         text: "Не авторизован. Пожалуйста, войдите в систему.",
@@ -233,7 +145,6 @@ const AddStickerPage = () => {
         parseFloat(formData.price).toFixed(2)
       );
       formDataForSubmission.append("category", parseInt(formData.category));
-
       formDataForSubmission.append("wb_link", formData.wb_link.trim());
 
       // Add the actual file, not the blob URL
@@ -247,26 +158,16 @@ const AddStickerPage = () => {
       console.log("Category:", parseInt(formData.category));
       console.log("File:", selectedFile ? selectedFile.name : "No file");
 
-      // Prepare headers (don't set Content-Type for FormData)
-      const headers = {
-        Accept: "application/json",
-      };
-
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (csrfToken) {
-        headers["X-CSRFTOKEN"] = csrfToken;
-      }
-
-      const stickerResponse = await fetch(
+      const stickerResponse = await makeAuthenticatedRequest(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/`,
         {
           method: "POST",
-          headers: headers,
           body: formDataForSubmission,
-          credentials: "include",
+          headers: {
+            // Don't set Content-Type - let browser set it automatically for FormData
+            // We need to override the AuthContext default
+          },
+          skipContentType: true, // Flag to indicate we don't want Content-Type set
         }
       );
 
@@ -318,7 +219,7 @@ const AddStickerPage = () => {
   };
 
   // Show loading while checking authentication
-  if (accessToken === null) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

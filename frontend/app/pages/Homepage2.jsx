@@ -1393,6 +1393,11 @@ const Homepage2 = () => {
       {/* Add Navbar with navigation props */}
       <Navbar scrollToSection={scrollToSection} refs={navigationProps.refs} />
 
+      {/* Add refs to each component section */}
+      <div ref={masterClassesRef}>
+        <MasterClasses />
+      </div>
+
       <div className="hidden md:block">
         {/* Hero Section */}
         <section
@@ -1653,11 +1658,6 @@ const Homepage2 = () => {
               )}
           </div>
         </section>
-      </div>
-
-      {/* Add refs to each component section */}
-      <div ref={masterClassesRef}>
-        <MasterClasses />
       </div>
 
       <div ref={aboutUsRef}>
