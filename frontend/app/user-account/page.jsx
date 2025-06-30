@@ -1154,6 +1154,23 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
               {(enrollment.status === "cancelled" ||
                 enrollment.status === "failed") && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-sm text-red-600 mb-3">
+                      {enrollment.status === "cancelled"
+                        ? "Оплата была отменена."
+                        : "Произошла ошибка при оплате."}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Чтобы записаться снова, перейдите на страницу
+                      мастер-класса и выберите удобное время.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* {(enrollment.status === "cancelled" ||
+                enrollment.status === "failed") && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg flex-1">
                       {enrollment.status === "cancelled"
@@ -1176,7 +1193,7 @@ const MyClassesPage = ({ enrollments, loading, onRefresh }) => {
                     </button>
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           ))}
         </div>

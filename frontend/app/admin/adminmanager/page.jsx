@@ -1146,7 +1146,7 @@ const Sidebar = ({
   const [isAboutManager, setIsAboutManager] = useState(true);
   // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   console.log(user);
 
   const handleLogout = async () => {

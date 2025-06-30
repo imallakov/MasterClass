@@ -961,33 +961,6 @@ const MasterClasses = () => {
           )}
         </p>
       )}
-
-    {/* Display available slots */}
-    {/* {selectedClass && selectedClass.slots && selectedClass.slots.length > 0 && (
-      <div className="mt-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">
-          Доступные слоты:
-        </h4>
-        <div className="space-y-2 max-h-32 overflow-y-auto">
-          {selectedClass.slots.map((slot) => (
-            <div
-              key={slot.id}
-              className="text-xs text-gray-600 p-2 bg-gray-50 rounded"
-            >
-              <p>
-                <strong>Начало:</strong> {formatSlotDate(slot.start)}
-              </p>
-              <p>
-                <strong>Окончание:</strong> {formatSlotDate(slot.end)}
-              </p>
-              <p className="text-green-600">
-                <strong>Свободных мест:</strong> {slot.free_places}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    )} */}
   </div>;
 
   // Handle masterclass card click
@@ -1189,7 +1162,86 @@ const MasterClasses = () => {
     </button>
   );
 
-  // Class card component to reduce duplication
+  // const ClassCard = ({ item, isMobile = false }) => (
+  //   <div
+  //     className={`${
+  //       isMobile
+  //         ? "flex-shrink-0 w-[160px] snap-center cursor-pointer"
+  //         : "flex-shrink-0 w-76 snap-center mx-10 cursor-pointer"
+  //     } hover:transform hover:scale-105 transition-transform duration-200`}
+  //     onClick={() => handleClassClick(item.id)}
+  //   >
+  //     <div
+  //       className={`relative ${
+  //         isMobile ? "h-[200px]" : "h-[370px]"
+  //       } w-full mb-4 rounded-lg overflow-hidden`}
+  //     >
+  //       <img
+  //         src={item.image}
+  //         alt={item.title}
+  //         className="w-full h-full object-cover rounded-xl"
+  //         loading={item.id === 1 ? "eager" : "lazy"}
+  //         onError={(e) => {
+  //           e.target.src = "/images/placeholder.jpg";
+  //         }}
+  //       />
+
+  //       {/* Info Icon */}
+  //       <div
+  //         className={`absolute top-3 right-3 rounded-xl p-1 ${
+  //           isMobile ? "w-8 h-8" : "w-12 h-12"
+  //         } flex items-center justify-center bg-[#C2B9B0]/40 rotate-45`}
+  //       >
+  //         <span
+  //           className={`${
+  //             isMobile ? "text-xs px-[6px] border-1" : "text-xl px-3 border-3"
+  //           } -rotate-45 font-bold border-[#3A6281] text-[#3A6281] rounded-full`}
+  //         >
+  //           i
+  //         </span>
+  //       </div>
+  //     </div>
+
+  //     {/* ИСПРАВЛЕННЫЙ БЛОК С ТЕКСТОМ */}
+  //     <div
+  //       className={`flex justify-between ${
+  //         isMobile ? "items-start flex-col space-y-1" : "items-center"
+  //       } pb-2`}
+  //     >
+  //       {/* Заголовок с правильным переносом */}
+  //       <h3
+  //         className={`${
+  //           isMobile
+  //             ? "text-sm leading-tight w-full break-words hyphens-auto"
+  //             : "text-3xl"
+  //         } text-[#7E685A] font-light`}
+  //         style={
+  //           isMobile
+  //             ? {
+  //                 wordBreak: "break-word",
+  //                 overflowWrap: "break-word",
+  //                 hyphens: "auto",
+  //               }
+  //             : {}
+  //         }
+  //       >
+  //         {item.title}
+  //       </h3>
+
+  //       {/* Цена */}
+  //       <p
+  //         className={`${
+  //           isMobile
+  //             ? "text-sm text-[#0E820E] font-medium mt-1 self-end"
+  //             : "text-2xl text-[#EACCB9] font-light"
+  //         } text-nowrap flex-shrink-0`}
+  //       >
+  //         {item.price}
+  //       </p>
+  //     </div>
+  //   </div>
+  // );
+
   const ClassCard = ({ item, isMobile = false }) => (
     <div
       className={`${
@@ -1199,6 +1251,7 @@ const MasterClasses = () => {
       } hover:transform hover:scale-105 transition-transform duration-200`}
       onClick={() => handleClassClick(item.id)}
     >
+      {/* ВАРИАНТ 1: Цена поверх изображения */}
       <div
         className={`relative ${
           isMobile ? "h-[200px]" : "h-[370px]"
@@ -1208,9 +1261,8 @@ const MasterClasses = () => {
           src={item.image}
           alt={item.title}
           className="w-full h-full object-cover rounded-xl"
-          loading={item.id === 1 ? "eager" : "lazy"} // Priority loading for first image
+          loading={item.id === 1 ? "eager" : "lazy"}
           onError={(e) => {
-            // Fallback image if the image fails to load
             e.target.src = "/images/placeholder.jpg";
           }}
         />
@@ -1229,34 +1281,45 @@ const MasterClasses = () => {
             i
           </span>
         </div>
+
+        {/* Цена поверх изображения */}
+        <div className="absolute bottom-3 right-3 bg-gray-50 backdrop-blur-sm rounded-lg px-2 py-1">
+          <p
+            className={`${
+              isMobile
+                ? "text-sm text-[#0E820E] font-bold"
+                : "text-xl text-[#0E820E] font-bold"
+            } text-nowrap`}
+          >
+            {item.price}
+          </p>
+        </div>
       </div>
 
-      <div
-        className={`flex justify-between ${
-          isMobile ? "items-start" : "items-center"
-        } pb-2`}
-      >
+      {/* Только заголовок под изображением */}
+      <div className="pb-2">
         <h3
           className={`${
-            isMobile ? "text-md leading-tight mr-2" : "text-3xl"
+            isMobile
+              ? "text-sm leading-tight break-words hyphens-auto"
+              : "text-3xl"
           } text-[#7E685A] font-light`}
+          style={
+            isMobile
+              ? {
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  hyphens: "auto",
+                }
+              : {}
+          }
         >
           {item.title}
         </h3>
-        <p
-          className={`${
-            isMobile
-              ? "text-md text-[#0E820E] font-medium"
-              : "text-2xl text-[#EACCB9] font-light"
-          } text-nowrap`}
-        >
-          {item.price}
-        </p>
       </div>
     </div>
   );
 
-  // Fixed Modal component with proper button handler
   const Modal = () => {
     if (!isModalOpen) return null;
 
@@ -1270,12 +1333,9 @@ const MasterClasses = () => {
       }
     };
 
-    // Get current masterclass position for navigation
     const currentIndex = selectedClass
       ? classes.findIndex((cls) => cls.id === selectedClass.id)
       : -1;
-    const isFirstClass = currentIndex === 0;
-    const isLastClass = currentIndex === classes.length - 1;
 
     return (
       <div
@@ -1283,12 +1343,7 @@ const MasterClasses = () => {
         onClick={handleModalBackdropClick}
       >
         <div className="relative w-full max-w-sm sm:max-w-2xl md:max-w-4xl">
-          {/* Price tag */}
-          {/* <div className="absolute -top-8 sm:-top-36 right-4 sm:right-1/4 text-[#FFB283] text-lg sm:text-2xl font-medium z-20">
-            {selectedClass?.price}
-          </div> */}
-
-          {/* Navigation arrows - Hidden on mobile, visible on larger screens */}
+          {/* Navigation arrows - показываем только на больших экранах */}
           <button
             className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => navigateModal("prev")}
@@ -1331,8 +1386,8 @@ const MasterClasses = () => {
             </svg>
           </button>
 
+          {/* ИСПРАВЛЕННОЕ МОДАЛЬНОЕ ОКНО */}
           <div className="relative bg-[#F4F1F1] rounded-2xl sm:rounded-3xl overflow-hidden mx-2 sm:mx-16 z-20 max-h-[90vh] overflow-y-auto">
-            {/* Rest of your modal content remains the same */}
             {modalLoading && (
               <div className="flex justify-center items-center py-20">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-300"></div>
@@ -1341,7 +1396,7 @@ const MasterClasses = () => {
 
             {modalError && (
               <div className="text-center py-8 px-6">
-                <p className="text-red-500 mb-4 text-sm sm:text-base">
+                <p className="text-red-500 mb-4 text-sm sm:text-base break-words">
                   Ошибка при загрузке деталей: {modalError}
                 </p>
                 <button
@@ -1364,13 +1419,12 @@ const MasterClasses = () => {
                   назад
                 </button>
 
-                {/* Mobile navigation arrows - Visible only on mobile */}
+                {/* Мобильная навигация */}
                 <div className="flex sm:hidden justify-between items-center px-4 pt-16 pb-2">
                   <button
-                    className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50"
                     onClick={() => navigateModal("prev")}
                     disabled={modalLoading}
-                    aria-label="Previous masterclass"
                   >
                     <svg
                       className="w-4 h-4 text-gray-600"
@@ -1388,10 +1442,9 @@ const MasterClasses = () => {
                   </button>
 
                   <button
-                    className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50"
                     onClick={() => navigateModal("next")}
                     disabled={modalLoading}
-                    aria-label="Next masterclass"
                   >
                     <svg
                       className="w-4 h-4 text-gray-600"
@@ -1409,35 +1462,38 @@ const MasterClasses = () => {
                   </button>
                 </div>
 
+                {/* ИСПРАВЛЕННЫЙ КОНТЕНТ МОДАЛЬНОГО ОКНА */}
                 <div className="p-4 pt-2 sm:pt-10 sm:p-8 pb-6 sm:py-10 md:p-8 relative">
-                  {/* Title */}
-                  <h2 className="text-xl sm:text-2xl font-bold text-[#3A6281] mb-3 sm:mb-4 leading-tight">
-                    {selectedClass.title
-                      .split(" ")
-                      .map((word, index, array) => (
-                        <span key={index}>
-                          {word}
-                          {index < array.length - 1 &&
-                          index === Math.floor(array.length / 2) - 1 ? (
-                            <br />
-                          ) : (
-                            " "
-                          )}
-                        </span>
-                      ))}
+                  {/* Title с правильным переносом */}
+                  <h2
+                    className="text-lg sm:text-2xl font-bold text-[#3A6281] mb-3 sm:mb-4 leading-tight break-words hyphens-auto"
+                    style={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      hyphens: "auto",
+                    }}
+                  >
+                    {selectedClass.title}
                   </h2>
 
-                  {/* Description */}
-                  <p className="text-gray-700 text-sm leading-relaxed mb-4 whitespace-pre">
+                  {/* Description с правильным переносом */}
+                  <div
+                    className="text-gray-700 text-sm leading-relaxed mb-4 break-words"
+                    style={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
                     {selectedClass.description}
-                  </p>
+                  </div>
 
                   {/* Additional info */}
                   <div className="mb-4 sm:mb-6">
                     {selectedClass &&
                       (selectedClass.participantMinAge ||
                         selectedClass.participantMaxAge) && (
-                        <p className="text-pink-400 text-sm mb-1">
+                        <p className="text-pink-400 text-sm mb-1 break-words">
                           Возраст участников:{" "}
                           {formatAgeRange(
                             selectedClass.participantMinAge,
@@ -1445,38 +1501,6 @@ const MasterClasses = () => {
                           )}
                         </p>
                       )}
-
-                    {/* Display available slots */}
-                    {/* {selectedClass &&
-                      selectedClass.slots &&
-                      selectedClass.slots.length > 0 && (
-                        <div className="mt-4">
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">
-                            Доступные слоты:
-                          </h4>
-                          <div className="space-y-2 max-h-32 overflow-y-auto">
-                            {selectedClass.slots.map((slot) => (
-                              <div
-                                key={slot.id}
-                                className="text-xs text-gray-600 p-2 bg-gray-50 rounded"
-                              >
-                                <p>
-                                  <strong>Начало:</strong>{" "}
-                                  {formatSlotDate(slot.start)}
-                                </p>
-                                <p>
-                                  <strong>Окончание:</strong>{" "}
-                                  {formatSlotDate(slot.end)}
-                                </p>
-                                <p className="text-green-600">
-                                  <strong>Свободных мест:</strong>{" "}
-                                  {slot.free_places}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )} */}
                   </div>
 
                   {/* Stats */}
@@ -1484,50 +1508,50 @@ const MasterClasses = () => {
                     (selectedClass.participantLimit || selectedClass.slots) && (
                       <div className="mb-4 text-xs text-gray-500 space-y-1">
                         {selectedClass.participantLimit && (
-                          <p>
+                          <p className="break-words">
                             Лимит участников: {selectedClass.participantLimit}
                           </p>
                         )}
                       </div>
                     )}
 
+                  {/* Price */}
                   <div className="mb-4 sm:mb-6 flex justify-end">
                     <div className="text-[#FFB283] text-lg sm:text-2xl font-medium z-20">
                       {selectedClass?.price}
                     </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <div className="flex justify-end">
+                  {/* ИСПРАВЛЕННАЯ КНОПКА CTA */}
+                  <div className="flex justify-center sm:justify-end">
                     {selectedClass &&
                     selectedClass.slots &&
                     selectedClass.slots.length > 0 ? (
-                      // Show "Узнать расписание" button if slots exist
                       <button
-                        className="w-full sm:w-1/3 min-w-[160px] md:min-w-[200px] bg-[#E7717D] hover:bg-[#d26b75] text-white font-medium py-3 rounded-2xl text-sm sm:text-base transition-colors"
+                        className="w-full sm:w-auto min-w-[160px] md:min-w-[200px] bg-[#E7717D] hover:bg-[#d26b75] text-white font-medium py-3 px-4 rounded-2xl text-sm sm:text-base transition-colors break-words text-center"
                         onClick={handleBookingClick}
                       >
                         Узнать расписание
                       </button>
                     ) : (
-                      // Show WhatsApp button if no slots available
                       <a
                         href={`https://wa.me/79003267660?text=${encodeURIComponent(
                           `Здравствуйте! Хочу записаться на мастер-класс "${selectedClass?.title}"`
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-1/3 min-w-[160px] md:min-w-[200px] bg-[#25D366] hover:bg-[#1eb855] text-white font-medium py-3 rounded-2xl text-sm sm:text-base transition-colors flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto min-w-[160px] md:min-w-[200px] bg-[#25D366] hover:bg-[#1eb855] text-white font-medium py-3 px-4 rounded-2xl text-sm sm:text-base transition-colors flex items-center justify-center gap-2 break-words text-center"
                       >
                         <svg
-                          className="w-5 h-5"
+                          className="w-5 h-5 flex-shrink-0"
                           fill="currentColor"
                           viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
                         >
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
                         </svg>
-                        Связаться в WhatsApp
+                        <span className="break-words">
+                          Связаться в WhatsApp
+                        </span>
                       </a>
                     )}
                   </div>
