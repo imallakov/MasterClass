@@ -112,7 +112,11 @@ class CalendarMonthView(APIView):
             if slot.masterclass.id not in masterclass_ids_for_day:
                 days_data[day].append({
                     'id': slot.masterclass.id,
-                    'title': slot.masterclass.title
+                    'title': slot.masterclass.title,
+                    'image': slot.masterclass.image,
+                    'description': slot.masterclass.description,
+                    'price': slot.masterclass.price,
+                    'participant_limit': slot.masterclass.participant_limit,
                 })
 
         # Convert to the desired format
