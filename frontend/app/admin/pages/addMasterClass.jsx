@@ -19,7 +19,7 @@ const AddMasterClassPage = () => {
     participant_max_age: "",
     start_date: "",
     start_time: "",
-    end_date: "",
+    // end_date: "",
     end_time: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -126,7 +126,7 @@ const AddMasterClassPage = () => {
     if (
       formData.start_date ||
       formData.start_time ||
-      formData.end_date ||
+      // formData.end_date ||
       formData.end_time
     ) {
       // If any date/time field is provided, all must be provided
@@ -141,13 +141,13 @@ const AddMasterClassPage = () => {
         });
         return false;
       }
-      if (!formData.end_date) {
-        setMessage({
-          type: "error",
-          text: "Пожалуйста, выберите дату окончания",
-        });
-        return false;
-      }
+      // if (!formData.end_date) {
+      //   setMessage({
+      //     type: "error",
+      //     text: "Пожалуйста, выберите дату окончания",
+      //   });
+      //   return false;
+      // }
       if (!formData.end_time) {
         setMessage({
           type: "error",
@@ -160,7 +160,9 @@ const AddMasterClassPage = () => {
       const startDateTime = new Date(
         `${formData.start_date}T${formData.start_time}`
       );
-      const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+      const endDateTime = new Date(
+        `${formData.start_date}T${formData.end_time}`
+      );
 
       if (endDateTime <= startDateTime) {
         setMessage({
@@ -258,7 +260,7 @@ const AddMasterClassPage = () => {
       const hasDateTimeInfo =
         formData.start_date &&
         formData.start_time &&
-        formData.end_date &&
+        // formData.end_date &&
         formData.end_time;
 
       if (hasDateTimeInfo) {
@@ -267,7 +269,7 @@ const AddMasterClassPage = () => {
           `${formData.start_date}T${formData.start_time}`
         );
         const endDateTime = new Date(
-          `${formData.end_date}T${formData.end_time}`
+          `${formData.start_date}T${formData.end_time}`
         );
 
         const slotData = {
@@ -328,7 +330,7 @@ const AddMasterClassPage = () => {
         participant_max_age: "",
         start_date: "",
         start_time: "",
-        end_date: "",
+        // end_date: "",
         end_time: "",
       });
       setSelectedFile(null);
@@ -488,7 +490,7 @@ const AddMasterClassPage = () => {
             </div>
 
             {/* End Date and Time */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+            {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Дата окончания
@@ -502,6 +504,22 @@ const AddMasterClassPage = () => {
                   // required
                 />
               </div>
+              <div>
+                <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
+                  Время окончания
+                </label>
+                <input
+                  type="time"
+                  name="end_time"
+                  value={formData.end_time}
+                  onChange={handleInputChange}
+                  className="w-full p-3 lg:p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  // required
+                />
+              </div>
+            </div> */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div></div>
               <div>
                 <label className="block text-gray-900 font-medium mb-2 lg:mb-3 text-sm lg:text-base">
                   Время окончания

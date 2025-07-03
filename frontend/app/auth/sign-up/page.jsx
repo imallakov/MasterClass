@@ -28,8 +28,8 @@ export default function RegistrationPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
-    lastName: "",
-    birthDate: "",
+    // lastName: "",
+    // birthDate: "",
     password: "",
     passwordConfirm: "",
     phone: "+",
@@ -128,13 +128,13 @@ export default function RegistrationPage() {
       newErrors.firstName = "Имя обязательно для заполнения";
     }
 
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Фамилия обязательна для заполнения";
-    }
+    // if (!formData.lastName.trim()) {
+    //   newErrors.lastName = "Фамилия обязательна для заполнения";
+    // }
 
-    if (!formData.birthDate) {
-      newErrors.birthDate = "Дата рождения обязательна";
-    }
+    // if (!formData.birthDate) {
+    //   newErrors.birthDate = "Дата рождения обязательна";
+    // }
 
     if (!formData.password) {
       newErrors.password = "Пароль обязателен для заполнения";
@@ -199,8 +199,8 @@ export default function RegistrationPage() {
           credentials: "include",
           body: JSON.stringify({
             first_name: formData.firstName,
-            last_name: formData.lastName,
-            password: formData.password,
+            // last_name: formData.lastName,
+            // password: formData.password,
             password_confirm: formData.passwordConfirm,
             phone_number: cleanPhoneForBackend(formData.phone), // Clean phone number
             email: formData.email,
@@ -233,8 +233,8 @@ export default function RegistrationPage() {
 
         setFormData({
           firstName: "",
-          lastName: "",
-          birthDate: "",
+          // lastName: "",
+          // birthDate: "",
           password: "",
           passwordConfirm: "",
           phone: "+", // Reset to +7
@@ -288,8 +288,8 @@ export default function RegistrationPage() {
   const handleCancel = () => {
     setFormData({
       firstName: "",
-      lastName: "",
-      birthDate: "",
+      // lastName: "",
+      // birthDate: "",
       password: "",
       passwordConfirm: "",
       phone: "+", // Reset to +7
@@ -361,7 +361,7 @@ export default function RegistrationPage() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <input
                       id="lastName"
                       name="lastName"
@@ -396,7 +396,7 @@ export default function RegistrationPage() {
                     {errors.birthDate && (
                       <p className="text-red-500 text-sm">{errors.birthDate}</p>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="space-y-2">
                     <input
@@ -592,7 +592,7 @@ export default function RegistrationPage() {
                 )}
               </div>
 
-              <div>
+              {/* <div>
                 <input
                   id="lastName"
                   name="lastName"
@@ -630,7 +630,7 @@ export default function RegistrationPage() {
                     {errors.birthDate}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               <div>
                 <input

@@ -776,9 +776,9 @@ export default function SignInPage() {
 
         // Navigate immediately (no setTimeout needed)
         if (result.user && result.user.is_staff) {
-          router.push("/admin/adminmanager");
+          router.push("/");
         } else {
-          router.push("/user-account");
+          router.push("/");
         }
       } else {
         const errorData = await response.json();

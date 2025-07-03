@@ -14,7 +14,7 @@ const EditMasterClassPage = () => {
   const [slotFormData, setSlotFormData] = useState({
     start_date: "",
     start_time: "",
-    end_date: "",
+    // end_date: "",
     end_time: "",
   });
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -369,13 +369,13 @@ const EditMasterClassPage = () => {
       setMessage({ type: "error", text: "Пожалуйста, выберите время начала" });
       return false;
     }
-    if (!slotFormData.end_date) {
-      setMessage({
-        type: "error",
-        text: "Пожалуйста, выберите дату окончания",
-      });
-      return false;
-    }
+    // if (!slotFormData.end_date) {
+    //   setMessage({
+    //     type: "error",
+    //     text: "Пожалуйста, выберите дату окончания",
+    //   });
+    //   return false;
+    // }
     if (!slotFormData.end_time) {
       setMessage({
         type: "error",
@@ -388,7 +388,7 @@ const EditMasterClassPage = () => {
       `${slotFormData.start_date}T${slotFormData.start_time}`
     );
     const endDateTime = new Date(
-      `${slotFormData.end_date}T${slotFormData.end_time}`
+      `${slotFormData.start_date}T${slotFormData.end_time}`
     );
 
     if (endDateTime <= startDateTime) {
@@ -426,7 +426,7 @@ const EditMasterClassPage = () => {
       setSlotFormData({
         start_date: "",
         start_time: "",
-        end_date: "",
+        // end_date: "",
         end_time: "",
       });
 
@@ -467,8 +467,13 @@ const EditMasterClassPage = () => {
         `${slotFormData.start_date}T${slotFormData.start_time}`
       );
       const endDateTime = new Date(
-        `${slotFormData.end_date}T${slotFormData.end_time}`
+        `${slotFormData.start_date}T${slotFormData.end_time}`
       );
+
+      // Add validation to ensure we have valid dates
+      if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+        throw new Error("Некорректные дата или время");
+      }
 
       const slotData = {
         masterclass: selectedMasterclass.id,
@@ -498,7 +503,7 @@ const EditMasterClassPage = () => {
       setSlotFormData({
         start_date: "",
         start_time: "",
-        end_date: "",
+        // end_date: "",
         end_time: "",
       });
 
@@ -867,6 +872,66 @@ const EditMasterClassPage = () => {
 
                   <form onSubmit={handleSlotCreate} className="space-y-4">
                     {/* Start Date and Time */}
+                    {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                          Дата начала *
+                        </label>
+                        <input
+                          type="date"
+                          name="start_date"
+                          value={slotFormData.start_date}
+                          onChange={handleSlotInputChange}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                          Время начала *
+                        </label>
+                        <input
+                          type="time"
+                          name="start_time"
+                          value={slotFormData.start_time}
+                          onChange={handleSlotInputChange}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                          required
+                        />
+                      </div>
+                    </div> */}
+
+                    {/* End Date and Time */}
+                    {/* <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                          Дата окончания *
+                        </label>
+                        <input
+                          type="date"
+                          name="end_date"
+                          value={slotFormData.end_date}
+                          onChange={handleSlotInputChange}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                          Время окончания *
+                        </label>
+                        <input
+                          type="time"
+                          name="end_time"
+                          value={slotFormData.end_time}
+                          onChange={handleSlotInputChange}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                          required
+                        />
+                      </div>
+                    </div> */}
+
+                    {/* Start Date and Time */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-gray-700 font-medium mb-2 text-sm">
@@ -896,21 +961,9 @@ const EditMasterClassPage = () => {
                       </div>
                     </div>
 
-                    {/* End Date and Time */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
-                          Дата окончания *
-                        </label>
-                        <input
-                          type="date"
-                          name="end_date"
-                          value={slotFormData.end_date}
-                          onChange={handleSlotInputChange}
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
-                          required
-                        />
-                      </div>
+                    {/* End Time Only */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div></div> {/* Empty div for grid alignment */}
                       <div>
                         <label className="block text-gray-700 font-medium mb-2 text-sm">
                           Время окончания *
