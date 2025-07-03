@@ -1016,8 +1016,8 @@ const BookingPage = ({ masterclassId }) => {
               >
                 Нажимая кнопку "Оплатить", вы автоматически соглашаетесь с{" "}
                 <a
-                  href="/documents/Политики_в_отношении_обр_перс_данных.docx"
-                  download="Политики_в_отношении_обр_перс_данных.docx"
+                  href="/documents/Оферта_МК.docx"
+                  download="Оферта_МК.docx"
                   className="text-blue-500 underline hover:text-blue-700"
                 >
                   обработкой ваших персональных данных
