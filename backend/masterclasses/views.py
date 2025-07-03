@@ -113,7 +113,7 @@ class CalendarMonthView(APIView):
                 days_data[day].append({
                     'id': slot.masterclass.id,
                     'title': slot.masterclass.title,
-                    'image': slot.masterclass.image,
+                    'image': slot.masterclass.image.url if slot.masterclass.image else None,
                     'description': slot.masterclass.description,
                     'price': slot.masterclass.price,
                     'participant_limit': slot.masterclass.participant_limit,
