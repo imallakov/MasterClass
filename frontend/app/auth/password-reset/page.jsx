@@ -12,7 +12,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PasswordResetPage() {
   const router = useRouter();

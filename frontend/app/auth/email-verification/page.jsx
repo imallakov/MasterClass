@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react"; // Adjust path as needed
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function EmailVerificationPage() {
   const [step, setStep] = useState(1); // 1: Email, 2: OTP

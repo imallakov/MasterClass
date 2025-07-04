@@ -9,10 +9,10 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
-import UserRoute from "@/app/components/UserRoute";
-import { useAuth } from "@/app/context/AuthContext";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import UserRoute from "../../components/UserRoute";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PasswordChangePage() {
   const { makeAuthenticatedRequest } = useAuth();
