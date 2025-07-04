@@ -374,6 +374,20 @@ const Navbar = ({ scrollToSection, refs }) => {
                   >
                     {item.label}
                   </button>
+                ) : item.label === "Мастер-классы" ? (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      window.location.href = "/pages/masterclasspage";
+                    }}
+                    className={`transition-colors cursor-pointer whitespace-nowrap ${
+                      isScrolled
+                        ? "text-gray-800 hover:text-[#E7717D]"
+                        : "text-[#EACCB9] hover:text-[#f6bc98]"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
                 ) : (
                   <button
                     key={item.key}
@@ -587,6 +601,16 @@ const Navbar = ({ scrollToSection, refs }) => {
                 key={item.key}
                 onClick={() => {
                   window.location.href = "/pages/catalogpage";
+                }}
+                className="text-white hover:text-[#f6bc98] text-2xl md:text-3xl font-bold transition-colors text-center"
+              >
+                {item.label}
+              </button>
+            ) : item.label === "Мастер классы" ? (
+              <button
+                key={item.key}
+                onClick={() => {
+                  window.location.href = "/pages/masterclasspage";
                 }}
                 className="text-white hover:text-[#f6bc98] text-2xl md:text-3xl font-bold transition-colors text-center"
               >

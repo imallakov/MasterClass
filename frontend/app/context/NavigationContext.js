@@ -1,59 +1,3 @@
-// // contexts/NavigationContext.js
-// "use client";
-// import React, { createContext, useContext, useState, useCallback } from "react";
-// import { useRouter } from "next/navigation";
-// const NavigationContext = createContext();
-
-// export const useNavigation = () => {
-//   const context = useContext(NavigationContext);
-//   if (!context) {
-//     throw new Error("useNavigation must be used within a NavigationProvider");
-//   }
-//   return context;
-// };
-
-// export const NavigationProvider = ({ children }) => {
-//   const [currentPage, setCurrentPage] = useState("profile");
-//   const [selectedMasterclassId, setSelectedMasterclassId] = useState(null);
-//   const router = useRouter();
-
-//   // Use useCallback to prevent unnecessary re-renders
-//   const navigateToBooking = useCallback((masterclassId) => {
-//     console.log("Navigating to booking with masterclass ID:", masterclassId); // Debug log
-//     setSelectedMasterclassId(masterclassId);
-//     setCurrentPage("booking");
-//     router.push(`/user-account/`);
-//   }, []);
-
-//   const navigateToProfile = useCallback(() => {
-//     console.log("Navigating to profile"); // Debug log
-//     setCurrentPage("profile");
-//     setSelectedMasterclassId(null);
-//   }, []);
-
-//   const navigateToMyClasses = useCallback(() => {
-//     console.log("Navigating to my classes"); // Debug log
-//     setCurrentPage("myClasses");
-//     setSelectedMasterclassId(null);
-//   }, []);
-
-//   const value = {
-//     currentPage,
-//     selectedMasterclassId,
-//     navigateToBooking,
-//     navigateToProfile,
-//     navigateToMyClasses,
-//     setCurrentPage,
-//   };
-
-//   return (
-//     <NavigationContext.Provider value={value}>
-//       {" "}
-//       {children}{" "}
-//     </NavigationContext.Provider>
-//   );
-// };
-
 // contexts/NavigationContext.js
 "use client";
 import React, {
@@ -114,6 +58,7 @@ export const NavigationProvider = ({ children }) => {
       console.log("Navigating to booking with masterclass ID:", masterclassId);
       setSelectedMasterclassId(masterclassId);
       setCurrentPage("booking");
+      console.log("page sets: " + currentPage);
 
       // Update URL with parameters
       const params = new URLSearchParams();
@@ -122,6 +67,7 @@ export const NavigationProvider = ({ children }) => {
         params.set("masterclass", masterclassId.toString());
       }
       router.push(`/user-account?${params.toString()}`);
+      console.log(`router pushes: /user-account?${params.toString()}`);
     },
     [router]
   );
@@ -156,3 +102,52 @@ export const NavigationProvider = ({ children }) => {
     </NavigationContext.Provider>
   );
 };
+
+// NavigationContext.js
+// "use client";
+// import { createContext, useContext, useCallback } from "react";
+// import { useRouter } from "next/navigation";
+
+// const NavigationContext = createContext();
+
+// export const useNavigation = () => {
+//   const context = useContext(NavigationContext);
+//   if (!context) {
+//     throw new Error("useNavigation must be used within a NavigationProvider");
+//   }
+//   return context;
+// };
+
+// export const NavigationProvider = ({ children }) => {
+//   const router = useRouter();
+
+//   const navigateToBooking = useCallback(
+//     (masterclassId) => {
+//       console.log("Navigating to booking with masterclass ID:", masterclassId);
+
+//       // Update URL with parameters
+//       const params = new URLSearchParams();
+//       params.set("page", "booking");
+//       if (masterclassId) {
+//         params.set("masterclass", masterclassId.toString());
+//       }
+
+//       const url = `/user-account?${params.toString()}`;
+//       console.log("Navigating to:", url);
+
+//       router.push(url);
+//     },
+//     [router]
+//   );
+
+//   const value = {
+//     navigateToBooking,
+//     // other navigation functions...
+//   };
+
+//   return (
+//     <NavigationContext.Provider value={value}>
+//       {children}
+//     </NavigationContext.Provider>
+//   );
+// };

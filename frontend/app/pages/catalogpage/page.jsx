@@ -512,7 +512,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Footer from "@/app/components/Footer";
+import Footer from "/app/components/Footer";
 
 // Product Card Component - Компактный размер как на Wildberries
 const ProductCard = ({ title, price, image, stickerId, wbURL }) => {
@@ -546,6 +546,42 @@ const ProductCard = ({ title, price, image, stickerId, wbURL }) => {
             Заказать
           </button>
         </a>
+      </div>
+    </div>
+  );
+};
+
+// Category Filter Component
+const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
+  return (
+    <div className="mb-4 sm:mb-6">
+      <h3 className="text-base sm:text-lg font-semibold text-slate-700 mb-2 sm:mb-3">
+        Фильтр по категориям:
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => onCategoryChange(null)}
+          className={`px-3 py-1.5 sm:py-2 rounded-lg font-medium transition-colors text-sm ${
+            selectedCategory === null
+              ? "bg-[#61BF7D] text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Все категории
+        </button>
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => onCategoryChange(category.id)}
+            className={`px-3 py-1.5 sm:py-2 rounded-lg font-medium transition-colors text-sm ${
+              selectedCategory === category.id
+                ? "bg-[#61BF7D] text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            {category.title}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -602,175 +638,33 @@ const SortOptions = ({ sortOption, onSortChange }) => {
   );
 };
 
-// Category Section Component
-const CategorySection = ({
-  category,
-  stickers,
-  paginationMeta,
-  currentPage,
-  onPageChange,
-  searchTerm,
-  sortOption,
-}) => {
-  // Client-side filtering and sorting
-  const filteredAndSortedStickers = React.useMemo(() => {
-    let filtered = [...stickers];
-
-    // Filter by search term (client-side)
-    if (searchTerm) {
-      filtered = filtered.filter((sticker) =>
-        sticker.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Sort (client-side)
-    switch (sortOption) {
-      case "price-asc":
-        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        break;
-      case "price-desc":
-        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-        break;
-      case "name-asc":
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "name-desc":
-        filtered.sort((a, b) => b.title.localeCompare(a.title));
-        break;
-      default:
-        break;
-    }
-
-    return filtered;
-  }, [stickers, searchTerm, sortOption]);
-
-  if (
-    filteredAndSortedStickers.length === 0 &&
-    (searchTerm || sortOption !== "default")
-  ) {
-    return null; // Hide category if no results after filtering
-  }
-
-  return (
-    <div className="mb-8 sm:mb-12">
-      {/* Category Header */}
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-2">
-          {category.title}
-        </h2>
-        {category.description && (
-          <p className="text-gray-600 text-sm sm:text-base">
-            {category.description}
-          </p>
-        )}
-        <div className="mt-2">
-          <span className="text-sm text-gray-500">
-            {searchTerm || sortOption !== "default"
-              ? `${filteredAndSortedStickers.length} товаров найдено`
-              : `${paginationMeta.count} товаров всего`}
-            {!searchTerm && sortOption === "default" && (
-              <span>
-                {" "}
-                • Страница {paginationMeta.current_page} из{" "}
-                {paginationMeta.total_pages}
-              </span>
-            )}
-          </span>
-        </div>
-      </div>
-
-      {/* Products Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        {filteredAndSortedStickers.map((sticker) => (
-          <ProductCard
-            key={sticker.id}
-            title={sticker.title}
-            price={sticker.price}
-            image={sticker.image}
-            stickerId={sticker.id}
-            wbURL={sticker.wb_link}
-          />
-        ))}
-      </div>
-
-      {/* Pagination - Only show when not filtering/sorting and has multiple pages */}
-      {!searchTerm &&
-        sortOption === "default" &&
-        paginationMeta.total_pages > 1 && (
-          <div className="flex justify-center items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => onPageChange(category.id, currentPage - 1)}
-              disabled={!paginationMeta.previous}
-              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 text-sm"
-            >
-              ← Пред.
-            </button>
-
-            <div className="flex gap-1">
-              {[...Array(paginationMeta.total_pages)].map((_, index) => {
-                const page = index + 1;
-                if (
-                  page === 1 ||
-                  page === paginationMeta.total_pages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1)
-                ) {
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => onPageChange(category.id, page)}
-                      className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-sm ${
-                        currentPage === page
-                          ? "bg-[#61BF7D] text-white"
-                          : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                } else if (
-                  page === currentPage - 2 ||
-                  page === currentPage + 2
-                ) {
-                  return (
-                    <span
-                      key={page}
-                      className="px-1 py-1.5 sm:py-2 text-gray-500 text-sm"
-                    >
-                      ...
-                    </span>
-                  );
-                }
-                return null;
-              })}
-            </div>
-
-            <button
-              onClick={() => onPageChange(category.id, currentPage + 1)}
-              disabled={!paginationMeta.next}
-              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 text-sm"
-            >
-              След. →
-            </button>
-          </div>
-        )}
-    </div>
-  );
-};
-
 // Main Catalog Page Component
 const CatalogPage = () => {
   const router = useRouter();
 
   // States
+  const [stickers, setStickers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [categoryData, setCategoryData] = useState({}); // Store category stickers and pagination
-  const [categoryPages, setCategoryPages] = useState({}); // Track current page for each category
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("default");
+  const [currentPage, setCurrentPage] = useState(1);
   const [accessToken, setAccessToken] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
+
+  // Pagination metadata from API
+  const [paginationMeta, setPaginationMeta] = useState({
+    count: 0,
+    total_pages: 0,
+    current_page: 1,
+    next: null,
+    previous: null,
+  });
+
+  // Items per page - using API's default of 50, but can be adjusted
+  const itemsPerPage = 50;
 
   // Helper function to get CSRF token from cookie
   const getCsrfTokenFromCookie = () => {
@@ -822,7 +716,7 @@ const CatalogPage = () => {
     return response;
   };
 
-  // Fetch categories list
+  // Fetch categories
   const fetchCategories = async (token = null) => {
     try {
       const response = await makeAuthenticatedRequest(
@@ -830,101 +724,69 @@ const CatalogPage = () => {
         token
       );
       const categoriesData = await response.json();
-      return categoriesData;
+      setCategories(categoriesData);
     } catch (error) {
       console.error("Error fetching categories:", error);
       throw error;
     }
   };
 
-  // Fetch category stickers with pagination
-  const fetchCategoryStickers = async (categoryId, page = 1, token = null) => {
+  // Fetch stickers with pagination
+  const fetchStickers = async (page = 1, categoryId = null, token = null) => {
     try {
-      let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${categoryId}/`;
+      let url;
+      const params = new URLSearchParams();
 
       if (page > 1) {
-        url += `?page=${page}`;
+        params.append("page", page.toString());
+      }
+
+      // Use different endpoint based on category selection
+      if (categoryId) {
+        url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/categories/${categoryId}/`;
+      } else {
+        url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stickers/all/`;
+      }
+
+      // Add query parameters if they exist
+      if (params.toString()) {
+        url += `?${params.toString()}`;
       }
 
       const response = await makeAuthenticatedRequest(url, token);
       const data = await response.json();
 
-      return {
-        category: data.category,
-        stickers: data.stickers.results,
-        meta: data.stickers.meta,
-      };
+      if (categoryId) {
+        // Category endpoint structure
+        setStickers(data.stickers.results);
+        setPaginationMeta(data.stickers.meta);
+      } else {
+        // All stickers endpoint structure
+        setStickers(data.results);
+        setPaginationMeta(data.meta);
+      }
     } catch (error) {
-      console.error(`Error fetching category ${categoryId} stickers:`, error);
+      console.error("Error fetching stickers:", error);
       throw error;
     }
   };
 
-  // Fetch all categories and their initial stickers
-  const fetchAllData = async (token = null) => {
+  // Fetch data
+  const fetchData = async (page = 1, categoryId = null, token = null) => {
     try {
       setLoading(true);
       setError(null);
 
-      // First, get all categories
-      const categoriesData = await fetchCategories(token);
-      setCategories(categoriesData);
-
-      // Then fetch first page of stickers for each category
-      const categoryDataPromises = categoriesData.map(async (category) => {
-        const data = await fetchCategoryStickers(category.id, 1, token);
-        return {
-          categoryId: category.id,
-          data: data,
-        };
-      });
-
-      const allCategoryData = await Promise.all(categoryDataPromises);
-
-      // Organize data by category ID
-      const organizedData = {};
-      const initialPages = {};
-
-      allCategoryData.forEach(({ categoryId, data }) => {
-        organizedData[categoryId] = {
-          category: data.category,
-          stickers: data.stickers,
-          meta: data.meta,
-        };
-        initialPages[categoryId] = 1;
-      });
-
-      setCategoryData(organizedData);
-      setCategoryPages(initialPages);
+      // Fetch categories and stickers
+      await Promise.all([
+        fetchCategories(token),
+        fetchStickers(page, categoryId, token),
+      ]);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError(error.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Handle page change for a specific category
-  const handlePageChange = async (categoryId, page) => {
-    try {
-      const data = await fetchCategoryStickers(categoryId, page);
-
-      setCategoryData((prev) => ({
-        ...prev,
-        [categoryId]: {
-          ...prev[categoryId],
-          stickers: data.stickers,
-          meta: data.meta,
-        },
-      }));
-
-      setCategoryPages((prev) => ({
-        ...prev,
-        [categoryId]: page,
-      }));
-    } catch (error) {
-      console.error(`Error changing page for category ${categoryId}:`, error);
-      setError(error.message);
     }
   };
 
@@ -938,30 +800,66 @@ const CatalogPage = () => {
       const csrf = getCsrfTokenFromCookie();
       setCsrfToken(csrf || "");
     }
-    fetchAllData(token);
+    fetchData(1, null, token);
   }, []);
 
-  // Get total results count for display
-  const getTotalResults = () => {
-    if (!searchTerm && sortOption === "default") {
-      return Object.values(categoryData).reduce(
-        (total, data) => total + data.meta.count,
-        0
+  // Handle category change
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setCurrentPage(1);
+    fetchData(1, categoryId);
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchData(page, selectedCategory);
+  };
+
+  // Client-side filtering and sorting for search and sort
+  const filteredAndSortedStickers = React.useMemo(() => {
+    let filtered = [...stickers];
+
+    // Filter by search term (client-side)
+    if (searchTerm) {
+      filtered = filtered.filter((sticker) =>
+        sticker.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Count filtered results
-    return Object.values(categoryData).reduce((total, data) => {
-      let filtered = data.stickers;
+    // Sort (client-side)
+    switch (sortOption) {
+      case "price-asc":
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        break;
+      case "price-desc":
+        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        break;
+      case "name-asc":
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "name-desc":
+        filtered.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      default:
+        break;
+    }
 
-      if (searchTerm) {
-        filtered = filtered.filter((sticker) =>
-          sticker.title.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
+    return filtered;
+  }, [stickers, searchTerm, sortOption]);
 
-      return total + filtered.length;
-    }, 0);
+  // Reset page when search or sort changes
+  useEffect(() => {
+    if (searchTerm || sortOption !== "default") {
+      // When filtering/sorting, we work with current page data
+      setCurrentPage(paginationMeta.current_page);
+    }
+  }, [searchTerm, sortOption]);
+
+  // Get category name for display
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.title : "Все категории";
   };
 
   return (
@@ -1019,7 +917,7 @@ const CatalogPage = () => {
               </h3>
               <p className="text-red-600 text-sm mb-4">{error}</p>
               <button
-                onClick={() => fetchAllData()}
+                onClick={() => fetchData(currentPage, selectedCategory)}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
               >
                 Попробовать снова
@@ -1031,7 +929,7 @@ const CatalogPage = () => {
         {/* Main Content */}
         {!loading && !error && (
           <>
-            {/* Search and Sort Controls */}
+            {/* Filters and Search */}
             <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                 <SearchBar
@@ -1043,70 +941,137 @@ const CatalogPage = () => {
                   onSortChange={setSortOption}
                 />
               </div>
+
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
+              />
             </div>
 
             {/* Results Info */}
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-3 sm:mb-4">
               <p className="text-gray-600 text-sm">
-                Всего найдено {getTotalResults()} товаров в {categories.length}{" "}
-                категориях
+                Показано {filteredAndSortedStickers.length} из{" "}
+                {searchTerm || sortOption !== "default"
+                  ? filteredAndSortedStickers.length
+                  : paginationMeta.count}{" "}
+                товаров
+                {selectedCategory &&
+                  ` в категории "${getCategoryName(selectedCategory)}"`}
                 {searchTerm && ` по запросу "${searchTerm}"`}
-                {sortOption !== "default" && ` (отсортировано)`}
+                {!searchTerm && !sortOption !== "default" && (
+                  <span>
+                    {" "}
+                    (страница {paginationMeta.current_page} из{" "}
+                    {paginationMeta.total_pages})
+                  </span>
+                )}
               </p>
             </div>
 
-            {/* Categories Sections */}
-            {categories.length > 0 && Object.keys(categoryData).length > 0 ? (
-              <div className="space-y-8 sm:space-y-12">
-                {categories.map((category) => {
-                  const data = categoryData[category.id];
-                  if (!data) return null;
-
-                  return (
-                    <CategorySection
-                      key={category.id}
-                      category={data.category}
-                      stickers={data.stickers}
-                      paginationMeta={data.meta}
-                      currentPage={categoryPages[category.id] || 1}
-                      onPageChange={handlePageChange}
-                      searchTerm={searchTerm}
-                      sortOption={sortOption}
+            {/* Products Grid - Компактная сетка */}
+            {filteredAndSortedStickers.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  {filteredAndSortedStickers.map((sticker) => (
+                    <ProductCard
+                      key={sticker.id}
+                      title={sticker.title}
+                      price={sticker.price}
+                      image={sticker.image}
+                      stickerId={sticker.id}
+                      wbURL={sticker.wb_link}
                     />
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+
+                {/* Pagination - Only show when not filtering/sorting */}
+                {!searchTerm &&
+                  sortOption === "default" &&
+                  paginationMeta.total_pages > 1 && (
+                    <div className="flex justify-center items-center gap-1 sm:gap-2 mb-6 sm:mb-8">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={!paginationMeta.previous}
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 text-sm"
+                      >
+                        ← Пред.
+                      </button>
+
+                      <div className="flex gap-1">
+                        {[...Array(paginationMeta.total_pages)].map(
+                          (_, index) => {
+                            const page = index + 1;
+                            if (
+                              page === 1 ||
+                              page === paginationMeta.total_pages ||
+                              (page >= currentPage - 1 &&
+                                page <= currentPage + 1)
+                            ) {
+                              return (
+                                <button
+                                  key={page}
+                                  onClick={() => handlePageChange(page)}
+                                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-sm ${
+                                    currentPage === page
+                                      ? "bg-[#61BF7D] text-white"
+                                      : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              );
+                            } else if (
+                              page === currentPage - 2 ||
+                              page === currentPage + 2
+                            ) {
+                              return (
+                                <span
+                                  key={page}
+                                  className="px-1 py-1.5 sm:py-2 text-gray-500 text-sm"
+                                >
+                                  ...
+                                </span>
+                              );
+                            }
+                            return null;
+                          }
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={!paginationMeta.next}
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 text-sm"
+                      >
+                        След. →
+                      </button>
+                    </div>
+                  )}
+              </>
             ) : (
               <div className="text-center py-12">
                 <div className="bg-gray-100 rounded-lg p-6 sm:p-8 max-w-md mx-auto">
                   <h3 className="text-gray-800 font-semibold mb-2 text-sm sm:text-base">
-                    Нет доступных категорий
+                    Ничего не найдено
                   </h3>
                   <p className="text-gray-600 text-sm mb-4">
-                    Попробуйте обновить страницу или обратитесь к администратору
+                    Попробуйте изменить параметры поиска или фильтры
                   </p>
                   <button
-                    onClick={() => fetchAllData()}
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setSearchTerm("");
+                      setSortOption("default");
+                      setCurrentPage(1);
+                      fetchData(1, null);
+                    }}
                     className="bg-[#61BF7D] hover:bg-[#49905e] text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                   >
-                    Обновить
+                    Сбросить фильтры
                   </button>
                 </div>
-              </div>
-            )}
-
-            {/* Clear Filters Button */}
-            {(searchTerm || sortOption !== "default") && (
-              <div className="text-center mt-6 sm:mt-8">
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSortOption("default");
-                  }}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
-                >
-                  Сбросить фильтры
-                </button>
               </div>
             )}
           </>

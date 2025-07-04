@@ -9,10 +9,7 @@ const BookingPage = ({ masterclassId }) => {
   const [masterclasses, setMasterclasses] = useState([]);
   const [masterclassesForDate, setMasterclassesForDate] = useState([]);
   const { selectedMasterclassId, setSelectedMasterclassId } = useNavigation();
-  // 1. ADD NEW STATE FOR CALENDAR DATA
   const [calendarData, setCalendarData] = useState(null);
-  const [calendarLoading, setCalendarLoading] = useState(false);
-
   const {
     currentEnrollment,
     paymentStatus,
@@ -40,6 +37,39 @@ const BookingPage = ({ masterclassId }) => {
   // New state to track the current step
   const [currentStep, setCurrentStep] = useState("date"); // 'date', 'masterclass', 'booking'
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  const fetchCalendarData = async (month, year) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error(
+          "NEXT_PUBLIC_BACKEND_URL environment variable is not set"
+        );
+      }
+
+      // Format date for API call (YYYY-MM)
+      const dateParam = `${year}-${month + 1}`; // month is 0-indexed, API expects 1-indexed
+      const apiUrl = `${backendUrl}/api/masterclasses/calendar/?date=${dateParam}`;
+      console.log("Fetching calendar data from:", apiUrl);
+
+      const response = await makeAuthenticatedRequest(apiUrl, {
+        method: "GET",
+      });
+
+      const data = await response.json();
+      console.log("Calendar data received:", data);
+
+      setCalendarData(data);
+    } catch (err) {
+      console.error("Error fetching calendar data:", err);
+      setError(`Ошибка загрузки календаря: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Enhanced fetch masterclasses list with better error handling
   const fetchMasterclasses = async () => {
@@ -165,11 +195,17 @@ const BookingPage = ({ masterclassId }) => {
       fetchMasterclass(masterclassId);
       setSelectedMasterclassId(masterclassId);
     } else {
-      // If no masterclassId, start with date selection and load all masterclasses
+      // If no masterclassId, start with date selection and load calendar data
       setCurrentStep("date");
-      fetchMasterclasses();
+      fetchCalendarData(currentMonth, currentYear); // CHANGED: Use calendar API instead of all masterclasses
     }
   }, [masterclassId]);
+
+  useEffect(() => {
+    if (currentStep === "date") {
+      fetchCalendarData(currentMonth, currentYear);
+    }
+  }, [currentMonth, currentYear, currentStep]);
 
   useEffect(() => {
     if (masterclassId && masterclassId !== selectedMasterclassId) {
@@ -188,7 +224,15 @@ const BookingPage = ({ masterclassId }) => {
     setSelectedDate(date);
     setSelectedTime(null);
     setCurrentStep("masterclass");
-    fetchMasterclassesForDate(date);
+
+    // Get masterclasses for the selected date from calendar data
+    if (calendarData) {
+      const dayData = calendarData.days?.find(
+        (day) => day.day === date.getDate()
+      );
+      const masterclassesForDate = dayData ? dayData.masterclasses : [];
+      setMasterclassesForDate(masterclassesForDate);
+    }
   };
 
   // Handle masterclass selection from date-filtered list
@@ -309,6 +353,39 @@ const BookingPage = ({ masterclassId }) => {
   };
 
   // Get slots for a specific date from all masterclasses
+  // const getSlotsForDate = (date) => {
+  //   if (currentStep === "booking" && availableSlots) {
+  //     // When in booking step, use the specific masterclass slots
+  //     return availableSlots.filter((slot) => {
+  //       const slotDate = new Date(slot.start);
+  //       return (
+  //         slotDate.getDate() === date.getDate() &&
+  //         slotDate.getMonth() === date.getMonth() &&
+  //         slotDate.getFullYear() === date.getFullYear() &&
+  //         slot.free_places > 0
+  //       );
+  //     });
+  //   } else {
+  //     // When in date selection step, check all masterclasses
+  //     const allSlots = [];
+  //     masterclasses.forEach((mc) => {
+  //       if (mc.slots) {
+  //         mc.slots.forEach((slot) => {
+  //           const slotDate = new Date(slot.start);
+  //           if (
+  //             slotDate.getDate() === date.getDate() &&
+  //             slotDate.getMonth() === date.getMonth() &&
+  //             slotDate.getFullYear() === date.getFullYear() &&
+  //             slot.free_places > 0
+  //           ) {
+  //             allSlots.push(slot);
+  //           }
+  //         });
+  //       }
+  //     });
+  //     return allSlots;
+  //   }
+  // };
   const getSlotsForDate = (date) => {
     if (currentStep === "booking" && availableSlots) {
       // When in booking step, use the specific masterclass slots
@@ -321,26 +398,14 @@ const BookingPage = ({ masterclassId }) => {
           slot.free_places > 0
         );
       });
-    } else {
-      // When in date selection step, check all masterclasses
-      const allSlots = [];
-      masterclasses.forEach((mc) => {
-        if (mc.slots) {
-          mc.slots.forEach((slot) => {
-            const slotDate = new Date(slot.start);
-            if (
-              slotDate.getDate() === date.getDate() &&
-              slotDate.getMonth() === date.getMonth() &&
-              slotDate.getFullYear() === date.getFullYear() &&
-              slot.free_places > 0
-            ) {
-              allSlots.push(slot);
-            }
-          });
-        }
-      });
-      return allSlots;
+    } else if (currentStep === "date" && calendarData) {
+      // When in date selection step, use calendar API data
+      const dayData = calendarData.days?.find(
+        (day) => day.day === date.getDate()
+      );
+      return dayData ? dayData.masterclasses : [];
     }
+    return [];
   };
 
   // Get date status
@@ -352,9 +417,18 @@ const BookingPage = ({ masterclassId }) => {
 
     if (dayInfo.fullDate < today) return "past";
 
-    const slotsForDate = getSlotsForDate(dayInfo.fullDate);
-    if (slotsForDate.length > 0) {
-      return "available";
+    if (currentStep === "date" && calendarData) {
+      // CHANGE THIS PART - Check if there are any masterclasses for this day
+      const dayData = calendarData.days?.find(
+        (day) => day.day === dayInfo.date
+      );
+      const hasClasses =
+        dayData && dayData.masterclasses && dayData.masterclasses.length > 0;
+      return hasClasses ? "available" : "unavailable";
+    } else if (currentStep === "booking") {
+      // Use slots data for booking step
+      const slotsForDate = getSlotsForDate(dayInfo.fullDate);
+      return slotsForDate.length > 0 ? "available" : "unavailable";
     }
 
     return "unavailable";
@@ -422,8 +496,10 @@ const BookingPage = ({ masterclassId }) => {
         setCurrentMonth(currentMonth + 1);
       }
     }
+
     if (currentStep === "date") {
       setSelectedDate(null);
+      // Calendar data will be fetched by the useEffect above
     }
     if (currentStep === "booking") {
       setSelectedTime(null);
@@ -458,9 +534,10 @@ const BookingPage = ({ masterclassId }) => {
             if (currentStep === "booking" && selectedMasterclassId) {
               fetchMasterclass(selectedMasterclassId);
             } else if (currentStep === "masterclass" && selectedDate) {
-              fetchMasterclassesForDate(selectedDate);
-            } else {
-              fetchMasterclasses();
+              // Re-fetch calendar data since we no longer have fetchMasterclassesForDate
+              fetchCalendarData(currentMonth, currentYear);
+            } else if (currentStep === "date") {
+              fetchCalendarData(currentMonth, currentYear); // CHANGED: Use calendar API
             }
           }}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -628,8 +705,18 @@ const BookingPage = ({ masterclassId }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {masterclassesForDate.map((mc) => {
+            {/* {masterclassesForDate.map((mc) => {
               const slotsForDate = mc.slots.filter((slot) => {
+                const slotDate = new Date(slot.start);
+                return (
+                  slotDate.getDate() === selectedDate.getDate() &&
+                  slotDate.getMonth() === selectedDate.getMonth() &&
+                  slotDate.getFullYear() === selectedDate.getFullYear() &&
+                  slot.free_places > 0
+                );
+              }); */}
+            {masterclassesForDate.map((mc) => {
+              const slotsForDate = (mc.slots || []).filter((slot) => {
                 const slotDate = new Date(slot.start);
                 return (
                   slotDate.getDate() === selectedDate.getDate() &&
@@ -647,7 +734,7 @@ const BookingPage = ({ masterclassId }) => {
                 >
                   {mc.image && (
                     <img
-                      src={mc.image}
+                      src={process.env.NEXT_PUBLIC_BACKEND_URL + "/" + mc.image}
                       alt={mc.title}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -666,15 +753,6 @@ const BookingPage = ({ masterclassId }) => {
                       <div className="text-sm text-gray-500">
                         До {mc.participant_limit} участников
                       </div>
-                    </div>
-                    <div className="text-sm text-blue-600">
-                      Доступно {slotsForDate.length} слотов в выбранный день
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Время:{" "}
-                      {slotsForDate
-                        .map((slot) => formatTime(slot.start))
-                        .join(", ")}
                     </div>
                   </div>
                 </div>
@@ -889,49 +967,6 @@ const BookingPage = ({ masterclassId }) => {
           </h2>
 
           {/* Participants Counter */}
-          {/* <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium text-gray-900">
-                Количество участников
-              </span>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setParticipants(Math.max(1, participants - 1))}
-                  className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-400 text-sm sm:text-base"
-                  disabled={participants <= 1}
-                >
-                  -
-                </button>
-                <span className="text-lg sm:text-xl font-bold text-orange-500">
-                  {participants}/{masterclass.participant_limit}
-                </span>
-                <button
-                  onClick={() =>
-                    setParticipants(
-                      Math.min(
-                        selectedTime
-                          ? selectedTime.free_places
-                          : masterclass.participant_limit,
-                        participants + 1
-                      )
-                    )
-                  }
-                  className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 text-sm sm:text-base"
-                  disabled={
-                    participants >=
-                    (selectedTime?.free_places || masterclass.participant_limit)
-                  }
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            {selectedTime && (
-              <p className="text-xs text-gray-600">
-                Доступно мест в выбранное время: {selectedTime.free_places}
-              </p>
-            )}
-          </div> */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="font-medium text-gray-900">
