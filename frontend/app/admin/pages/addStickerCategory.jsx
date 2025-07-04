@@ -336,7 +336,7 @@
 // admin/add-category/page.jsx
 "use client";
 import React, { useState } from "react"; // Adjust path as needed
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 // Add Category Page
 const AddStickerCategory = () => {

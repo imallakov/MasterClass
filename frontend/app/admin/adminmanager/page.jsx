@@ -970,8 +970,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import AdminRoute from "@/app/components/AdminRoute";
-import { useAuth } from "@/app/context/AuthContext";
+import AdminRoute from "/app/components/AdminRoute";
 import AddMasterClassPage from "../pages/addMasterClass";
 import EditMasterClassPage from "../pages/editMasterClass";
 import DeleteMasterClassPage from "../pages/deleteMasterClass";
@@ -986,6 +985,7 @@ import { AddGalleryPage, DeleteGalleryPage } from "../pages/galleryManagement";
 import EnrollmentManagementPage from "../pages/enrollmentManagement";
 import ContactsPage from "../pages/contactsManagement";
 import AboutPage from "../pages/aboutManager";
+import { useAuth } from "../../context/AuthContext";
 
 // 2. ADD BREADCRUMB COMPONENT - Add this component before your existing ContentContainer
 const Breadcrumb = ({ currentPage, onMobileMenuToggle }) => {

@@ -23,9 +23,9 @@ import {
   ChevronRight,
   MoreVertical,
 } from "lucide-react";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
-import AdminRoute from "@/app/components/AdminRoute";
+import AdminRoute from "../../components/AdminRoute";
 
 const Breadcrumb = ({ currentPage }) => {
   const router = useRouter(); // Add this to use navigation
